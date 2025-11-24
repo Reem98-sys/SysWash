@@ -1,19 +1,23 @@
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:syswash/bloc/bloc/customerlist_bloc.dart';
 
 Future<Map<String, String>?> showAddCustomerDialog(BuildContext context) {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController nameController = TextEditingController();
+  final TextEditingController areaController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
-  final TextEditingController emailController = TextEditingController();
+  final TextEditingController dateController = TextEditingController();
+  final TextEditingController noteController = TextEditingController();
+  final TextEditingController remarkController = TextEditingController();
   final dropDownKey = GlobalKey<DropdownSearchState>();
   return showDialog<Map<String, String>?>(
     context: context,
     builder: (BuildContext context) {
       return AlertDialog(
         backgroundColor: Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
 
         content: Form(
           key: _formKey,
@@ -53,77 +57,126 @@ Future<Map<String, String>?> showAddCustomerDialog(BuildContext context) {
                     ),
                   ),
                   SizedBox(height: 10.h),
-                  Container(
-                    width: 348.w,
-                    height: 50.h,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(8.r),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.06),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: DropdownSearch<String>(
-                      
-                      key: dropDownKey,
-                      
-                      items:
-                          (filter, infiniteScrollProps) => [
-                            "Arun",
-                            "Arjun",
-                            "James",
-                            "Jane",
-                            "Diya",
-                            "John",
-                            "Jack",
-                            "Ariyan",
-                          ],
-                      decoratorProps: DropDownDecoratorProps(
-                        decoration: InputDecoration(
-                          hintText: 'Search',
-                          border: InputBorder.none,
-                          contentPadding: EdgeInsets.only(left: 16, top: 12),
-                        ),
-                      ),
-                      
-                      popupProps: PopupProps.menu(
-                        showSearchBox: true,
-                        constraints: BoxConstraints(maxHeight: 420),
-
-                        menuProps: MenuProps(
-                          backgroundColor: Colors.white,
-                          margin : EdgeInsets.zero,
-                          
-                        ),
-                        searchFieldProps: TextFieldProps(
-                          decoration: InputDecoration(
-                            contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-                            hintText: "Search...",
-                            prefixIcon: Icon(Icons.search),
-                            border: OutlineInputBorder(),
-                            fillColor: Colors.white,
-                            filled: true
+                  BlocBuilder<CustomerlistBloc, CustomerlistState>(
+                    builder: (context, state) {
+                      if (state is CustomerListBlocLoading) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+                      if (state is CustomerListBlocError) {
+                        return Center(
+                          child: Text(
+                            'Failed to load Customer\n',
+                            style: TextStyle(
+                              color: Colors.red,
+                              fontSize: 14.sp,
+                            ),
                           ),
-                        ),
-                      ),
+                        );
+                      }
+                      if (state is CustomerListBlocLoaded) {
+                        final customerList =
+                            state.customerListModel?.data ?? [];
+                        return Container(
+                          width: 348.w,
+                          height: 50.h,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(8.r),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.06),
+                                blurRadius: 10,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: DropdownSearch<String>(
+                            key: dropDownKey,
+
+                            items: (filter, infiniteScrollProps) {
+                              // Get names from your customerList data
+                              final filtered =
+                                  customerList
+                                      .where(
+                                        (customer) =>
+                                            (customer.name
+                                                    ?.toLowerCase()
+                                                    .contains(
+                                                      filter?.toLowerCase() ??
+                                                          '',
+                                                    ) ??
+                                                false),
+                                      )
+                                      .map((customer) => customer.name ?? '')
+                                      .toList();
+
+                              return filtered;
+                            },
+                            
+                            decoratorProps: DropDownDecoratorProps(
+                              decoration: InputDecoration(
+                                hintText: 'Search',
+                                border: InputBorder.none,
+                                contentPadding: EdgeInsets.only(
+                                  left: 16,
+                                  top: 12,
+                                ),
+                              ),
+                            ),
+
+                            popupProps: PopupProps.menu(
+                              showSearchBox: true,
+                              constraints: BoxConstraints(maxHeight: 420),
+
+                              menuProps: MenuProps(
+                                backgroundColor: Colors.white,
+                                margin: EdgeInsets.zero,
+                              ),
+                              searchFieldProps: TextFieldProps(
+                                decoration: InputDecoration(
+                                  contentPadding: EdgeInsets.symmetric(
+                                    vertical: 8,
+                                    horizontal: 10,
+                                  ),
+                                  hintText: "Search...",
+                                  prefixIcon: Icon(Icons.search),
+                                  border: OutlineInputBorder(),
+                                  fillColor: Colors.white,
+                                  filled: true,
+                                ),
+                              ),
+                            ),
+                            onChanged: (selectedName) {
+                              final selectedCustomer = customerList.firstWhere(
+                                (customer) => customer.name == selectedName,
+                                
+                              );
+                              if(selectedCustomer != null) {
+                                //auto fill phone no. and area fields
+                                phoneController.text = selectedCustomer.mobile.toString() ?? '';
+                                areaController.text = selectedCustomer.area.toString() ?? '';
+                              }
+                            },
+                          ),
+                        );
+                      } else {
+                        return SizedBox();
+                      }
+                    },
+                  ),
+
+                  SizedBox(height: 20.h),
+                  Text(
+                    'Phone Number',
+                    style: TextStyle(
+                      color: const Color(0xFF150B3D),
+                      fontSize: 12.sp,
+                      fontFamily: 'DM Sans',
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
-                  SizedBox(height: 20.h),
-                   Text(
-            'Phone Number',
-            style: TextStyle(
-              color: const Color(0xFF150B3D),
-              fontSize: 12.sp,
-              fontFamily: 'DM Sans',
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          SizedBox(height: 10.h),
-Container(
+                  SizedBox(height: 10.h),
+                  Container(
                     width: 348.w,
                     height: 50.h,
                     padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -139,113 +192,133 @@ Container(
                       ],
                     ),
                     child: TextFormField(
-                    controller: phoneController,
-                    decoration: const InputDecoration(
-                      hintText: 'Phone number',
-                      border: InputBorder.none
+                      controller: phoneController,
+                      decoration: const InputDecoration(
+                        hintText: 'Phone number',
+                        border: InputBorder.none,
+                      ),
                     ),
-                    ),),
-                  
-                   
-                  
+                  ),
+
                   SizedBox(height: 20.h),
                   Row(
                     children: [
                       Container(
-          width: 140.w,
-          height: 66.h,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-            'Area',
-            style: TextStyle(
-              color: const Color(0xFF150B3D),
-              fontSize: 12.sp,
-              fontFamily: 'DM Sans',
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          SizedBox(height: 10.h,),
-          Container(
-                    width: 140.w,
-                    height: 40.h,
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(8.r),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.06),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
+                        width: 140.w,
+                        height: 66.h,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Area',
+                              style: TextStyle(
+                                color: const Color(0xFF150B3D),
+                                fontSize: 12.sp,
+                                fontFamily: 'DM Sans',
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                            SizedBox(height: 10.h),
+                            Container(
+                              width: 140.w,
+                              height: 40.h,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(8.r),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.06),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 4),
+                                  ),
+                                ],
+                              ),
+                              child: TextFormField(
+                                controller: areaController,
+                                decoration: const InputDecoration(
+                                  hintText: 'Place',
+                                  border: InputBorder.none,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                    child: TextFormField(
-                    controller: phoneController,
-                    decoration: const InputDecoration(
-                      hintText: 'Place',
-                      border: InputBorder.none
-                    ),
-                    ),),
-            ],
-          ),),
-          SizedBox(width: 10.w,),
-          Container(
-          width: 140.w,
-          height: 66.h,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-            'Date',
-            style: TextStyle(
-              color: const Color(0xFF150B3D),
-              fontSize: 12.sp,
-              fontFamily: 'DM Sans',
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          SizedBox(height: 10.h,),
-          Container(
-                    width: 140.w,
-                    height: 40.h,
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(8.r),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.06),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
+                      ),
+                      SizedBox(width: 10.w),
+                      Container(
+                        width: 140.w,
+                        height: 66.h,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Date',
+                              style: TextStyle(
+                                color: const Color(0xFF150B3D),
+                                fontSize: 12.sp,
+                                fontFamily: 'DM Sans',
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                            SizedBox(height: 10.h),
+                            Container(
+                              width: 140.w,
+                              height: 40.h,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(8.r),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.06),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 4),
+                                  ),
+                                ],
+                              ),
+                              child: TextFormField(
+                                controller: dateController,
+                                readOnly: true, // prevent manual typing
+                                decoration: const InputDecoration(
+                                  hintText: 'Date',
+                                  border: InputBorder.none,
+                                ),
+                                onTap: ()  async {
+                                  FocusScope.of(context).requestFocus(FocusNode()); // close keyboard
+                                  final DateTime? pickedDate = await showDatePicker(
+                                    context: context, 
+                                    initialDate: DateTime.now(), 
+                                    firstDate: DateTime.now(),
+                                    lastDate: DateTime(2200));
+                                    if (pickedDate != null) {
+                                      final formattedDate = "${pickedDate.day.toString().padLeft(2,'0')}-${pickedDate.month.toString().padLeft(2,'0')}-${pickedDate.year.toString().padRight(2,'0')}";
+                                      dateController.text = formattedDate;
+                                    }
+                                },
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                    child: TextFormField(
-                    controller: phoneController,
-                    decoration: const InputDecoration(
-                      hintText: 'Date',
-                      border: InputBorder.none
-                    ),
-                    ),),
-            ],
-          ),),
+                      ),
                     ],
                   ),
-                   SizedBox(height: 20.h),
-                   Text(
-            'Notes',
-            style: TextStyle(
-              color: const Color(0xFF150B3D),
-              fontSize: 12.sp,
-              fontFamily: 'DM Sans',
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          SizedBox(height: 10.h),
-Container(
+                  SizedBox(height: 20.h),
+                  Text(
+                    'Notes',
+                    style: TextStyle(
+                      color: const Color(0xFF150B3D),
+                      fontSize: 12.sp,
+                      fontFamily: 'DM Sans',
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  SizedBox(height: 10.h),
+                  Container(
                     width: 348.w,
                     height: 100.h,
                     padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -261,31 +334,29 @@ Container(
                       ],
                     ),
                     child: TextFormField(
-                      
-                    controller: phoneController,
-                    
-                    
-                    decoration: const InputDecoration(
-                      hintText: 'Write Notes here',
-                      border: InputBorder.none,
-                      
+                      controller: noteController,
+
+                      decoration: const InputDecoration(
+                        hintText: 'Write Notes here',
+                        border: InputBorder.none,
+                      ),
+                      minLines: 4,
+                      maxLines: 6,
+                      keyboardType: TextInputType.multiline,
                     ),
-                    minLines: 4,
-    maxLines: 6,
-    keyboardType: TextInputType.multiline,
-                    ),),
-                   SizedBox(height: 20.h),
-                   Text(
-            'Remark',
-            style: TextStyle(
-              color: const Color(0xFF150B3D),
-              fontSize: 12.sp,
-              fontFamily: 'DM Sans',
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          SizedBox(height: 10.h),
-Container(
+                  ),
+                  SizedBox(height: 20.h),
+                  Text(
+                    'Remark',
+                    style: TextStyle(
+                      color: const Color(0xFF150B3D),
+                      fontSize: 12.sp,
+                      fontFamily: 'DM Sans',
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  SizedBox(height: 10.h),
+                  Container(
                     width: 348.w,
                     height: 100.h,
                     padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -301,69 +372,70 @@ Container(
                       ],
                     ),
                     child: TextFormField(
-                      
-                    controller: phoneController,
-                    
-                    
-                    decoration: const InputDecoration(
-                      hintText: 'Write Remark here',
-                      border: InputBorder.none,
-                      
+                      controller: remarkController,
+
+                      decoration: const InputDecoration(
+                        hintText: 'Write Remark here',
+                        border: InputBorder.none,
+                      ),
+                      minLines: 4,
+                      maxLines: 6,
+                      keyboardType: TextInputType.multiline,
                     ),
-                    minLines: 4,
-    maxLines: 6,
-    keyboardType: TextInputType.multiline,
-                    ),),
+                  ),
                 ],
               ),
             ),
           ),
         ),
         actions: [
-          
           Row(
             children: [
               GestureDetector(
                 onTap: () => Navigator.pop(context),
                 child: Container(
-                        width: 140.w,
-                        height: 50.h,
-                        decoration: ShapeDecoration(
-                          color: const Color(0xFFFED8CD),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6.r)),
-                        ),
-                        child: Center(
-                          child: Text(
-                          'CLEAR',
-                          style: TextStyle(
-                            color: Colors.black.withValues(alpha: 0.54),
-                            fontSize: 14.sp,
-                            fontFamily: 'DM Sans',
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: 0.84,
-                          ),
-                                              ),
-                        ),
-                      ),
-              ),
-                    SizedBox(width: 12.w,),
-                    Container(
                   width: 140.w,
                   height: 50.h,
                   decoration: ShapeDecoration(
-                    color: const Color(0xFF68188B),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
-                    shadows: [
-                      BoxShadow(
-                        color: Color(0x2D99AAC5),
-                        blurRadius: 62,
-                        offset: Offset(0, 4),
-                        spreadRadius: 0,
-                      )
-                    ],
+                    color: const Color(0xFFFED8CD),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(6.r),
+                    ),
                   ),
                   child: Center(
                     child: Text(
+                      'CLEAR',
+                      style: TextStyle(
+                        color: Colors.black.withValues(alpha: 0.54),
+                        fontSize: 14.sp,
+                        fontFamily: 'DM Sans',
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.84,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(width: 12.w),
+              Container(
+                width: 140.w,
+                height: 50.h,
+                decoration: ShapeDecoration(
+                  color: const Color(0xFF68188B),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  shadows: [
+                    BoxShadow(
+                      color: Color(0x2D99AAC5),
+                      blurRadius: 62,
+                      offset: Offset(0, 4),
+                      spreadRadius: 0,
+                    ),
+                  ],
+                ),
+                child: Center(
+                  child: Text(
                     'SAVE',
                     style: TextStyle(
                       color: Colors.white,
@@ -372,12 +444,11 @@ Container(
                       fontWeight: FontWeight.w700,
                       letterSpacing: 0.84,
                     ),
-                                    ),
                   ),
                 ),
+              ),
             ],
           ),
-                
         ],
       );
     },

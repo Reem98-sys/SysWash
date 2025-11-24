@@ -1,16 +1,16 @@
 
 class TotalOrderModel {
-    String? totalOrders;
-    String? message;
+    List<dynamic>? pickup;
+    List<dynamic>? delivery;
 
-    TotalOrderModel({this.totalOrders, this.message});
+    TotalOrderModel({this.pickup, this.delivery});
 
     TotalOrderModel.fromJson(Map<String, dynamic> json) {
-        if(json["total_orders"] is String) {
-            totalOrders = json["total_orders"];
+        if(json["pickup"] is List) {
+            pickup = json["pickup"] ?? [];
         }
-        if(json["message"] is String) {
-            message = json["message"];
+        if(json["delivery"] is List) {
+            delivery = json["delivery"] ?? [];
         }
     }
 
@@ -20,16 +20,20 @@ class TotalOrderModel {
 
     Map<String, dynamic> toJson() {
         final Map<String, dynamic> _data = <String, dynamic>{};
-        _data["total_orders"] = totalOrders;
-        _data["message"] = message;
+        if(pickup != null) {
+            _data["pickup"] = pickup;
+        }
+        if(delivery != null) {
+            _data["delivery"] = delivery;
+        }
         return _data;
     }
 
     TotalOrderModel copyWith({
-        String? totalOrders,
-        String? message,
+        List<dynamic>? pickup,
+        List<dynamic>? delivery,
     }) => TotalOrderModel(
-        totalOrders: totalOrders ?? this.totalOrders,
-        message: message ?? this.message,
+        pickup: pickup ?? this.pickup,
+        delivery: delivery ?? this.delivery,
     );
 }

@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:syswash/bloc/bloc/customerlist_bloc.dart';
 import 'package:syswash/bloc/bloc/home_bloc.dart';
 import 'package:syswash/bloc/bloc/login_bloc.dart';
 import 'package:syswash/bloc/bloc/pickuplist_bloc.dart';
+import 'package:syswash/screens/add_customer_dialog.dart';
 import 'package:syswash/screens/login.dart';
 
 void main() {
@@ -12,7 +14,8 @@ void main() {
     providers: [
       BlocProvider(create: (context) => LoginBloc()),
       BlocProvider(create: (context) => HomeBloc()),
-      BlocProvider(create: (context) => PickuplistBloc())
+      BlocProvider(create: (context) => PickuplistBloc()),
+      BlocProvider(create: (context) => CustomerlistBloc()),
     ], 
     child:
      const MyApp()));

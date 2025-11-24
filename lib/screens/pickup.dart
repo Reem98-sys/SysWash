@@ -3,8 +3,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:syswash/bloc/bloc/customerlist_bloc.dart';
 import 'package:syswash/bloc/bloc/pickuplist_bloc.dart';
 import 'package:syswash/screens/add_customer_dialog.dart';
+import 'package:syswash/screens/pickupDetails.dart';
 
 class Pickup extends StatefulWidget {
   const Pickup({super.key});
@@ -16,24 +18,15 @@ class Pickup extends StatefulWidget {
 class _PickupState extends State<Pickup> {
   TextEditingController searchData = TextEditingController();
   String? userName;
+  String? token;
   final List<Map<String, String>> _customers = [];
-  List<Map<String,dynamic>> data = [
-    {'name':'Mansoor','phoneno':464564455,'place':'Wakra Meshaf','date':'08-07-2024(17:01:12)'},
-    {'name':'Thaj','phoneno':464564455,'place':'Wakra Meshaf','date':'08-07-2024(17:01:12)'},
-    {'name':'Fasal','phoneno':400004455,'place':'Wakra Meshaf','date':'08-07-2024(17:01:12)'},
-    {'name':'Faris Rahman','phoneno':464561111,'place':'Wakras Meshaf','date':'08-07-2024(17:01:12)'},
-    {'name':'Ijas Ahmmed','phoneno':464564455,'place':'Wakra Meshaf','date':'09-07-2024(17:01:12)'},
-    {'name':'Mansoor','phoneno':464564455,'place':'Wakra Meshaf','date':'08-07-2024(17:01:12)'},
-    {'name':'Thaj','phoneno':464564455,'place':'Wakra Meshaf','date':'08-07-2024(17:01:12)'},
-    {'name':'Fasal','phoneno':400004455,'place':'Wakra Meshaf','date':'08-07-2024(17:01:12)'},
-    {'name':'Faris Rahman','phoneno':464561111,'place':'Wakras Meshaf','date':'08-07-2024(17:01:12)'},
-    {'name':'Ijas Ahmmed','phoneno':464564455,'place':'Wakra Meshaf','date':'09-07-2024(17:01:12)'},
-  ];
   Future<void> getUserData() async {
   const storage = FlutterSecureStorage();
   final name = await storage.read(key: 'user_name');
+  final tokenAccess = await storage.read(key: 'access_Token');
   setState(() {
     userName = name;
+    token = tokenAccess;
   });
 }
 @override
@@ -42,7 +35,7 @@ class _PickupState extends State<Pickup> {
     // Call it when screen loads
     getUserData();
   }
-Future<void> _openAddCustomerDialog() async {
+Future<void> _openAddCustomerDialog(BuildContext context) async {
     final newCustomer = await showAddCustomerDialog(context);
 
     if (newCustomer != null) {
@@ -156,70 +149,75 @@ BlocBuilder<PickuplistBloc,PickuplistState>(
               itemBuilder: (context, index) {
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 8.0),
-                  child: Container(
-                            width: 364.w,
-                    height: 90.h,
-                            decoration: ShapeDecoration(
-                              color: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10.r),
-                      ),),
-                      child: Padding(
-                        padding: const EdgeInsets.all(12.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                                            pickupOrders[index].pickupCustomerName.toString(),
-                                            style: TextStyle(
-                        color: const Color(0xFF150B3D),
-                        fontSize: 16.sp,
-                        fontFamily: 'DM Sans',
-                        fontWeight: FontWeight.w700,
-                                            ),
-                                          ),
-                                           Text(
-                        pickupOrders[index].pickupCustomerPhno.toString(),
-                        style: TextStyle(
-                          color: const Color(0xFF514A6B),
-                          fontSize: 14.sp,
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => Pickupdetails(pickUpId: pickupOrders[index].pickupassgnId.toString(),),));
+                    },
+                    child: Container(
+                              width: 364.w,
+                      height: 90.h,
+                              decoration: ShapeDecoration(
+                                color: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.r),
+                        ),),
+                        child: Padding(
+                          padding: const EdgeInsets.all(12.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                              pickupOrders[index].pickupCustomerName.toString(),
+                                              style: TextStyle(
+                          color: const Color(0xFF150B3D),
+                          fontSize: 16.sp,
                           fontFamily: 'DM Sans',
+                          fontWeight: FontWeight.w700,
+                                              ),
+                                            ),
+                                             Text(
+                          pickupOrders[index].pickupCustomerPhno.toString(),
+                          style: TextStyle(
+                            color: const Color(0xFF514A6B),
+                            fontSize: 14.sp,
+                            fontFamily: 'DM Sans',
+                            fontWeight: FontWeight.w400,
+                          ),
+                                              ),
+                                              SizedBox(height: 3.h,),
+                                              Row(
+                          children: [
+                            Icon(Icons.location_on,size: 18.sp,color: Colors.grey,),
+                            Text(
+                                              pickupOrders[index].pickupCustomerArea.toString(),
+                                              style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 11.sp,
+                          fontFamily: 'Poppins',
                           fontWeight: FontWeight.w400,
-                        ),
+                          height: 1.17,
+                          letterSpacing: 0.20,
+                                              ),
                                             ),
-                                            SizedBox(height: 3.h,),
-                                            Row(
-                        children: [
-                          Icon(Icons.location_on,size: 18.sp,color: Colors.grey,),
-                          Text(
-                                            pickupOrders[index].pickupCustomerArea.toString(),
-                                            style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 11.sp,
-                        fontFamily: 'Poppins',
-                        fontWeight: FontWeight.w400,
-                        height: 1.17,
-                        letterSpacing: 0.20,
+                                            SizedBox(width: 10.w,),
+                                            Icon(Icons.access_time,size: 18.sp,color: Colors.grey),
+                                            Text(
+                                              pickupOrders[index].pickupDate.toString(),
+                                              style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 11.sp,
+                          fontFamily: 'Roboto',
+                          fontWeight: FontWeight.w400,
+                          height: 1.56,
+                          letterSpacing: 0.70,
+                                              ),
                                             ),
-                                          ),
-                                          SizedBox(width: 10.w,),
-                                          Icon(Icons.access_time,size: 18.sp,color: Colors.grey),
-                                          Text(
-                                            pickupOrders[index].pickupDate.toString(),
-                                            style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 11.sp,
-                        fontFamily: 'Roboto',
-                        fontWeight: FontWeight.w400,
-                        height: 1.56,
-                        letterSpacing: 0.70,
-                                            ),
-                                          ),
-                        ],
-                                            )
                           ],
-                        ),
-                      ),),
+                                              )
+                            ],
+                          ),
+                        ),),
+                  ),
                 );
               },);
     }
@@ -235,7 +233,11 @@ BlocBuilder<PickuplistBloc,PickuplistState>(
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _openAddCustomerDialog,
+        onPressed: () {
+          context.read<CustomerlistBloc>().add(FetchCustomerListEvent(token: token ?? ''));
+          _openAddCustomerDialog(context);
+        }
+        ,
         
         backgroundColor: const Color(0xFF68188B),
         child: Icon(Icons.add,color: Colors.white,),),

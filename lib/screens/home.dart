@@ -11,6 +11,7 @@ import 'package:syswash/helper/date_helper.dart';
 import 'package:syswash/model/deliveryListModel.dart';
 import 'package:syswash/model/pickupListModel.dart';
 import 'package:syswash/model/totalOrder.dart';
+import 'package:syswash/screens/pickup.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -91,7 +92,7 @@ class _HomeState extends State<Home> {
         child: CustomScrollView(
           physics: const BouncingScrollPhysics(),
           slivers: [
-            // 🔹 Header Section
+            // a Header Section
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(20, 20, 20, 10),
@@ -114,7 +115,7 @@ class _HomeState extends State<Home> {
 
                     SizedBox(height: 22.h),
 
-                    // 🔹 Order Summary Row
+                    //  Order Summary Row
                     Row(
                       children: [
                         BlocBuilder<HomeBloc, HomeState>(
@@ -170,7 +171,9 @@ class _HomeState extends State<Home> {
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Text(
-                                      '0',
+                                      (totalOrderModel.delivery!.length +
+                                              totalOrderModel.pickup!.length)
+                                          .toString(),
                                       style: TextStyle(
                                         color: Colors.white,
                                         fontSize: 26.sp,
@@ -216,9 +219,18 @@ class _HomeState extends State<Home> {
                         SizedBox(width: 35.w),
                         Column(
                           children: [
-                            _orderButton(
-                              'PICKUP ORDER',
-                              const Color(0xFF5F02E7),
+                            GestureDetector(
+                              onTap:
+                                  () => Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => Pickup(),
+                                    ),
+                                  ),
+                              child: _orderButton(
+                                'PICKUP ORDER',
+                                const Color(0xFF5F02E7),
+                              ),
                             ),
                             SizedBox(height: 14.h),
                             _orderButton(
@@ -232,7 +244,7 @@ class _HomeState extends State<Home> {
 
                     SizedBox(height: 25.h),
 
-                    // 🔹 Latest Orders Header + Filter Chips
+                    //  Latest Orders Header + Filter Chips
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -381,7 +393,6 @@ class _HomeState extends State<Home> {
                                               ? 'assets/pickUp.svg'
                                               : 'assets/delivery.svg',
                                         ),
-                                    
                                       ),
                                     ),
                                     SizedBox(width: 12.w),
@@ -481,134 +492,13 @@ class _HomeState extends State<Home> {
                 ),
               ),
             ),
-
-            // 🔹 Orders List (SliverList)
-            // SliverPadding(
-            //   padding: const EdgeInsets.fromLTRB(15, 0, 15, 0), // bottom padding added ✅
-            //   sliver: SliverList(
-            //     delegate: SliverChildBuilderDelegate(
-            //       (context, index) {
-            //         final order = filteredOrders[index];
-            //         final isPickup = order['type'] == 'Pickup';
-
-            //         return Column(
-            //           children: [
-            //             Padding(
-            //               padding: const EdgeInsets.only(bottom: 8.0),
-            //               child: Material(
-            //                 color: const Color(0xFFF8F8F8),
-            //                 borderRadius: BorderRadius.circular(8.r),
-            //                 child: Container(
-            //                   height: 60.h,
-            //                   padding: EdgeInsets.symmetric(horizontal: 10.w),
-            //                   child: Row(
-            //                     children: [
-            //                       // Left Icon
-            //                       Container(
-            //                         width: 38.w,
-            //                         height: 38.h,
-            //                         decoration: BoxDecoration(
-            //                           color: const Color(0xFF5D5FEF),
-            //                           borderRadius: BorderRadius.circular(8.r),
-            //                         ),
-            //                         child: Center(
-            //                           child: Image.asset(
-            //                             isPickup
-            //                                 ? 'assets/pickupIcon.png'
-            //                                 : 'assets/deliveryIcon.png',
-            //                             height: 22.h,
-            //                           ),
-            //                         ),
-            //                       ),
-            //                       SizedBox(width: 12.w),
-
-            //                       // Middle section
-            //                       Expanded(
-            //                         child: Padding(
-            //                           padding: const EdgeInsets.only(top: 5.0),
-            //                           child: Column(
-            //                             crossAxisAlignment: CrossAxisAlignment.start,
-            //                             children: [
-            //                               Text(
-            //                                 order['name']!,
-            //                                 style: TextStyle(
-            //                                   color: Colors.black,
-            //                                   fontSize: 17.sp,
-            //                                   fontFamily: 'Poppins',
-            //                                   fontWeight: FontWeight.w500,
-            //                                 ),
-            //                               ),
-            //                               SizedBox(height: 5.h),
-            //                               Container(
-            //                                 decoration: BoxDecoration(
-            //                                   color: isPickup
-            //                                       ? const Color(0xFFF38305)
-            //                                       : const Color(0xFF27AE60),
-            //                                   borderRadius: BorderRadius.circular(4),
-            //                                 ),
-            //                                 padding: EdgeInsets.symmetric(
-            //                                     horizontal: 8.w, vertical: 2.h),
-            //                                 child: Text(
-            //                                   order['type']!,
-            //                                   style: TextStyle(
-            //                                     color: Colors.white,
-            //                                     fontSize: 10.sp,
-            //                                     fontFamily: 'Poppins',
-            //                                     fontWeight: FontWeight.w500,
-            //                                   ),
-            //                                 ),
-            //                               ),
-            //                             ],
-            //                           ),
-            //                         ),
-            //                       ),
-
-            //                       // Right section
-            //                       Padding(
-            //                         padding: const EdgeInsets.only(top: 10, right: 8),
-            //                         child: Column(
-            //                           crossAxisAlignment: CrossAxisAlignment.end,
-            //                           children: [
-            //                             Text(
-            //                               order['location']!,
-            //                               style: TextStyle(
-            //                                 fontSize: 14.sp,
-            //                                 fontFamily: 'Poppins',
-            //                                 fontWeight: FontWeight.w500,
-            //                               ),
-            //                             ),
-            //                             SizedBox(height: 4.h),
-            //                             Text(
-            //                               order['date']!,
-            //                               style: TextStyle(
-            //                                 color: const Color(0xFFFF0000),
-            //                                 fontSize: 12.sp,
-            //                                 fontFamily: 'Poppins',
-            //                                 fontWeight: FontWeight.w500,
-            //                               ),
-            //                             ),
-            //                           ],
-            //                         ),
-            //                       ),
-            //                     ],
-            //                   ),
-            //                 ),
-            //               ),
-            //             ),
-            //           ],
-            //         );
-            //       },
-            //       childCount: filteredOrders.length,
-            //     ),
-            //   ),
-            // ),
           ],
         ),
       ),
     );
   }
 
-  // 🔹 Small reusable button widget
+  //  Small reusable button widget
   Widget _orderButton(String text, Color color) {
     return Container(
       width: 173.w,
