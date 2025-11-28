@@ -4,5 +4,6 @@ part of 'customerlist_bloc.dart';
 sealed class CustomerlistEvent {}
 class FetchCustomerListEvent extends CustomerlistEvent {
   final String token;
-  FetchCustomerListEvent({required this.token});
+  final String companyCode;
+  FetchCustomerListEvent({required this.token,required this.companyCode});
 }

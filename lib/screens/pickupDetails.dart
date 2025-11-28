@@ -1,13 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:syswash/bloc/bloc/pickupcustdetails_bloc.dart';
-import 'package:syswash/model/pickupCustomerDetailsModel.dart';
-import 'package:syswash/screens/bottomnav.dart';
+import 'package:syswash/bloc/bloc/servicedetails_bloc.dart';
+import 'package:syswash/screens/add_item_dialog.dart';
 
 class Pickupdetails extends StatefulWidget {
-  final String pickUpId;
-  const Pickupdetails({super.key, required this.pickUpId});
+  final String customerId;
+  final dynamic pickupOrderId;
+  const Pickupdetails({
+    super.key,
+    required this.customerId,
+    required this.pickupOrderId,
+  });
 
   @override
   State<Pickupdetails> createState() => _PickupdetailsState();
@@ -15,7 +21,68 @@ class Pickupdetails extends StatefulWidget {
 
 class _PickupdetailsState extends State<Pickupdetails> {
   bool showDetails = false;
-  late PickUpCustomerDetailsModel pickUpCustomerDetailsModel;
+  // late CustomerDetailsModel customerDetailsModel;
+  String? companyCode;
+  String? token;
+  List<Map<String, dynamic>> _orderItemsList = [];
+  int? totalItem;
+  int? totalquantity;
+
+  final storage = const FlutterSecureStorage();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserAndFetchData(); // run async function
+  }
+
+  Future<void> _loadUserAndFetchData() async {
+    final companyCode = await storage.read(key: 'company_Code');
+    final token = await storage.read(key: 'access_Token');
+    if (companyCode != null && token != null) {
+      context.read<PickupcustdetailsBloc>().add(
+        FetchFullPickupDetailsEvent(
+          customerId: widget.customerId,
+          pickupOrderId: widget.pickupOrderId,
+          token: token,
+          companyCode: companyCode,
+        ),
+      );
+    } else {
+      debugPrint('Missing token or companyCode in storage');
+    }
+  }
+
+  Future<void> _openAddItemDialog(BuildContext context) async {
+    final companyCode = await storage.read(key: 'company_Code');
+    final token = await storage.read(key: 'access_Token');
+    if (companyCode != null && token != null) {
+      context.read<ServicedetailsBloc>().add(
+        FetchServiceDetailsEvent(
+          token: token ?? '',
+          companyCode: companyCode ?? '',
+        ),
+      );
+
+      final newItem = await showAddItemDialog(context, token, companyCode);
+
+      // 👇 If user pressed Save and returned data
+      if (newItem != null) {
+        setState(() {
+          _orderItemsList.add(newItem);
+          totalItem = _orderItemsList.length;
+          totalquantity = _orderItemsList.fold<int>(
+            0,
+            (sum, item) =>
+                sum + (int.tryParse(item["quantity"].toString()) ?? 0),
+          );
+        });
+      }
+    } else {
+      debugPrint('Missing token or companyCode in storage');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -38,120 +105,90 @@ class _PickupdetailsState extends State<Pickupdetails> {
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(15.0),
-          child: Column(
-            children: [
-              BlocBuilder<PickupcustdetailsBloc,PickupcustdetailsState>(
-                builder:(context, state) {
-                  if (state is PickupCustDetailsLoading) {
-                    showDialog(
-                      context: context, 
-                      builder: (BuildContext context) {
-                        return Center(
-                          child: CircularProgressIndicator(),
-                        );
-                      },);
-                  }
-                  if (state is PickupCustDetailsError) {
-                    Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Failed to load data'),
-                        backgroundColor: Colors.red,)
-                    );
-                  }
-                  if (state is PickupCustDetailsLoaded) {
-                    pickUpCustomerDetailsModel = BlocProvider.of<PickupcustdetailsBloc>(context).pickUpCustomerDetailsModel;
-                    return Column(
-                      children: [
-Container(
-                width: 384.w,
+          child: BlocConsumer<PickupcustdetailsBloc, PickupcustdetailsState>(
+            listener: (context, state) {
+              if (state is PickupCustDetailsError) {
+                Navigator.pop(context);
+                print('❌ Bloc Error: ${state.message}');
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(SnackBar(content: Text('Failed to load data')));
+              }
+            },
+            builder: (context, state) {
+              if (state is PickupCustDetailsLoading) {
+                return const Center(child: CircularProgressIndicator());
+              }
 
-                decoration: ShapeDecoration(
-                  color: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10.r),
-                  ),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Nishitha Sherin  [JL0019]',
-                        style: TextStyle(
-                          color: const Color(0xFF0A0A0A),
-                          fontSize: 16.sp,
-                          fontFamily: 'DM Sans',
-                          fontWeight: FontWeight.w700,
+              if (state is PickupCustDetailsLoaded) {
+                final customerDetailsModel = state.customerDetailsModel;
+                final pickupOrderItems = state.pickupOrderItemsModel;
+                // Initialize _orderItemsList only once to avoid duplicates
+                if (widget.pickupOrderId != null &&
+                    widget.pickupOrderId.toString().isNotEmpty &&
+                    widget.pickupOrderId.toString().toLowerCase() != "null") {
+                  totalItem = pickupOrderItems.clothData?.length;
+                  totalquantity = pickupOrderItems.quantity;
+                }
+
+                if (_orderItemsList.isEmpty &&
+                    pickupOrderItems.clothData != null) {
+                  _orderItemsList =
+                      pickupOrderItems.clothData!.map((cloth) {
+                        return {
+                          "arabicName": cloth.arabicName,
+                          "billing": cloth.billing,
+                          "clothImg": cloth.clothImg,
+                          "clothName": cloth.clothName,
+                          "clothPrice": cloth.clothPrice,
+                          "priceId": cloth.clothPrice,
+                          "qnty": cloth.qnty,
+                          "service": cloth.service,
+                          "unit": cloth.unit,
+                        };
+                      }).toList();
+                }
+
+                return Column(
+                  children: [
+                    Container(
+                      width: 384.w,
+
+                      decoration: ShapeDecoration(
+                        color: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.r),
                         ),
                       ),
-                      Row(
-                        children: [
-                          Text(
-                            'Discount: ',
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 12.sp,
-                              fontFamily: 'Poppins',
-                              fontWeight: FontWeight.w400,
-                              height: 1.17,
-                              letterSpacing: 0.20,
+                      child: Padding(
+                        padding: const EdgeInsets.all(12.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '${customerDetailsModel.name} [${customerDetailsModel.cusCode}]',
+                              style: TextStyle(
+                                color: const Color(0xFF0A0A0A),
+                                fontSize: 16.sp,
+                                fontFamily: 'DM Sans',
+                                fontWeight: FontWeight.w700,
+                              ),
                             ),
-                          ),
-                          Text(
-                            '0.5 %',
-                            style: TextStyle(
-                              color: const Color(0xFF68188B),
-                              fontSize: 12.sp,
-                              fontFamily: 'Poppins',
-                              fontWeight: FontWeight.w600,
-                              height: 1.17,
-                              letterSpacing: 0.20,
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 5.h),
-                      Row(
-                        children: [
-                          Icon(Icons.phone_in_talk, size: 18.sp),
-                          Text(
-                            '46456455',
-                            style: TextStyle(
-                              color: const Color(0xFF0A0A0A),
-                              fontSize: 14.sp,
-                              fontFamily: 'DM Sans',
-                              fontWeight: FontWeight.w400,
-                            ),
-                          ),
-                          SizedBox(width: 10.w),
-                          Icon(Icons.location_on_sharp, size: 18.sp),
-                          Text(
-                            'Wakra Meshaf',
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 12.sp,
-                              fontFamily: 'Poppins',
-                              fontWeight: FontWeight.w400,
-                              height: 1.17,
-                              letterSpacing: 0.20,
-                            ),
-                          ),
-                          Spacer(),
-                          GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                showDetails = !showDetails;
-                              });
-                            },
-                            child: Row(
+                            Row(
                               children: [
                                 Text(
-                                  showDetails
-                                      ? 'View Details'
-                                      : 'Close Details',
-                                  textAlign: TextAlign.center,
+                                  'Discount: ',
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 12.sp,
+                                    fontFamily: 'Poppins',
+                                    fontWeight: FontWeight.w400,
+                                    height: 1.17,
+                                    letterSpacing: 0.20,
+                                  ),
+                                ),
+                                Text(
+                                  customerDetailsModel.discount.toString(),
                                   style: TextStyle(
                                     color: const Color(0xFF68188B),
                                     fontSize: 12.sp,
@@ -161,367 +198,434 @@ Container(
                                     letterSpacing: 0.20,
                                   ),
                                 ),
-                                Icon(
-                                  showDetails
-                                      ? Icons.keyboard_arrow_down_sharp
-                                      : Icons.keyboard_arrow_up_sharp,
-                                  color: const Color(0xFF68188B),
-                                  size: 22.sp,
+                              ],
+                            ),
+                            SizedBox(height: 5.h),
+                            Row(
+                              children: [
+                                Icon(Icons.phone_in_talk, size: 18.sp),
+                                Text(
+                                  customerDetailsModel.mobile.toString(),
+                                  style: TextStyle(
+                                    color: const Color(0xFF0A0A0A),
+                                    fontSize: 14.sp,
+                                    fontFamily: 'DM Sans',
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                ),
+                                SizedBox(width: 10.w),
+                                Icon(Icons.location_on_sharp, size: 18.sp),
+                                Text(
+                                  customerDetailsModel.area.toString(),
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 12.sp,
+                                    fontFamily: 'Poppins',
+                                    fontWeight: FontWeight.w400,
+                                    height: 1.17,
+                                    letterSpacing: 0.20,
+                                  ),
+                                ),
+                                Spacer(),
+                                GestureDetector(
+                                  onTap: () {
+                                    setState(() {
+                                      showDetails = !showDetails;
+                                    });
+                                  },
+                                  child: Row(
+                                    children: [
+                                      Text(
+                                        showDetails
+                                            ? 'Close Details'
+                                            : 'View Details',
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                          color: const Color(0xFF68188B),
+                                          fontSize: 12.sp,
+                                          fontFamily: 'Poppins',
+                                          fontWeight: FontWeight.w600,
+                                          height: 1.17,
+                                          letterSpacing: 0.20,
+                                        ),
+                                      ),
+                                      Icon(
+                                        showDetails
+                                            ? Icons.keyboard_arrow_up_sharp
+                                            : Icons.keyboard_arrow_down_sharp,
+                                        color: const Color(0xFF68188B),
+                                        size: 22.sp,
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ],
                             ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 8.h),
+                    // Expandable details container
+                    AnimatedCrossFade(
+                      firstChild: const SizedBox.shrink(),
+                      secondChild: Container(
+                        width: 384.w,
+                        decoration: ShapeDecoration(
+                          color: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10.r),
                           ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              SizedBox(height: 8.h),
-              // Expandable details container
-              AnimatedCrossFade(
-                firstChild: const SizedBox.shrink(),
-                secondChild: Container(
-                  width: 384.w,
-                  decoration: ShapeDecoration(
-                    color: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10.r),
-                    ),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(15.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Area',
-                              style: TextStyle(
-                                color: const Color(0xFFA9A5B8),
-                                fontSize: 14.sp,
-                                fontFamily: 'DM Sans',
-                                fontWeight: FontWeight.w500,
-                                height: 1.17,
-                              ),
-                            ),
-                            Text(
-                              'WAKRA',
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontSize: 12.sp,
-                                fontFamily: 'DM Sans',
-                                fontWeight: FontWeight.w500,
-                                height: 1.17,
-                              ),
-                            ),
-                            SizedBox(height: 17.h),
-                            Text(
-                              'House no',
-                              style: TextStyle(
-                                color: const Color(0xFFA9A5B8),
-                                fontSize: 14.sp,
-                                fontFamily: 'DM Sans',
-                                fontWeight: FontWeight.w500,
-                                height: 1.17,
-                              ),
-                            ),
-                            Text(
-                              'V 44',
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontSize: 12.sp,
-                                fontFamily: 'DM Sans',
-                                fontWeight: FontWeight.w500,
-                                height: 1.17,
-                              ),
-                            ),
-                            SizedBox(height: 17.h),
-                            Text(
-                              'Note',
-                              style: TextStyle(
-                                color: const Color(0xFFA9A5B8),
-                                fontSize: 14.sp,
-                                fontFamily: 'DM Sans',
-                                fontWeight: FontWeight.w500,
-                                height: 1.17,
-                              ),
-                            ),
-                            Text(
-                              '--',
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontSize: 12.sp,
-                                fontFamily: 'DM Sans',
-                                fontWeight: FontWeight.w500,
-                                height: 1.17,
-                              ),
-                            ),
-                          ],
                         ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Hotel',
-                              style: TextStyle(
-                                color: const Color(0xFFA9A5B8),
-                                fontSize: 14.sp,
-                                fontFamily: 'DM Sans',
-                                fontWeight: FontWeight.w500,
-                                height: 1.17,
-                              ),
-                            ),
-                            Text(
-                              '--',
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontSize: 12.sp,
-                                fontFamily: 'DM Sans',
-                                fontWeight: FontWeight.w500,
-                                height: 1.17,
-                              ),
-                            ),
-                            SizedBox(height: 17.h),
-                            Text(
-                              'Reference no',
-                              style: TextStyle(
-                                color: const Color(0xFFA9A5B8),
-                                fontSize: 14.sp,
-                                fontFamily: 'DM Sans',
-                                fontWeight: FontWeight.w500,
-                                height: 1.17,
-                              ),
-                            ),
-                            Text(
-                              '6786543456',
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontSize: 12.sp,
-                                fontFamily: 'DM Sans',
-                                fontWeight: FontWeight.w500,
-                                height: 1.17,
-                              ),
-                            ),
-                            SizedBox(height: 17.h),
-                            Text(
-                              'Remark',
-                              style: TextStyle(
-                                color: const Color(0xFFA9A5B8),
-                                fontSize: 14.sp,
-                                fontFamily: 'DM Sans',
-                                fontWeight: FontWeight.w500,
-                                height: 1.17,
-                              ),
-                            ),
-                            Text(
-                              '--',
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontSize: 12.sp,
-                                fontFamily: 'DM Sans',
-                                fontWeight: FontWeight.w500,
-                                height: 1.17,
-                              ),
-                            ),
-                          ],
-                        ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Street Name',
-                              style: TextStyle(
-                                color: const Color(0xFFA9A5B8),
-                                fontSize: 14.sp,
-                                fontFamily: 'DM Sans',
-                                fontWeight: FontWeight.w500,
-                                height: 1.17,
-                              ),
-                            ),
-                            Text(
-                              'WAKRA',
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontSize: 12.sp,
-                                fontFamily: 'DM Sans',
-                                fontWeight: FontWeight.w500,
-                                height: 1.17,
-                              ),
-                            ),
-                            SizedBox(height: 17.h),
-                            Text(
-                              'Fragrance',
-                              style: TextStyle(
-                                color: const Color(0xFFA9A5B8),
-                                fontSize: 14.sp,
-                                fontFamily: 'DM Sans',
-                                fontWeight: FontWeight.w500,
-                                height: 1.17,
-                              ),
-                            ),
-                            Text(
-                              '--',
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontSize: 12.sp,
-                                fontFamily: 'DM Sans',
-                                fontWeight: FontWeight.w500,
-                                height: 1.17,
-                              ),
-                            ),
-                            SizedBox(
-                              height: 50.h,
-                            )
-                            
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                crossFadeState:
-                    showDetails
-                        ? CrossFadeState.showSecond
-                        : CrossFadeState.showFirst,
-                duration: const Duration(milliseconds: 300),
-              ),
-                      ],
-                    );
-                  }
-                  else {
-                    return SizedBox();
-                  }
-                }, ),
-              
-              SizedBox(height: 21.h,),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-          'Order Items',
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: 18,
-            fontFamily: 'DM Sans',
-            fontWeight: FontWeight.w700,
-            height: 0.87,
-          ),
-        ),
-                  Container(
-          width: 99.w,
-          height: 30.h,
-          decoration: ShapeDecoration(
-            color: const Color(0xFF68188B),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(3)),
-            shadows: [
-              BoxShadow(
-                color: Color(0x3F000000),
-                blurRadius: 4,
-                offset: Offset(0, 4),
-                spreadRadius: 0,
-              )
-            ],
-          ),
-          child: Center(
-            child: Text(
-            'ADD ITEMS',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 14.sp,
-              fontFamily: 'DM Sans',
-              fontWeight: FontWeight.w700,
-            ),
-                    ),
-          ),
-        ),
-
-                ],
-              ),
-              SizedBox(height: 17.h,),
-Expanded(
-  child: ListView.builder(
-    itemCount: 5,
-    itemBuilder: (context, index) {
-      return Padding(
-        padding: const EdgeInsets.only(bottom: 10.0),
-        child: Container(
-          width: 364.w,
-          height: 64.h,
-          decoration: ShapeDecoration(
-                      color: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        // borderRadius: BorderRadius.circular(10.r),
-                      ),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(4.0),
-                      child: Row(
-                        children: [
-                          Image.asset('assets/shirt.png',
-                          width: 41.w,
-                          height: 44.h,),
-                          SizedBox(width: 10.w,),
-                          Column(
+                        child: Padding(
+                          padding: const EdgeInsets.all(15.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              SizedBox(height: 2.h,),
-                              Text(
-                                        'T-Shirt',
-                                        style: TextStyle(
-                                          color: const Color(0xFF150B3D),
-                                          fontSize: 16.sp,
-                                          fontFamily: 'DM Sans',
-                                          fontWeight: FontWeight.w700,
-                                        ),
-                                      ),
-                                      Text(
-                                  '2 QTY',
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 14.sp,
-                                    fontFamily: 'DM Sans',
-                                    fontWeight: FontWeight.w700,
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Area',
+                                    style: TextStyle(
+                                      color: const Color(0xFFA9A5B8),
+                                      fontSize: 14.sp,
+                                      fontFamily: 'DM Sans',
+                                      fontWeight: FontWeight.w500,
+                                      height: 1.17,
+                                    ),
                                   ),
-                                ),
+                                  Text(
+                                    customerDetailsModel.area.toString(),
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 12.sp,
+                                      fontFamily: 'DM Sans',
+                                      fontWeight: FontWeight.w500,
+                                      height: 1.17,
+                                    ),
+                                  ),
+                                  SizedBox(height: 17.h),
+                                  Text(
+                                    'House no',
+                                    style: TextStyle(
+                                      color: const Color(0xFFA9A5B8),
+                                      fontSize: 14.sp,
+                                      fontFamily: 'DM Sans',
+                                      fontWeight: FontWeight.w500,
+                                      height: 1.17,
+                                    ),
+                                  ),
+                                  Text(
+                                    customerDetailsModel.roomNo.toString(),
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 12.sp,
+                                      fontFamily: 'DM Sans',
+                                      fontWeight: FontWeight.w500,
+                                      height: 1.17,
+                                    ),
+                                  ),
+                                  SizedBox(height: 17.h),
+                                  Text(
+                                    'Note',
+                                    style: TextStyle(
+                                      color: const Color(0xFFA9A5B8),
+                                      fontSize: 14.sp,
+                                      fontFamily: 'DM Sans',
+                                      fontWeight: FontWeight.w500,
+                                      height: 1.17,
+                                    ),
+                                  ),
+                                  Text(
+                                    '--',
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 12.sp,
+                                      fontFamily: 'DM Sans',
+                                      fontWeight: FontWeight.w500,
+                                      height: 1.17,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Hotel',
+                                    style: TextStyle(
+                                      color: const Color(0xFFA9A5B8),
+                                      fontSize: 14.sp,
+                                      fontFamily: 'DM Sans',
+                                      fontWeight: FontWeight.w500,
+                                      height: 1.17,
+                                    ),
+                                  ),
+                                  Text(
+                                    customerDetailsModel.hotel.toString(),
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 12.sp,
+                                      fontFamily: 'DM Sans',
+                                      fontWeight: FontWeight.w500,
+                                      height: 1.17,
+                                    ),
+                                  ),
+                                  SizedBox(height: 17.h),
+                                  Text(
+                                    'Reference no',
+                                    style: TextStyle(
+                                      color: const Color(0xFFA9A5B8),
+                                      fontSize: 14.sp,
+                                      fontFamily: 'DM Sans',
+                                      fontWeight: FontWeight.w500,
+                                      height: 1.17,
+                                    ),
+                                  ),
+                                  Text(
+                                    customerDetailsModel.refNo.toString(),
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 12.sp,
+                                      fontFamily: 'DM Sans',
+                                      fontWeight: FontWeight.w500,
+                                      height: 1.17,
+                                    ),
+                                  ),
+                                  SizedBox(height: 17.h),
+                                  Text(
+                                    'Remark',
+                                    style: TextStyle(
+                                      color: const Color(0xFFA9A5B8),
+                                      fontSize: 14.sp,
+                                      fontFamily: 'DM Sans',
+                                      fontWeight: FontWeight.w500,
+                                      height: 1.17,
+                                    ),
+                                  ),
+                                  Text(
+                                    pickupOrderItems.remarks.toString(),
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 12.sp,
+                                      fontFamily: 'DM Sans',
+                                      fontWeight: FontWeight.w500,
+                                      height: 1.17,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Street Name',
+                                    style: TextStyle(
+                                      color: const Color(0xFFA9A5B8),
+                                      fontSize: 14.sp,
+                                      fontFamily: 'DM Sans',
+                                      fontWeight: FontWeight.w500,
+                                      height: 1.17,
+                                    ),
+                                  ),
+                                  Text(
+                                    customerDetailsModel.streetNo.toString(),
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 12.sp,
+                                      fontFamily: 'DM Sans',
+                                      fontWeight: FontWeight.w500,
+                                      height: 1.17,
+                                    ),
+                                  ),
+                                  SizedBox(height: 17.h),
+                                  Text(
+                                    'Fragrance',
+                                    style: TextStyle(
+                                      color: const Color(0xFFA9A5B8),
+                                      fontSize: 14.sp,
+                                      fontFamily: 'DM Sans',
+                                      fontWeight: FontWeight.w500,
+                                      height: 1.17,
+                                    ),
+                                  ),
+                                  Text(
+                                    customerDetailsModel.fragrance.toString(),
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 12.sp,
+                                      fontFamily: 'DM Sans',
+                                      fontWeight: FontWeight.w500,
+                                      height: 1.17,
+                                    ),
+                                  ),
+                                  SizedBox(height: 50.h),
+                                ],
+                              ),
                             ],
                           ),
-                          Spacer(),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              SizedBox(height: 2.h,),
-                              Text(
-                                'D C',
+                        ),
+                      ),
+                      crossFadeState:
+                          showDetails
+                              ? CrossFadeState.showSecond
+                              : CrossFadeState.showFirst,
+                      duration: const Duration(milliseconds: 300),
+                    ),
+
+                    SizedBox(height: 21.h),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Order Items',
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 18,
+                            fontFamily: 'DM Sans',
+                            fontWeight: FontWeight.w700,
+                            height: 0.87,
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: () => _openAddItemDialog(context),
+                          child: Container(
+                            width: 110.w,
+                            height: 40.h,
+                            decoration: ShapeDecoration(
+                              color: const Color(0xFF68188B),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(3),
+                              ),
+                              shadows: [
+                                BoxShadow(
+                                  color: Color(0x3F000000),
+                                  blurRadius: 4,
+                                  offset: Offset(0, 4),
+                                  spreadRadius: 0,
+                                ),
+                              ],
+                            ),
+                            child: Center(
+                              child: Text(
+                                'ADD ITEMS',
                                 style: TextStyle(
-                                  color: const Color(0xFF150B3D),
-                                  fontSize: 16.sp,
+                                  color: Colors.white,
+                                  fontSize: 14.sp,
                                   fontFamily: 'DM Sans',
                                   fontWeight: FontWeight.w700,
                                 ),
                               ),
-                              Text(
-                                  'Express',
-                                  style: TextStyle(
-                                    color: const Color(0xFF68188B),
-                                    fontSize: 14.sp,
-                                    fontFamily: 'DM Sans',
-                                    fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 17.h),
+                    if (widget.pickupOrderId.isNotEmpty &&
+                        widget.pickupOrderId != null)
+                      Expanded(
+                        child: ListView.builder(
+                          itemCount: pickupOrderItems.clothData?.length,
+                          itemBuilder: (context, index) {
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 10.0),
+                              child: Container(
+                                width: 364.w,
+                                height: 64.h,
+                                decoration: ShapeDecoration(
+                                  color: Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                    // borderRadius: BorderRadius.circular(10.r),
                                   ),
                                 ),
-                            ],
-                          )
-                        ],
+                                child: Padding(
+                                  padding: const EdgeInsets.all(6.0),
+                                  child: Row(
+                                    children: [
+                                      Image.network(
+                                        pickupOrderItems
+                                            .clothData![index]
+                                            .clothImg
+                                            .toString(),
+                                        width: 46.w,
+                                        height: 44.h,
+                                      ),
+                                      SizedBox(width: 10.w),
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          SizedBox(height: 2.h),
+                                          Text(
+                                            pickupOrderItems
+                                                .clothData![index]
+                                                .clothName
+                                                .toString(),
+                                            style: TextStyle(
+                                              color: const Color(0xFF150B3D),
+                                              fontSize: 16.sp,
+                                              fontFamily: 'DM Sans',
+                                              fontWeight: FontWeight.w700,
+                                            ),
+                                          ),
+                                          Text(
+                                            '${pickupOrderItems.clothData![index].qnty} QTY',
+
+                                            style: TextStyle(
+                                              color: Colors.black,
+                                              fontSize: 14.sp,
+                                              fontFamily: 'DM Sans',
+                                              fontWeight: FontWeight.w700,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      Spacer(),
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.end,
+                                        children: [
+                                          SizedBox(height: 2.h),
+                                          Text(
+                                            pickupOrderItems
+                                                .clothData![index]
+                                                .service
+                                                .toString(),
+                                            style: TextStyle(
+                                              color: const Color(0xFF150B3D),
+                                              fontSize: 16.sp,
+                                              fontFamily: 'DM Sans',
+                                              fontWeight: FontWeight.w700,
+                                            ),
+                                          ),
+                                          Text(
+                                            pickupOrderItems
+                                                .clothData![index]
+                                                .billing
+                                                .toString(),
+                                            style: TextStyle(
+                                              color: const Color(0xFF68188B),
+                                              fontSize: 14.sp,
+                                              fontFamily: 'DM Sans',
+                                              fontWeight: FontWeight.w700,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
                       ),
-                    ),
-        ),
-      );
-    },)),
-    Container(
-          width: 364.w,
-          height: 72.h,
-          decoration: ShapeDecoration(
+                    Container(
+                      width: 380.w,
+                      height: 72.h,
+                      decoration: ShapeDecoration(
                         color: Colors.white,
                         shape: RoundedRectangleBorder(
                           // borderRadius: BorderRadius.circular(10.r),
@@ -537,89 +641,93 @@ Expanded(
                                   children: [
                                     Text(
                                       'Total Items :',
-                                                    style: TextStyle(
-                                                      color: Colors.black,
-                                                      fontSize: 17.sp,
-                                                      fontFamily: 'DM Sans',
-                                                      fontWeight: FontWeight.w700,
-                                                      height: 1,
-                                                    ),
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 17.sp,
+                                        fontFamily: 'DM Sans',
+                                        fontWeight: FontWeight.w700,
+                                        height: 1,
+                                      ),
                                     ),
                                     Text(
-                                      ' 5',
-                style: TextStyle(
-                  color: const Color(0xFF68188B),
-                  fontSize: 15.sp,
-                  fontFamily: 'DM Sans',
-                  fontWeight: FontWeight.w700,
-                  height: 1,
-                  letterSpacing: 1.20,
-                ),
-                                    )
-                                
+                                      totalItem.toString(),
+                                      style: TextStyle(
+                                        color: const Color(0xFF68188B),
+                                        fontSize: 15.sp,
+                                        fontFamily: 'DM Sans',
+                                        fontWeight: FontWeight.w700,
+                                        height: 1,
+                                        letterSpacing: 1.20,
+                                      ),
+                                    ),
                                   ],
                                 ),
-                                SizedBox(height: 10.h,),
+                                SizedBox(height: 10.h),
                                 Row(
                                   children: [
                                     Text(
                                       'Total QTY : ',
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 15.sp,
-                  fontFamily: 'DM Sans',
-                  fontWeight: FontWeight.w700,
-                  height: 1,
-                ),
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 15.sp,
+                                        fontFamily: 'DM Sans',
+                                        fontWeight: FontWeight.w700,
+                                        height: 1,
+                                      ),
                                     ),
                                     Text(
-                                      ' 11',
-                style: TextStyle(
-                  color: const Color(0xFF68188B),
-                  fontSize: 15.sp,
-                  fontFamily: 'DM Sans',
-                  fontWeight: FontWeight.w700,
-                  height: 1,
-                  letterSpacing: 1.20,
-                ),
-                                    )
+                                      totalquantity.toString(),
+                                      style: TextStyle(
+                                        color: const Color(0xFF68188B),
+                                        fontSize: 15.sp,
+                                        fontFamily: 'DM Sans',
+                                        fontWeight: FontWeight.w700,
+                                        height: 1,
+                                        letterSpacing: 1.20,
+                                      ),
+                                    ),
                                   ],
-                                )
+                                ),
                               ],
                             ),
                             Spacer(),
                             Container(
-          width: 99.w,
-          height: 28.h,
-          decoration: ShapeDecoration(
-            color: const Color(0xFF68188B),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(3)),
-          ),
-          child: Center(
-            child: Text(
-            'Collect now',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 14.sp,
-              fontFamily: 'DM Sans',
-              fontWeight: FontWeight.w700,
-            ),
-                    ),
-          ),
-      
-        ),
+                              width: 125.w,
+                              height: 40.h,
+                              decoration: ShapeDecoration(
+                                color: const Color(0xFF68188B),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(3),
+                                ),
+                              ),
+                              child: Center(
+                                child: Text(
+                                  'Collect now',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 15.sp,
+                                    fontFamily: 'DM Sans',
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ),
+                            ),
                           ],
                         ),
-
                       ),
-        ),
-            ],
+                    ),
+                  ],
+                );
+              } else {
+                return SizedBox();
+              }
+            },
           ),
         ),
       ),
       // bottomSheet: Padding(
       //   padding: const EdgeInsets.all(15.0),
-      //   child: 
+      //   child:
       // ),
     );
   }

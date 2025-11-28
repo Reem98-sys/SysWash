@@ -1,8 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
-import 'package:syswash/model/deliveryListModel.dart';
 import 'package:syswash/model/delivery_list_response.dart';
-import 'package:syswash/model/pickupListModel.dart';
 import 'package:syswash/model/pickup_list_response.dart';
 import 'package:syswash/repositories/sys_repository.dart';
 

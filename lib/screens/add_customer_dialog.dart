@@ -2,22 +2,38 @@ import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:intl/intl.dart';
 import 'package:syswash/bloc/bloc/customerlist_bloc.dart';
+import 'package:syswash/bloc/bloc/uploadpickup_bloc.dart';
 
-Future<Map<String, String>?> showAddCustomerDialog(BuildContext context) {
+Future<Map<String, String>?> showAddCustomerDialog(
+  BuildContext context,
+  String companyCode,
+  String token,
+  String username,
+  String userId,
+) {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController areaController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
-  final TextEditingController dateController = TextEditingController();
+  TextEditingController dateController = TextEditingController();
   final TextEditingController noteController = TextEditingController();
   final TextEditingController remarkController = TextEditingController();
+  String? pickupCustomerCode;
+  String? pickupCustomerId;
+  String? pickupDriverid = userId;
+  String? pickupDrivername = username;
+  String currentDate = DateFormat('dd-MM-yyyy').format(DateTime.now());
+  dateController = TextEditingController(text: currentDate);
   final dropDownKey = GlobalKey<DropdownSearchState>();
   return showDialog<Map<String, String>?>(
     context: context,
     builder: (BuildContext context) {
       return AlertDialog(
         backgroundColor: Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12.r),
+        ),
 
         content: Form(
           key: _formKey,
@@ -112,7 +128,7 @@ Future<Map<String, String>?> showAddCustomerDialog(BuildContext context) {
 
                               return filtered;
                             },
-                            
+
                             decoratorProps: DropDownDecoratorProps(
                               decoration: InputDecoration(
                                 hintText: 'Search',
@@ -149,12 +165,17 @@ Future<Map<String, String>?> showAddCustomerDialog(BuildContext context) {
                             onChanged: (selectedName) {
                               final selectedCustomer = customerList.firstWhere(
                                 (customer) => customer.name == selectedName,
-                                
                               );
-                              if(selectedCustomer != null) {
+                              if (selectedCustomer != null) {
                                 //auto fill phone no. and area fields
-                                phoneController.text = selectedCustomer.mobile.toString() ?? '';
-                                areaController.text = selectedCustomer.area.toString() ?? '';
+                                phoneController.text =
+                                    selectedCustomer.mobile.toString() ?? '';
+                                areaController.text =
+                                    selectedCustomer.area.toString() ?? '';
+                                pickupCustomerId =
+                                    selectedCustomer.customerId.toString();
+                                pickupCustomerCode =
+                                    selectedCustomer.cusCode.toString();
                               }
                             },
                           ),
@@ -288,18 +309,6 @@ Future<Map<String, String>?> showAddCustomerDialog(BuildContext context) {
                                   hintText: 'Date',
                                   border: InputBorder.none,
                                 ),
-                                onTap: ()  async {
-                                  FocusScope.of(context).requestFocus(FocusNode()); // close keyboard
-                                  final DateTime? pickedDate = await showDatePicker(
-                                    context: context, 
-                                    initialDate: DateTime.now(), 
-                                    firstDate: DateTime.now(),
-                                    lastDate: DateTime(2200));
-                                    if (pickedDate != null) {
-                                      final formattedDate = "${pickedDate.day.toString().padLeft(2,'0')}-${pickedDate.month.toString().padLeft(2,'0')}-${pickedDate.year.toString().padRight(2,'0')}";
-                                      dateController.text = formattedDate;
-                                    }
-                                },
                               ),
                             ),
                           ],
@@ -417,32 +426,58 @@ Future<Map<String, String>?> showAddCustomerDialog(BuildContext context) {
                 ),
               ),
               SizedBox(width: 12.w),
-              Container(
-                width: 140.w,
-                height: 50.h,
-                decoration: ShapeDecoration(
-                  color: const Color(0xFF68188B),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  shadows: [
-                    BoxShadow(
-                      color: Color(0x2D99AAC5),
-                      blurRadius: 62,
-                      offset: Offset(0, 4),
-                      spreadRadius: 0,
+              GestureDetector(
+                onTap: () {
+                  context.read<UploadpickupBloc>().add(
+                    FetchUploadPickupEvent(
+                      companyCode: companyCode,
+                      token: token,
+                      notes: noteController.text.trim() ?? '',
+                      pickupCustomerArea: areaController.text.trim(),
+                      pickupCustomerCode: pickupCustomerCode ?? '',
+                      pickupCustomerId: pickupCustomerId ?? '',
+                      pickupCustomerName:
+                          dropDownKey.currentState?.getSelectedItem ?? "",
+                      pickupCustomerPhno: phoneController.text.trim(),
+                      pickupDate: dateController.text.trim(),
+                      pickupDriverid: pickupDriverid,
+                      pickupDrivername: pickupDrivername,
+                      remarks: remarkController.text.trim() ?? '',
                     ),
-                  ],
-                ),
-                child: Center(
-                  child: Text(
-                    'SAVE',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 14.sp,
-                      fontFamily: 'DM Sans',
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 0.84,
+                  );
+                  
+                    Navigator.pop(context);
+                 
+                  // close the dialog after triggering upload
+                },
+
+                child: Container(
+                  width: 140.w,
+                  height: 50.h,
+                  decoration: ShapeDecoration(
+                    color: const Color(0xFF68188B),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    shadows: [
+                      BoxShadow(
+                        color: Color(0x2D99AAC5),
+                        blurRadius: 62,
+                        offset: Offset(0, 4),
+                        spreadRadius: 0,
+                      ),
+                    ],
+                  ),
+                  child: Center(
+                    child: Text(
+                      'SAVE',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 14.sp,
+                        fontFamily: 'DM Sans',
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.84,
+                      ),
                     ),
                   ),
                 ),
