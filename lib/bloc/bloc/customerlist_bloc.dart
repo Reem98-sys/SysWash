@@ -1,7 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
 import 'package:syswash/model/customer_list_response.dart';
-import 'package:syswash/model/pickupOrderItemsModel.dart';
 import 'package:syswash/repositories/sys_repository.dart';
 
 part 'customerlist_event.dart';

@@ -15,3 +15,4 @@ class PickupCustDetailsError extends PickupcustdetailsState {
   PickupCustDetailsError({required this.message});
 }
 class AddPickupOrderLoaded extends PickupcustdetailsState {}
+class StatusPickupLoaded extends PickupcustdetailsState {}

@@ -44,22 +44,13 @@ class FetchAddPickupOrderEvent extends PickupcustdetailsEvent {
   final String token;
   final String companyCode;
   final String balance;
-  final String clothData;
-  final String arabicName;
-  final String billing;
-  final String clothImg;
-  final String clothName;
-  final String clothPrice;
-  final String priceId;
-  final String qnty;
-  final String service;
-  final String unit;
-  final String customerDiscount;
-  final String discount;
+  final List<Map<String,dynamic>> clothData;
+  final int customerDiscount;
+  final int discount;
   final String lastModifiedTime;
   final String lastModifieddate;
-  final String paidAmount;
-  final String quantity;
+  final int paidAmount;
+  final int quantity;
   final String subTotal;
   final String totalAmount;
   final String userName;
@@ -69,15 +60,6 @@ class FetchAddPickupOrderEvent extends PickupcustdetailsEvent {
     required this.companyCode,
     required this.balance,
     required this.clothData,
-    required this.arabicName,
-    required this.billing,
-    required this.clothImg,
-    required this.clothName,
-    required this.clothPrice,
-    required this.priceId,
-    required this.qnty,
-    required this.service,
-    required this.unit,
     required this.customerDiscount,
     required this.discount,
     required this.lastModifiedTime,
@@ -87,5 +69,16 @@ class FetchAddPickupOrderEvent extends PickupcustdetailsEvent {
     required this.subTotal,
     required this.totalAmount,
     required this.userName,
+  });
+}
+
+class FetchStatusPickupEvent extends PickupcustdetailsEvent {
+  final int pickupAssignId;
+  final String token;
+  final String companyCode;
+  FetchStatusPickupEvent({
+    required this.pickupAssignId,
+    required this.token,
+    required this.companyCode
   });
 }

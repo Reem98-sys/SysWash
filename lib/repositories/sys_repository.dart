@@ -11,7 +11,6 @@ import 'package:syswash/model/pickupOrderItemsModel.dart';
 import 'package:syswash/model/pickup_list_response.dart';
 import 'package:syswash/model/serviceDetails.dart';
 import 'package:syswash/model/totalOrder.dart';
-import 'package:syswash/screens/login.dart';
 
 import 'api_client.dart';
 import 'package:http/http.dart';
@@ -88,7 +87,7 @@ class SysRepository {
     }
   }
 
-Future<List<ServiceDetailsModel>> servicedetail (
+  Future<List<ServiceDetailsModel>> servicedetail(
     String companyCode,
     String token,
   ) async {
@@ -106,14 +105,14 @@ Future<List<ServiceDetailsModel>> servicedetail (
     print('🚀 deliveryList API response type: ${decoded.runtimeType}');
 
     if (decoded is List) {
-    return decoded.map((item) => ServiceDetailsModel.fromJson(item)).toList();
-  } else if (decoded is Map && decoded['data'] is List) {
-    return (decoded['data'] as List)
-        .map((item) => ServiceDetailsModel.fromJson(item))
-        .toList();
-  } else {
-    throw Exception('Unexpected response format: ${decoded.runtimeType}');
-  }
+      return decoded.map((item) => ServiceDetailsModel.fromJson(item)).toList();
+    } else if (decoded is Map && decoded['data'] is List) {
+      return (decoded['data'] as List)
+          .map((item) => ServiceDetailsModel.fromJson(item))
+          .toList();
+    } else {
+      throw Exception('Unexpected response format: ${decoded.runtimeType}');
+    }
   }
 
   Future<DeliveryListResponse> deliveryList(
@@ -232,20 +231,63 @@ Future<List<ServiceDetailsModel>> servicedetail (
     return PickupOrderItemsModel.fromJson(jsonDecode(response.body));
   }
 
-  Future<PickupOrderItemsModel> addpickuporder(
-    String pickupOrderId,
+  Future<String?> pickupstatus(
+    int pickupAssignId,
     String token,
     String companyCode,
   ) async {
     String url =
-        "https://be.syswash.net/api/syswash/order/${pickupOrderId}?code=${companyCode}";
+        "https://be.syswash.net/api/syswash/pickupstatus/${pickupAssignId}?code=${companyCode}";
+    body = {"pickupstatus": "Received"};
     Response response = await apiClient.invokeAPI(
       url,
-      "POST",
-      jsonEncode({}),
+      "PUT",
+      jsonEncode(body),
       token: token,
     );
-    return PickupOrderItemsModel.fromJson(jsonDecode(response.body));
+    final data = jsonDecode(response.body);
+    return data['status'];
+  }
+
+  Future<int?> addpickuporder(
+    String pickupOrderId,
+    String token,
+    String companyCode,
+    String balance,
+    List<Map<String, dynamic>> clothData,
+    int customerDiscount,
+    int discount,
+    String lastModifiedTime,
+    String lastModifieddate,
+    int paidAmount,
+    int quantity,
+    String subTotal,
+    String totalAmount,
+    String userName,
+  ) async {
+    String url =
+        "https://be.syswash.net/api/syswash/order/${pickupOrderId}?code=${companyCode}";
+    body = {
+      'balance': balance,
+      'clothData': clothData,
+      'customerDiscount': customerDiscount,
+      'discount': discount,
+      'lastModifiedTime': lastModifiedTime,
+      'lastModifieddate': lastModifieddate,
+      'paidAmount': paidAmount,
+      'quantity': quantity,
+      'subTotal': subTotal,
+      'totalAmount': totalAmount,
+      'userName': userName,
+    };
+    Response response = await apiClient.invokeAPI(
+      url,
+      "PUT",
+      jsonEncode(body),
+      token: token,
+    );
+    final data = jsonDecode(response.body);
+    return data['status'];
   }
 
   Future<void> uploadPickupDatas(

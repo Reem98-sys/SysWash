@@ -168,7 +168,10 @@ class _PickupState extends State<Pickup> {
                                             pickupOrders[index].pickupCustomerId
                                                 .toString(),
                                         pickupOrderId: pickupOrders[index].pickupOrderId
-                                                .toString(),        
+                                                .toString(),
+                                                 pickupAssignId: pickupOrders[index].pickupassgnId??0,
+                                                notes: pickupOrders[index].notes??'',
+                                                remarks: pickupOrders[index].remarks??''       
                                       ),
                                 ),
                               );

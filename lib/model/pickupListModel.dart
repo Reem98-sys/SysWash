@@ -14,8 +14,10 @@ class PickUpListModel {
     String? assignedFrom;
     String? pickupOrderId;
     bool? trash;
+    String? remarks;
+    String? notes;
 
-    PickUpListModel({this.pickupassgnId, this.pickupassgn, this.pickupDate, this.pickupCustomerId, this.pickupCustomerName, this.pickupCustomerArea, this.pickupCustomerCode, this.pickupCustomerPhno, this.pickupDriverid, this.pickupDrivername, this.pickupstatus, this.assignedFrom, this.pickupOrderId, this.trash});
+    PickUpListModel({this.pickupassgnId, this.pickupassgn, this.pickupDate, this.pickupCustomerId, this.pickupCustomerName, this.pickupCustomerArea, this.pickupCustomerCode, this.pickupCustomerPhno, this.pickupDriverid, this.pickupDrivername, this.pickupstatus, this.assignedFrom, this.pickupOrderId, this.trash, this.remarks, this.notes});
 
     PickUpListModel.fromJson(Map<String, dynamic> json) {
         if(json["pickupassgnId"] is num) {
@@ -60,6 +62,12 @@ class PickUpListModel {
         if(json["trash"] is bool) {
             trash = json["trash"];
         }
+        if(json["remarks"] is String) {
+            remarks = json["remarks"];
+        }
+        if(json["notes"] is String) {
+            notes = json["notes"];
+        }
     }
 
     static List<PickUpListModel> fromList(List<Map<String, dynamic>> list) {
@@ -84,6 +92,8 @@ class PickUpListModel {
         _data["AssignedFrom"] = assignedFrom;
         _data["pickupOrderId"] = pickupOrderId;
         _data["trash"] = trash;
+        _data["remarks"] = remarks;
+        _data["notes"] = notes;
         return _data;
     }
 
@@ -102,6 +112,8 @@ class PickUpListModel {
         String? assignedFrom,
         String? pickupOrderId,
         bool? trash,
+        String? remarks,
+        String? notes,
     }) => PickUpListModel(
         pickupassgnId: pickupassgnId ?? this.pickupassgnId,
         pickupassgn: pickupassgn ?? this.pickupassgn,
@@ -117,5 +129,7 @@ class PickUpListModel {
         assignedFrom: assignedFrom ?? this.assignedFrom,
         pickupOrderId: pickupOrderId ?? this.pickupOrderId,
         trash: trash ?? this.trash,
+        remarks: remarks ?? this.remarks,
+        notes: notes ?? this.notes,
     );
 }

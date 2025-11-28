@@ -473,7 +473,7 @@ Future<Map<String, dynamic>?> showAddItemDialog(
                               "clothName": selectedCloth,
                               "clothPrice": clothPrice,
                               "priceId": priceId,
-                              "qnty": quantityController.text,
+                              "qnty": int.tryParse(quantityController.text.trim()),
                               "service": service,
                               "unit": unit,
                             });

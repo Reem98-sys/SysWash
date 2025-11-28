@@ -34,14 +34,12 @@ class PickupcustdetailsBloc
           items =
               PickupOrderItemsModel.empty(); // this line errors if not defined
         }
-
         emit(
           PickupCustDetailsLoaded(
             customerDetailsModel: customer,
             pickupOrderItemsModel: items,
           ),
         );
-        print('SSSSSSSSSSSSSSSSSSSSSS');
       } catch (e, stackTrace) {
         print("❌ Error in FetchFullPickupDetailsEvent: $e");
         print("📜 StackTrace: $stackTrace");
@@ -56,9 +54,42 @@ class PickupcustdetailsBloc
           event.pickupOrderId,
           event.token,
           event.companyCode,
+          event.balance,
+          event.clothData,
+          event.customerDiscount,
+          event.discount,
+          event.lastModifiedTime,
+          event.lastModifieddate,
+          event.paidAmount,
+          event.quantity,
+          event.subTotal,
+          event.totalAmount,
+          event.userName,
         );
-        emit(AddPickupOrderLoaded());
+        print(response);
+        if (response == 200) {
+          emit(AddPickupOrderLoaded());
+        } 
+        // else {
+        //   emit(PickupCustDetailsError(message: 'Failed to update order'));
+        // }
       } catch (e) {
+        print('&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&');
+        emit(PickupCustDetailsError(message: e.toString()));
+      }
+    });
+
+    on<FetchStatusPickupEvent>((event, emit) async {
+      emit(PickupCustDetailsLoading());
+      try {
+        final response = await sysRepository.pickupstatus(
+          event.pickupAssignId,
+          event.token,
+          event.companyCode,
+        );
+        emit(StatusPickupLoaded());
+      } catch (e) {
+        print('&***************************');
         emit(PickupCustDetailsError(message: e.toString()));
       }
     });
