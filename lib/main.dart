@@ -8,6 +8,7 @@ import 'package:syswash/bloc/bloc/login_bloc.dart';
 import 'package:syswash/bloc/bloc/pickupcustdetails_bloc.dart';
 import 'package:syswash/bloc/bloc/pickuplist_bloc.dart';
 import 'package:syswash/bloc/bloc/servicedetails_bloc.dart';
+import 'package:syswash/bloc/bloc/settings_bloc.dart';
 import 'package:syswash/bloc/bloc/uploadpickup_bloc.dart';
 import 'package:syswash/repositories/sys_repository.dart';
 import 'package:syswash/screens/add_customer_dialog.dart';
@@ -25,6 +26,7 @@ void main() {
       BlocProvider(create: (context) => UploadpickupBloc()),
       BlocProvider(create: (context) => ClothdetailsBloc()),
       BlocProvider(create: (context) => ServicedetailsBloc()),
+      BlocProvider(create: (context) => SettingsBloc())
     ], 
     child:
      const MyApp()));

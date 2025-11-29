@@ -82,3 +82,36 @@ class FetchStatusPickupEvent extends PickupcustdetailsEvent {
     required this.companyCode
   });
 }
+
+class FetchAddNewPickupEvent extends PickupcustdetailsEvent {
+  final String token;
+  final String companyCode;
+  final String pickupassgnId;
+  final String pickupTime;
+  final int quantity;
+  final double subTotal;
+  final double discount;
+  final double totalAmount;
+  final double paidAmount;
+  final double balance;
+  final List<Map<String,dynamic>> clothData;
+  FetchAddNewPickupEvent({
+    required this.token,
+    required this.companyCode,
+    required this.pickupassgnId,
+    required this.pickupTime,
+    required this.quantity,
+    required this.subTotal,
+    required this.discount,
+    required this.totalAmount,
+    required this.paidAmount,
+    required this.balance,
+    required this.clothData
+  });
+}
+
+class FetchSettingsLoaded extends PickupcustdetailsState {
+  final String companyCode;
+  final String token;
+  FetchSettingsLoaded({required this.companyCode,required this.token});
+}

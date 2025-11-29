@@ -10,6 +10,7 @@ import 'package:syswash/model/pickupListModel.dart';
 import 'package:syswash/model/pickupOrderItemsModel.dart';
 import 'package:syswash/model/pickup_list_response.dart';
 import 'package:syswash/model/serviceDetails.dart';
+import 'package:syswash/model/settingsModel.dart';
 import 'package:syswash/model/totalOrder.dart';
 
 import 'api_client.dart';
@@ -229,6 +230,58 @@ class SysRepository {
       token: token,
     );
     return PickupOrderItemsModel.fromJson(jsonDecode(response.body));
+  }
+
+  Future<SettingsModel> settingsData(
+    String companyCode,
+    String token
+  ) async {
+    String url =
+        "https://be.syswash.net/api/syswash/settings/1?code=${companyCode}";
+    Response response = await apiClient.invokeAPI(
+      url,
+      "GET",
+      jsonEncode({}),
+      token: token,
+    );
+    return SettingsModel.fromJson(jsonDecode(response.body));
+  }
+
+  Future<void> addnewOrderItem(
+    String token, 
+    String companyCode,
+    String pickupassgnId,
+    String pickupTime,
+    int quantity,
+    double subTotal,
+    double discount,
+    double totalAmount,
+    double paidAmount,
+    double balance,
+    List<Map<String,dynamic>> clothData) async {
+    String url =
+        "https://be.syswash.net/api/syswash/pickuporder?code=${companyCode}";
+    body = {
+      'pickupassgn_id':pickupassgnId,
+      'pickuporderTime':pickupTime,
+      'quantity':quantity,
+      'subTotal':subTotal,
+      'discount':discount,
+      'totalAmount':totalAmount,
+      'paidAmount':paidAmount,
+      'balance':balance,
+      'deliveryType': "PICKUP & DELIVERY",
+      'accountType': "MobileApp",
+      'clothData':clothData,
+    };
+    Response response = await apiClient.invokeAPI(
+      url,
+      "POST",
+      jsonEncode(body),
+      token: token,
+    );
+    final data = jsonDecode(response.body);
+    return data['status'];
   }
 
   Future<String?> pickupstatus(

@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:syswash/bloc/bloc/pickupcustdetails_bloc.dart';
 import 'package:syswash/bloc/bloc/servicedetails_bloc.dart';
+import 'package:syswash/bloc/bloc/settings_bloc.dart';
 import 'package:syswash/screens/add_item_dialog.dart';
 
 class Pickupdetails extends StatefulWidget {
@@ -46,7 +47,6 @@ class _PickupdetailsState extends State<Pickupdetails> {
     final companyCode = await storage.read(key: 'company_Code');
     final token = await storage.read(key: 'access_Token');
     if (companyCode != null && token != null) {
-
       context.read<PickupcustdetailsBloc>().add(
         FetchFullPickupDetailsEvent(
           customerId: widget.customerId,
@@ -64,7 +64,6 @@ class _PickupdetailsState extends State<Pickupdetails> {
     final companyCode = await storage.read(key: 'company_Code');
     final token = await storage.read(key: 'access_Token');
     if (companyCode != null && token != null) {
-
       context.read<ServicedetailsBloc>().add(
         FetchServiceDetailsEvent(
           token: token ?? '',
@@ -100,6 +99,33 @@ class _PickupdetailsState extends State<Pickupdetails> {
     });
   }
 
+  Future<void> _handleNewItemTap(
+    BuildContext context,
+    double subtotal,
+    double discount,
+    double totalAmount,
+  ) async {
+    final companyCode = await storage.read(key: 'company_Code');
+    final token = await storage.read(key: 'access_Token');
+    if (token != null && companyCode != null) {
+      context.read<PickupcustdetailsBloc>().add(
+        FetchAddNewPickupEvent(
+          token: token,
+          companyCode: companyCode,
+          pickupassgnId: widget.pickupAssignId.toString(),
+          pickupTime: TimeOfDay.now().format(context),
+          quantity: totalquantity ?? 0,
+          subTotal: subtotal,
+          discount: discount,
+          totalAmount: totalAmount,
+          paidAmount: 0.0,
+          balance: totalAmount,
+          clothData: _orderItemsList,
+        ),
+      );
+    }
+  }
+
   Future<void> _handleTap(
     BuildContext context,
     dynamic pickupOrderItems,
@@ -110,7 +136,6 @@ class _PickupdetailsState extends State<Pickupdetails> {
     final companyCode = await storage.read(key: 'company_Code');
     final token = await storage.read(key: 'access_Token');
     if (token != null && companyCode != null) {
-
       context.read<PickupcustdetailsBloc>().add(
         FetchAddPickupOrderEvent(
           token: token,
@@ -181,7 +206,7 @@ class _PickupdetailsState extends State<Pickupdetails> {
                     }).toList() ??
                     [];
 
-                _recalculateTotals(); 
+                _recalculateTotals();
               }
               if (state is AddPickupOrderLoaded) {
                 final companyCode = await storage.read(key: 'company_Code');
@@ -189,7 +214,26 @@ class _PickupdetailsState extends State<Pickupdetails> {
 
                 if (token != null && companyCode != null) {
                   context.read<PickupcustdetailsBloc>().add(
-                    
+                    FetchStatusPickupEvent(
+                      pickupAssignId: widget.pickupAssignId,
+                      token: token,
+                      companyCode: companyCode,
+                    ),
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('❌ Missing token or company code'),
+                    ),
+                  );
+                }
+              }
+              if (state is AddNewPickupOrderLoaded) {
+                final companyCode = await storage.read(key: 'company_Code');
+                final token = await storage.read(key: 'access_Token');
+
+                if (token != null && companyCode != null) {
+                  context.read<PickupcustdetailsBloc>().add(
                     FetchStatusPickupEvent(
                       pickupAssignId: widget.pickupAssignId,
                       token: token,
@@ -212,7 +256,7 @@ class _PickupdetailsState extends State<Pickupdetails> {
                     backgroundColor: Colors.green,
                   ),
                 );
-                Navigator.pop(context);
+                Navigator.pop(context,true);
               }
             },
             builder: (context, state) {
@@ -223,6 +267,7 @@ class _PickupdetailsState extends State<Pickupdetails> {
               if (state is PickupCustDetailsLoaded) {
                 final customerDetailsModel = state.customerDetailsModel;
                 final pickupOrderItems = state.pickupOrderItemsModel;
+                final settingsData = state.settingsModel;
 
                 return Column(
                   children: [
@@ -776,26 +821,6 @@ class _PickupdetailsState extends State<Pickupdetails> {
                                       0;
                                   subtotal += price * qty;
                                 }
-                                if (pickupOrderItems.customerDiscount != 0) {
-                                  totalamt =
-                                      subtotal -
-                                      (pickupOrderItems.customerDiscount ??
-                                          0.0) -
-                                      (pickupOrderItems.paidAmount ?? 0.0) +
-                                      (pickupOrderItems.vat ?? 0.0) +
-                                      (pickupOrderItems.openingBalance ?? 0.0);
-                                } else {
-                                  totalamt =
-                                      subtotal -
-                                      (pickupOrderItems.discount ?? 0.0) -
-                                      (pickupOrderItems.paidAmount ?? 0.0) +
-                                      (pickupOrderItems.vat ?? 0.0) +
-                                      (pickupOrderItems.openingBalance ?? 0.0);
-                                }
-                                double blnc =
-                                    totalamt -
-                                    (pickupOrderItems.paidAmount ?? 0.0);
-
                                 final companyCode = await storage.read(
                                   key: 'company_Code',
                                 );
@@ -813,29 +838,98 @@ class _PickupdetailsState extends State<Pickupdetails> {
                                   );
                                   return;
                                 }
-
-                                // Check if new items were added
-                                if (_orderItemsList.isNotEmpty &&
-                                    pickupOrderItems.clothData != null &&
-                                    _orderItemsList.length !=
-                                        pickupOrderItems.clothData!.length) {
-                                  // Items added → call AddPickupOrder API first
-                                  await _handleTap(
+                                // case 1 : new order (no pickupOrderId)
+                                if (widget.pickupOrderId == null ||
+                                    widget.pickupOrderId.toString().isEmpty ||
+                                    widget.pickupOrderId
+                                            .toString()
+                                            .toLowerCase() ==
+                                        "null") {
+                                  double totalDiscount =
+                                      subtotal *
+                                      (double.tryParse(
+                                            customerDetailsModel.discount
+                                                    ?.toString() ??
+                                                '0',
+                                          ) ??
+                                          0.0 / 100);
+                                  totalamt =
+                                      subtotal -
+                                      totalDiscount +
+                                      (double.tryParse(
+                                            settingsData.vatAmount
+                                                    ?.toString() ??
+                                                '0',
+                                          ) ??
+                                          0.0) +
+                                      (double.tryParse(
+                                            customerDetailsModel.openingBalance
+                                                    ?.toString() ??
+                                                '0',
+                                          ) ??
+                                          0.0);
+                                  await _handleNewItemTap(
                                     context,
-                                    pickupOrderItems,
                                     subtotal,
+                                    double.tryParse(
+                                          customerDetailsModel.discount
+                                                  ?.toString() ??
+                                              '0',
+                                        ) ??
+                                        0.0,
                                     totalamt,
-                                    blnc,
                                   );
-                                } else {
-                                   // no new items → directly call FetchStatusPickupEvent
-                                  context.read<PickupcustdetailsBloc>().add(
-                                    FetchStatusPickupEvent(
-                                      pickupAssignId: widget.pickupAssignId,
-                                      token: token,
-                                      companyCode: companyCode,
-                                    ),
-                                  );
+                                }
+                                //case 2 Adding items to existing ordered items
+                                else {
+                                  if (pickupOrderItems.customerDiscount != 0) {
+                                    double totalDiscount =
+                                        subtotal *
+                                        (pickupOrderItems.customerDiscount ??
+                                            0 / 100);
+                                    totalamt =
+                                        subtotal -
+                                        totalDiscount -
+                                        (pickupOrderItems.paidAmount ?? 0.0) +
+                                        (pickupOrderItems.vat ?? 0.0) +
+                                        (pickupOrderItems.openingBalance ??
+                                            0.0);
+                                  } else {
+                                    totalamt =
+                                        subtotal -
+                                        (pickupOrderItems.discount ?? 0.0) -
+                                        (pickupOrderItems.paidAmount ?? 0.0) +
+                                        (pickupOrderItems.vat ?? 0.0) +
+                                        (pickupOrderItems.openingBalance ??
+                                            0.0);
+                                  }
+                                  double blnc =
+                                      totalamt -
+                                      (pickupOrderItems.paidAmount ?? 0.0);
+
+                                  // Check if new items were added
+                                  if (_orderItemsList.isNotEmpty &&
+                                      pickupOrderItems.clothData != null &&
+                                      _orderItemsList.length !=
+                                          pickupOrderItems.clothData!.length) {
+                                    // Items added → call AddPickupOrder API first
+                                    await _handleTap(
+                                      context,
+                                      pickupOrderItems,
+                                      subtotal,
+                                      totalamt,
+                                      blnc,
+                                    );
+                                  } else {
+                                    // no new items → directly call FetchStatusPickupEvent
+                                    context.read<PickupcustdetailsBloc>().add(
+                                      FetchStatusPickupEvent(
+                                        pickupAssignId: widget.pickupAssignId,
+                                        token: token,
+                                        companyCode: companyCode,
+                                      ),
+                                    );
+                                  }
                                 }
                               },
                               child: Container(

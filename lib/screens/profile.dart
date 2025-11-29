@@ -74,7 +74,20 @@ class _ProfileState extends State<Profile> {
                         borderRadius: BorderRadius.circular(20.r),
                       ),
                     ),
-                    
+                    child: Row(
+                      children: [
+                        
+                        Text(
+                  'Edit Profile',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 16.sp,
+                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                      ],
+                    ),
                   ),
           ],
         ),

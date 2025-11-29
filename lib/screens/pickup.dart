@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:syswash/bloc/bloc/customerlist_bloc.dart';
+import 'package:syswash/bloc/bloc/pickupcustdetails_bloc.dart';
 import 'package:syswash/bloc/bloc/pickuplist_bloc.dart';
 import 'package:syswash/bloc/bloc/uploadpickup_bloc.dart';
 import 'package:syswash/screens/add_customer_dialog.dart';
@@ -51,9 +52,6 @@ class _PickupState extends State<Pickup> {
       userName ?? '',
       userId ?? '',
     );
-    
-    
-  
   }
 
   @override
@@ -151,15 +149,26 @@ class _PickupState extends State<Pickup> {
                     );
                   }
                   if (state is PickUpBlocLoaded) {
-                    final pickupOrders = state.pickUpListModel?.data ?? [];
+                    final pickupOrdersList = state.pickUpListModel?.data ?? [];
+                    // Filter orders whose pickupstatus is NOT "Received"
+                    final pickupOrders =
+                        pickupOrdersList
+                            .where(
+                              (order) =>
+                                  order.pickupstatus
+                                      ?.toString()
+                                      .toLowerCase() !=
+                                  'received',
+                            )
+                            .toList();
                     return ListView.builder(
                       itemCount: pickupOrders.length,
                       itemBuilder: (context, index) {
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 8.0),
                           child: GestureDetector(
-                            onTap: () {
-                              Navigator.push(
+                            onTap: () async {
+                              final result = await Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                   builder:
@@ -167,14 +176,29 @@ class _PickupState extends State<Pickup> {
                                         customerId:
                                             pickupOrders[index].pickupCustomerId
                                                 .toString(),
-                                        pickupOrderId: pickupOrders[index].pickupOrderId
+                                        pickupOrderId:
+                                            pickupOrders[index].pickupOrderId
                                                 .toString(),
-                                                 pickupAssignId: pickupOrders[index].pickupassgnId??0,
-                                                notes: pickupOrders[index].notes??'',
-                                                remarks: pickupOrders[index].remarks??''       
+                                        pickupAssignId:
+                                            pickupOrders[index].pickupassgnId ??
+                                            0,
+                                        notes: pickupOrders[index].notes ?? '',
+                                        remarks:
+                                            pickupOrders[index].remarks ?? '',
                                       ),
                                 ),
                               );
+                              //  If the result is true, reload data
+                              if (result == true) {
+                                // Refresh the pickup list when returning from Pickupdetails
+                                context.read<PickuplistBloc>().add(
+                                  FetchPickUpEvent(
+                                    token: token ?? '',
+                                    companyCode: companyCode ?? '',
+                                    userId: userId ?? '',
+                                  ),
+                                );
+                              }
                             },
                             child: Container(
                               width: 364.w,
@@ -281,12 +305,12 @@ class _PickupState extends State<Pickup> {
               ),
             );
             context.read<PickuplistBloc>().add(
-      FetchPickUpEvent(
-        token: token ?? '',
-        companyCode: companyCode ?? '',
-        userId: userId ?? '',
-      ),
-    );
+              FetchPickUpEvent(
+                token: token ?? '',
+                companyCode: companyCode ?? '',
+                userId: userId ?? '',
+              ),
+            );
           } else if (state is UploadpickupError) {
             print(state.message);
             ScaffoldMessenger.of(context).showSnackBar(
@@ -300,7 +324,10 @@ class _PickupState extends State<Pickup> {
         child: FloatingActionButton(
           onPressed: () {
             context.read<CustomerlistBloc>().add(
-              FetchCustomerListEvent(token: token ?? '',companyCode: companyCode ?? ''),
+              FetchCustomerListEvent(
+                token: token ?? '',
+                companyCode: companyCode ?? '',
+              ),
             );
             _openAddCustomerDialog(context);
           },

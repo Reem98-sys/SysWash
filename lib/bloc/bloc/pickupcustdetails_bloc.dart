@@ -2,6 +2,7 @@ import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
 import 'package:syswash/model/customerDetailsModel.dart';
 import 'package:syswash/model/pickupOrderItemsModel.dart';
+import 'package:syswash/model/settingsModel.dart';
 import 'package:syswash/repositories/sys_repository.dart';
 
 part 'pickupcustdetails_event.dart';
@@ -19,7 +20,7 @@ class PickupcustdetailsBloc
           event.token,
           event.companyCode,
         );
-
+        final settings = await sysRepository.settingsData(event.companyCode, event.token);
         PickupOrderItemsModel? items;
 
         if (event.pickupOrderId != null &&
@@ -37,9 +38,10 @@ class PickupcustdetailsBloc
         emit(
           PickupCustDetailsLoaded(
             customerDetailsModel: customer,
-            pickupOrderItemsModel: items,
+            pickupOrderItemsModel: items, settingsModel: settings,
           ),
         );
+        
       } catch (e, stackTrace) {
         print("❌ Error in FetchFullPickupDetailsEvent: $e");
         print("📜 StackTrace: $stackTrace");
@@ -93,5 +95,31 @@ class PickupcustdetailsBloc
         emit(PickupCustDetailsError(message: e.toString()));
       }
     });
+
+    on<FetchAddNewPickupEvent>((event, emit) async {
+      emit(PickupCustDetailsLoading());
+      try {
+        final response = await sysRepository.addnewOrderItem(
+          event.token,
+          event.companyCode,
+          event.pickupassgnId,
+          event.pickupTime,
+          event.quantity,
+          event.subTotal,
+          event.discount,
+          event.totalAmount,
+          event.paidAmount,
+          event.balance,
+          event.clothData
+        );
+        emit(AddNewPickupOrderLoaded());
+      } catch (e) {
+        print('++++++++++++++++++++++++++++++++++++');
+        emit(PickupCustDetailsError(message: e.toString()));
+      }
+    });
+  
+
+  
   }
 }
