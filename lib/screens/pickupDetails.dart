@@ -839,12 +839,13 @@ class _PickupdetailsState extends State<Pickupdetails> {
                                   return;
                                 }
                                 // case 1 : new order (no pickupOrderId)
-                                if (widget.pickupOrderId == null ||
+                                if ((widget.pickupOrderId == null ||
                                     widget.pickupOrderId.toString().isEmpty ||
                                     widget.pickupOrderId
                                             .toString()
                                             .toLowerCase() ==
-                                        "null") {
+                                        "null") &&
+                                        _orderItemsList.isNotEmpty) {
                                   double totalDiscount =
                                       subtotal *
                                       (double.tryParse(
@@ -922,13 +923,21 @@ class _PickupdetailsState extends State<Pickupdetails> {
                                     );
                                   } else {
                                     // no new items → directly call FetchStatusPickupEvent
-                                    context.read<PickupcustdetailsBloc>().add(
+                                    if(_orderItemsList.length!=0){
+                                      context.read<PickupcustdetailsBloc>().add(
                                       FetchStatusPickupEvent(
                                         pickupAssignId: widget.pickupAssignId,
                                         token: token,
                                         companyCode: companyCode,
                                       ),
                                     );
+                                    }
+                                    else{
+                                      ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(SnackBar(content: Text('Please add Items')));
+                                    }
+                                    
                                   }
                                 }
                               },
