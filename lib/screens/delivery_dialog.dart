@@ -5,7 +5,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:syswash/bloc/bloc/deliverystatus_bloc.dart';
 
 class DeliveryDialog {
-  static Future<void> show(
+  static Future<bool?> show(
     BuildContext context, {
     required Map<String, dynamic> payModes,
     required int? deliveryassgnId,
@@ -47,13 +47,16 @@ class _DeliveryDialogContent extends StatelessWidget {
             context,
           ).showSnackBar(const SnackBar(content: Text('Updating delivery...')));
         } else if (state is DeliverySuccess) {
-          Navigator.pop(context, true);
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Updated Successfully'),
               backgroundColor: Colors.green,
             ),
           );
+          // Wait for snackbar to finish before closing dialog
+          Future.delayed(const Duration(seconds: 2), () {
+            Navigator.of(context, rootNavigator: true).pop(true);
+          });
         } else if (state is DeliveryError) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -91,12 +94,11 @@ class _DeliveryDialogContent extends StatelessWidget {
                 payModes,
               );
               if (selectedMethod != null) {
-
                 // Now call API here
                 const storage = FlutterSecureStorage();
                 final companyCode = await storage.read(key: 'company_Code');
                 final token = await storage.read(key: 'access_Token');
-        
+
                 if (token != null && companyCode != null) {
                   final deliverystatusBloc = context.read<DeliverystatusBloc>();
                   deliverystatusBloc.add(

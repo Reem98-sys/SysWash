@@ -108,7 +108,7 @@ class _HomeState extends State<Home> {
                       ],
                       options: CarouselOptions(
                         height: 180.h,
-                        autoPlay: false,
+                        autoPlay: true,
                         enlargeCenterPage: true,
                         viewportFraction: 1,
                       ),
@@ -236,9 +236,19 @@ class _HomeState extends State<Home> {
                               ),
                             ),
                             SizedBox(height: 14.h),
-                            _orderButton(
-                              'DELIVERY ORDER',
-                              const Color(0xFFF38305),
+                            GestureDetector(
+                              onTap: () => Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder:
+                                          (context) =>
+                                              const Bottomnav(currentIndex: 2),
+                                    ),
+                                  ),
+                              child: _orderButton(
+                                'DELIVERY ORDER',
+                                const Color(0xFFF38305),
+                              ),
                             ),
                           ],
                         ),
@@ -341,8 +351,12 @@ class _HomeState extends State<Home> {
                                     'received',
                               )
                               .toList();
+                      final deliveryOrdersList = 
+                                state.deliveryListModel?.data ?? [];  
                       final deliveryOrders =
-                          state.deliveryListModel?.data ?? [];
+                                deliveryOrdersList.where((order) =>
+                                order.status?.toString().toLowerCase() !=
+                                "delivered").toList();
                       final allOrders = [...pickupOrders, ...deliveryOrders];
 
                       final filteredOrders =

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:syswash/screens/delivery.dart';
+import 'package:syswash/screens/history.dart';
 import 'package:syswash/screens/home.dart';
 import 'package:syswash/screens/pickup.dart';
 import 'package:syswash/screens/profile.dart';
@@ -21,7 +22,7 @@ class _BottomnavState extends State<Bottomnav> {
     const Home(),
     const Pickup(),
     const Delivery(),
-    const Home(),
+    const History(),
     const Profile(),
   ];
 

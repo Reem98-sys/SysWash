@@ -689,20 +689,26 @@ class _DeliverydetailState extends State<Deliverydetail> {
                             Spacer(),
                             GestureDetector(
                               onTap: () async {
-                                
                                 final payModes = {
                                   "PaymodeCash": settingsData.paymodeCash,
                                   "PaymodeBank": settingsData.paymodeBank,
                                   "PaymodeCard": settingsData.paymodeCard,
                                   "PaymodeWallet": settingsData.paymodeWallet,
-                                  "PaymodeVoid":settingsData.paymodeVoid
+                                  "PaymodeVoid": settingsData.paymodeVoid,
                                 };
-                                DeliveryDialog.show(
+                                final result = await DeliveryDialog.show(
                                   context,
-                                  payModes: payModes, 
-                                  deliveryassgnId: deliveryItems.deliveryassgn![0].deliveryassgnId,
-                                 
+                                  payModes: payModes,
+                                  deliveryassgnId:
+                                      deliveryItems
+                                          .deliveryassgn![0]
+                                          .deliveryassgnId,
                                 );
+
+                                //  If dialog returns success, pop back to list and trigger reload
+                                if (result == true) {
+                                  Navigator.pop(context, true);
+                                }
                               },
                               child: Container(
                                 width: 125.w,

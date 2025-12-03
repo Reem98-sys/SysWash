@@ -34,6 +34,7 @@ class _DeliveryState extends State<Delivery> {
       userId = userid;
     });
   }
+
   @override
   void initState() {
     super.initState();
@@ -44,6 +45,7 @@ class _DeliveryState extends State<Delivery> {
       _filterSearchResults(searchData.text);
     });
   }
+
   void _filterSearchResults(String query) {
     if (query.isEmpty) {
       setState(() {
@@ -53,16 +55,18 @@ class _DeliveryState extends State<Delivery> {
     }
 
     setState(() {
-      filteredList = fullList.where((item) {
-        final name = item.deliveryCustomerName?.toLowerCase() ?? '';
-        final phone = item.deliveryCustomerPhno?.toString() ?? '';
-        final area = item.deliveryCustomerArea?.toLowerCase() ?? '';
-        return name.contains(query.toLowerCase()) ||
-            phone.contains(query) ||
-            area.contains(query.toLowerCase());
-      }).toList();
+      filteredList =
+          fullList.where((item) {
+            final name = item.deliveryCustomerName?.toLowerCase() ?? '';
+            final phone = item.deliveryCustomerPhno?.toString() ?? '';
+            final area = item.deliveryCustomerArea?.toLowerCase() ?? '';
+            return name.contains(query.toLowerCase()) ||
+                phone.contains(query) ||
+                area.contains(query.toLowerCase());
+          }).toList();
     });
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -112,7 +116,7 @@ class _DeliveryState extends State<Delivery> {
                 ),
                 GestureDetector(
                   onTap: () {
-                    Navigator.pop(context);
+                    // Navigator.pop(context);
                   },
                   child: SvgPicture.asset('assets/Back.svg'),
                 ),
@@ -158,7 +162,14 @@ class _DeliveryState extends State<Delivery> {
                     );
                   }
                   if (state is PickUpBlocLoaded) {
-                    fullList = state.deliveryListModel?.data ?? [];
+                    fullList =
+                        (state.deliveryListModel?.data ?? [])
+                            .where(
+                              (order) =>
+                                  order.status?.toString().toLowerCase() !=
+                                  "delivered",
+                            )
+                            .toList();
 
                     // If filteredList is empty (first load or cleared search)
                     if (filteredList.isEmpty && searchData.text.isEmpty) {
@@ -168,7 +179,7 @@ class _DeliveryState extends State<Delivery> {
                     if (filteredList.isEmpty) {
                       return const Center(child: Text('No results found.'));
                     }
-                    
+
                     return ListView.builder(
                       itemCount: filteredList.length,
                       itemBuilder: (context, index) {
@@ -181,28 +192,39 @@ class _DeliveryState extends State<Delivery> {
                                 MaterialPageRoute(
                                   builder:
                                       (context) => Deliverydetail(
-                                        customerId:filteredList[index].deliveryCustomerId,
+                                        customerId:
+                                            filteredList[index]
+                                                .deliveryCustomerId,
                                         deliveryOrderId:
-                                            filteredList[index].deliveryInvoiceNo.toString(),
-                                        notes: 
-                                        // filteredList[index].notes ??
-                                         '',
+                                            filteredList[index]
+                                                .deliveryInvoiceNo
+                                                .toString(),
+                                        notes:
+                                            // filteredList[index].notes ??
+                                            '',
                                         remarks:
                                             // filteredList[index].remarks ??
-                                             '',
+                                            '',
                                       ),
                                 ),
                               );
+                              print('AAAAAAAAAAAAAAAAAA${result}');
                               //  If the result is true, reload data
                               if (result == true) {
-                                // Refresh the pickup list when returning from Pickupdetails
-                                context.read<PickuplistBloc>().add(
-                                  FetchAllOrdersEvent(
-                                    token: token ?? '',
-                                    companyCode: companyCode ?? '',
-                                    userId: userId ?? '',
-                                  ),
-                                );
+                                // clear old cached lists first
+                                setState(() {
+                                  fullList.clear();
+                                  filteredList.clear();
+                                });
+                                await Future.delayed(const Duration(seconds: 1), () {
+                                  context.read<PickuplistBloc>().add(
+                                    FetchDeliveryEvent(
+                                      userId: userId ?? '',
+                                      companyCode: companyCode ?? '',
+                                      token: token ?? '',
+                                    ),
+                                  );
+                                });
                               }
                             },
                             child: Container(
@@ -220,7 +242,8 @@ class _DeliveryState extends State<Delivery> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      filteredList[index].deliveryCustomerName.toString(),
+                                      filteredList[index].deliveryCustomerName
+                                          .toString(),
                                       style: TextStyle(
                                         color: const Color(0xFF150B3D),
                                         fontSize: 16.sp,
@@ -229,7 +252,8 @@ class _DeliveryState extends State<Delivery> {
                                       ),
                                     ),
                                     Text(
-                                      filteredList[index].deliveryCustomerPhno.toString(),
+                                      filteredList[index].deliveryCustomerPhno
+                                          .toString(),
                                       style: TextStyle(
                                         color: const Color(0xFF514A6B),
                                         fontSize: 14.sp,
@@ -246,7 +270,9 @@ class _DeliveryState extends State<Delivery> {
                                           color: Colors.grey,
                                         ),
                                         Text(
-                                          filteredList[index].deliveryCustomerArea.toString(),
+                                          filteredList[index]
+                                              .deliveryCustomerArea
+                                              .toString(),
                                           style: TextStyle(
                                             color: Colors.black,
                                             fontSize: 11.sp,
@@ -263,7 +289,8 @@ class _DeliveryState extends State<Delivery> {
                                           color: Colors.grey,
                                         ),
                                         Text(
-                                          filteredList[index].deliveryDate.toString(),
+                                          filteredList[index].deliveryDate
+                                              .toString(),
                                           style: TextStyle(
                                             color: Colors.black,
                                             fontSize: 11.sp,
@@ -287,9 +314,11 @@ class _DeliveryState extends State<Delivery> {
                     return SizedBox();
                   }
                 },
-              ),)
+              ),
+            ),
           ],
-        ),),
+        ),
+      ),
     );
   }
 }

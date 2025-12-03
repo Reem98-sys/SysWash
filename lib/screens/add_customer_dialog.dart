@@ -439,7 +439,7 @@ Future<Map<String, String>?> showAddCustomerDialog(
                       pickupCustomerName:
                           dropDownKey.currentState?.getSelectedItem ?? "",
                       pickupCustomerPhno: phoneController.text.trim(),
-                      pickupDate: dateController.text.trim(),
+                      pickupDate: DateTime.now().toIso8601String().split('T')[0],
                       pickupDriverid: pickupDriverid,
                       pickupDrivername: pickupDrivername,
                       remarks: remarkController.text.trim() ?? '',

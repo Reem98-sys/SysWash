@@ -129,7 +129,7 @@ class _PickupState extends State<Pickup> {
                 ),
                 GestureDetector(
                   onTap: () {
-                    Navigator.pop(context);
+                    // Navigator.pop(context);
                   },
                   child: SvgPicture.asset('assets/Back.svg'),
                 ),
