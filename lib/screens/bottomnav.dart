@@ -1,25 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:syswash/screens/delivery.dart';
 import 'package:syswash/screens/home.dart';
 import 'package:syswash/screens/pickup.dart';
+import 'package:syswash/screens/profile.dart';
 
 class Bottomnav extends StatefulWidget {
-  const Bottomnav({super.key});
-
+  final int currentIndex;
+  const Bottomnav({super.key, this.currentIndex = 0});
+  
   @override
   State<Bottomnav> createState() => _BottomnavState();
 }
 
 class _BottomnavState extends State<Bottomnav> {
-  int _selectedScreen = 0;
+  late int _selectedScreen;
 
   final List<Widget> _screens = [
     const Home(),
     const Pickup(),
+    const Delivery(),
     const Home(),
-    const Home(),
-    const Home(),
+    const Profile(),
   ];
 
   final List<Map<String, dynamic>> _items = [
@@ -30,10 +33,10 @@ class _BottomnavState extends State<Bottomnav> {
     {'icon': 'assets/person.svg', 'label': 'Profile'},
   ];
 
-  void _onTapped(int index) {
-    setState(() {
-      _selectedScreen = index;
-    });
+  @override
+  void initState() {
+    super.initState();
+    _selectedScreen = widget.currentIndex;
   }
 
   @override
@@ -41,7 +44,7 @@ class _BottomnavState extends State<Bottomnav> {
     return Scaffold(
       body: _screens[_selectedScreen],
 
-      // 🔹 Custom bottom navigation bar
+      //  Custom bottom navigation bar
       bottomNavigationBar: ClipRRect(
         // borderRadius: BorderRadius.circular(16.r),
         child: Container(
@@ -70,7 +73,9 @@ class _BottomnavState extends State<Bottomnav> {
               final bool isSelected = index == _selectedScreen;
       
               return GestureDetector(
-                onTap: () => _onTapped(index),
+                onTap: () {
+                  setState(() => _selectedScreen = index);
+                },
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 250),
                   padding: EdgeInsets.symmetric(

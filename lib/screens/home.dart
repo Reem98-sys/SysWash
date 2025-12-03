@@ -11,6 +11,7 @@ import 'package:syswash/helper/date_helper.dart';
 import 'package:syswash/model/deliveryListModel.dart';
 import 'package:syswash/model/pickupListModel.dart';
 import 'package:syswash/model/totalOrder.dart';
+import 'package:syswash/screens/bottomnav.dart';
 import 'package:syswash/screens/pickup.dart';
 
 class Home extends StatefulWidget {
@@ -221,10 +222,12 @@ class _HomeState extends State<Home> {
                           children: [
                             GestureDetector(
                               onTap:
-                                  () => Navigator.push(
+                                  () => Navigator.pushReplacement(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) => Pickup(),
+                                      builder:
+                                          (context) =>
+                                              const Bottomnav(currentIndex: 1),
                                     ),
                                   ),
                               child: _orderButton(
@@ -325,7 +328,19 @@ class _HomeState extends State<Home> {
                     }
 
                     if (state is PickUpBlocLoaded) {
-                      final pickupOrders = state.pickUpListModel?.data ?? [];
+                      final pickupOrdersList =
+                          state.pickUpListModel?.data ?? [];
+                      // Filter orders whose pickupstatus is NOT "Received"
+                      final pickupOrders =
+                          pickupOrdersList
+                              .where(
+                                (order) =>
+                                    order.pickupstatus
+                                        ?.toString()
+                                        .toLowerCase() !=
+                                    'received',
+                              )
+                              .toList();
                       final deliveryOrders =
                           state.deliveryListModel?.data ?? [];
                       final allOrders = [...pickupOrders, ...deliveryOrders];

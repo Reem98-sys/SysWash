@@ -76,7 +76,6 @@ class PickupcustdetailsBloc
         //   emit(PickupCustDetailsError(message: 'Failed to update order'));
         // }
       } catch (e) {
-        print('&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&');
         emit(PickupCustDetailsError(message: e.toString()));
       }
     });
@@ -114,7 +113,6 @@ class PickupcustdetailsBloc
         );
         emit(AddNewPickupOrderLoaded());
       } catch (e) {
-        print('++++++++++++++++++++++++++++++++++++');
         emit(PickupCustDetailsError(message: e.toString()));
       }
     });

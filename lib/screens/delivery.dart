@@ -3,21 +3,17 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:syswash/bloc/bloc/customerlist_bloc.dart';
-import 'package:syswash/bloc/bloc/pickupcustdetails_bloc.dart';
 import 'package:syswash/bloc/bloc/pickuplist_bloc.dart';
-import 'package:syswash/bloc/bloc/uploadpickup_bloc.dart';
-import 'package:syswash/screens/add_customer_dialog.dart';
-import 'package:syswash/screens/pickupDetails.dart';
+import 'package:syswash/screens/deliveryDetail.dart';
 
-class Pickup extends StatefulWidget {
-  const Pickup({super.key});
+class Delivery extends StatefulWidget {
+  const Delivery({super.key});
 
   @override
-  State<Pickup> createState() => _PickupState();
+  State<Delivery> createState() => _DeliveryState();
 }
 
-class _PickupState extends State<Pickup> {
+class _DeliveryState extends State<Delivery> {
   TextEditingController searchData = TextEditingController();
   String? userName;
   String? token;
@@ -38,7 +34,6 @@ class _PickupState extends State<Pickup> {
       userId = userid;
     });
   }
-
   @override
   void initState() {
     super.initState();
@@ -49,7 +44,6 @@ class _PickupState extends State<Pickup> {
       _filterSearchResults(searchData.text);
     });
   }
-
   void _filterSearchResults(String query) {
     if (query.isEmpty) {
       setState(() {
@@ -60,26 +54,15 @@ class _PickupState extends State<Pickup> {
 
     setState(() {
       filteredList = fullList.where((item) {
-        final name = item.pickupCustomerName?.toLowerCase() ?? '';
-        final phone = item.pickupCustomerPhno?.toString() ?? '';
-        final area = item.pickupCustomerArea?.toLowerCase() ?? '';
+        final name = item.deliveryCustomerName?.toLowerCase() ?? '';
+        final phone = item.deliveryCustomerPhno?.toString() ?? '';
+        final area = item.deliveryCustomerArea?.toLowerCase() ?? '';
         return name.contains(query.toLowerCase()) ||
             phone.contains(query) ||
             area.contains(query.toLowerCase());
       }).toList();
     });
   }
-
-  Future<void> _openAddCustomerDialog(BuildContext context) async {
-    final result = await showAddCustomerDialog(
-      context,
-      companyCode ?? '',
-      token ?? '',
-      userName ?? '',
-      userId ?? '',
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -119,7 +102,7 @@ class _PickupState extends State<Pickup> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Pickup Customers',
+                  'Delivery Customers',
                   style: TextStyle(
                     color: const Color(0xFF63629C),
                     fontSize: 16.sp,
@@ -175,12 +158,8 @@ class _PickupState extends State<Pickup> {
                     );
                   }
                   if (state is PickUpBlocLoaded) {
-                    // Get full list from API
-                    fullList = (state.pickUpListModel?.data ?? [])
-                        .where((order) =>
-                            order.pickupstatus?.toString().toLowerCase() !=
-                            'received')
-                        .toList();
+                    fullList = state.deliveryListModel?.data ?? [];
+
                     // If filteredList is empty (first load or cleared search)
                     if (filteredList.isEmpty && searchData.text.isEmpty) {
                       filteredList = fullList;
@@ -193,7 +172,6 @@ class _PickupState extends State<Pickup> {
                     return ListView.builder(
                       itemCount: filteredList.length,
                       itemBuilder: (context, index) {
-                        final order = filteredList[index];
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 8.0),
                           child: GestureDetector(
@@ -202,19 +180,16 @@ class _PickupState extends State<Pickup> {
                                 context,
                                 MaterialPageRoute(
                                   builder:
-                                      (context) => Pickupdetails(
-                                        customerId:
-                                            order.pickupCustomerId
-                                                .toString(),
-                                        pickupOrderId:
-                                            order.pickupOrderId
-                                                .toString(),
-                                        pickupAssignId:
-                                            order.pickupassgnId ??
-                                            0,
-                                        notes: order.notes ?? '',
+                                      (context) => Deliverydetail(
+                                        customerId:filteredList[index].deliveryCustomerId,
+                                        deliveryOrderId:
+                                            filteredList[index].deliveryInvoiceNo.toString(),
+                                        notes: 
+                                        // filteredList[index].notes ??
+                                         '',
                                         remarks:
-                                            order.remarks ?? '',
+                                            // filteredList[index].remarks ??
+                                             '',
                                       ),
                                 ),
                               );
@@ -222,7 +197,7 @@ class _PickupState extends State<Pickup> {
                               if (result == true) {
                                 // Refresh the pickup list when returning from Pickupdetails
                                 context.read<PickuplistBloc>().add(
-                                  FetchPickUpEvent(
+                                  FetchAllOrdersEvent(
                                     token: token ?? '',
                                     companyCode: companyCode ?? '',
                                     userId: userId ?? '',
@@ -245,8 +220,7 @@ class _PickupState extends State<Pickup> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      order.pickupCustomerName
-                                          .toString(),
+                                      filteredList[index].deliveryCustomerName.toString(),
                                       style: TextStyle(
                                         color: const Color(0xFF150B3D),
                                         fontSize: 16.sp,
@@ -255,8 +229,7 @@ class _PickupState extends State<Pickup> {
                                       ),
                                     ),
                                     Text(
-                                      order.pickupCustomerPhno
-                                          .toString(),
+                                      filteredList[index].deliveryCustomerPhno.toString(),
                                       style: TextStyle(
                                         color: const Color(0xFF514A6B),
                                         fontSize: 14.sp,
@@ -273,8 +246,7 @@ class _PickupState extends State<Pickup> {
                                           color: Colors.grey,
                                         ),
                                         Text(
-                                          order.pickupCustomerArea
-                                              .toString(),
+                                          filteredList[index].deliveryCustomerArea.toString(),
                                           style: TextStyle(
                                             color: Colors.black,
                                             fontSize: 11.sp,
@@ -291,8 +263,7 @@ class _PickupState extends State<Pickup> {
                                           color: Colors.grey,
                                         ),
                                         Text(
-                                          order.pickupDate
-                                              .toString(),
+                                          filteredList[index].deliveryDate.toString(),
                                           style: TextStyle(
                                             color: Colors.black,
                                             fontSize: 11.sp,
@@ -316,56 +287,9 @@ class _PickupState extends State<Pickup> {
                     return SizedBox();
                   }
                 },
-              ),
-            ),
+              ),)
           ],
-        ),
-      ),
-      floatingActionButton: BlocListener<UploadpickupBloc, UploadpickupState>(
-        listener: (context, state) {
-          if (state is UploadpickupLoading) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text("Uploading pickup...")),
-            );
-          } else if (state is UploadpickupLoaded) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.message),
-                backgroundColor: Colors.green,
-              ),
-            );
-            context.read<PickuplistBloc>().add(
-              FetchPickUpEvent(
-                token: token ?? '',
-                companyCode: companyCode ?? '',
-                userId: userId ?? '',
-              ),
-            );
-          } else if (state is UploadpickupError) {
-            print(state.message);
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.message),
-                backgroundColor: Colors.red,
-              ),
-            );
-          }
-        },
-        child: FloatingActionButton(
-          onPressed: () {
-            context.read<CustomerlistBloc>().add(
-              FetchCustomerListEvent(
-                token: token ?? '',
-                companyCode: companyCode ?? '',
-              ),
-            );
-            _openAddCustomerDialog(context);
-          },
-
-          backgroundColor: const Color(0xFF68188B),
-          child: Icon(Icons.add, color: Colors.white),
-        ),
-      ),
+        ),),
     );
   }
 }

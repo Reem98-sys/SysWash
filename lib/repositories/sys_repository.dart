@@ -9,6 +9,7 @@ import 'package:syswash/model/delivery_list_response.dart';
 import 'package:syswash/model/pickupListModel.dart';
 import 'package:syswash/model/pickupOrderItemsModel.dart';
 import 'package:syswash/model/pickup_list_response.dart';
+import 'package:syswash/model/profileModel.dart';
 import 'package:syswash/model/serviceDetails.dart';
 import 'package:syswash/model/settingsModel.dart';
 import 'package:syswash/model/totalOrder.dart';
@@ -232,10 +233,7 @@ class SysRepository {
     return PickupOrderItemsModel.fromJson(jsonDecode(response.body));
   }
 
-  Future<SettingsModel> settingsData(
-    String companyCode,
-    String token
-  ) async {
+  Future<SettingsModel> settingsData(String companyCode, String token) async {
     String url =
         "https://be.syswash.net/api/syswash/settings/1?code=${companyCode}";
     Response response = await apiClient.invokeAPI(
@@ -248,7 +246,7 @@ class SysRepository {
   }
 
   Future<void> addnewOrderItem(
-    String token, 
+    String token,
     String companyCode,
     String pickupassgnId,
     String pickupTime,
@@ -258,21 +256,22 @@ class SysRepository {
     double totalAmount,
     double paidAmount,
     double balance,
-    List<Map<String,dynamic>> clothData) async {
+    List<Map<String, dynamic>> clothData,
+  ) async {
     String url =
         "https://be.syswash.net/api/syswash/pickuporder?code=${companyCode}";
     body = {
-      'pickupassgn_id':pickupassgnId,
-      'pickuporderTime':pickupTime,
-      'quantity':quantity,
-      'subTotal':subTotal,
-      'discount':discount,
-      'totalAmount':totalAmount,
-      'paidAmount':paidAmount,
-      'balance':balance,
+      'pickupassgn_id': pickupassgnId,
+      'pickuporderTime': pickupTime,
+      'quantity': quantity,
+      'subTotal': subTotal,
+      'discount': discount,
+      'totalAmount': totalAmount,
+      'paidAmount': paidAmount,
+      'balance': balance,
       'deliveryType': "PICKUP & DELIVERY",
       'accountType': "MobileApp",
-      'clothData':clothData,
+      'clothData': clothData,
     };
     Response response = await apiClient.invokeAPI(
       url,
@@ -366,7 +365,7 @@ class SysRepository {
       "pickupCustomerId": pickupCustomerId,
       "pickupCustomerName": pickupCustomerName,
       "pickupCustomerPhno": pickupCustomerPhno,
-      "pickupDate": '2025-12-25',
+      "pickupDate": pickupDate,
       "pickupDriverid": pickupDriverid,
       "pickupDrivername": pickupDrivername,
       "remarks": remarks != '' ? remarks : null,
@@ -374,6 +373,65 @@ class SysRepository {
     Response response = await apiClient.invokeAPI(
       url,
       "POST",
+      jsonEncode(body),
+      token: token,
+    );
+    if (response.statusCode == 200) {
+      print('Upload successful: ${response.body}');
+    } else {
+      print('Upload failed: ${response.statusCode}');
+    }
+  }
+
+  Future<ProfileModel> profileDetail(
+    String userId,
+    String companyCode,
+    String token,
+  ) async {
+    String url =
+        "https://be.syswash.net/api/syswash/driverdetails/${userId}?code=${companyCode}";
+    Response response = await apiClient.invokeAPI(
+      url,
+      "GET",
+      jsonEncode({}),
+      token: token,
+    );
+    return ProfileModel.fromJson(jsonDecode(response.body));
+  }
+
+  Future<void> deliverypaymentstatus(
+    String companyCode,
+    String token,
+    int deliveryassgnId,
+    String? paymentMode,
+    String? paymentstatus,
+  ) async {
+    print('0000000000000000000000000000000');
+    final now = DateTime.now();
+    final formattedDateTime =
+        "${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')} "
+        "${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}:${now.second.toString().padLeft(2, '0')}";
+    String url =
+        "https://be.syswash.net/api/syswash/deliverystatus/${deliveryassgnId}?code=${companyCode}";
+    if (paymentMode == '' || paymentstatus == '') {
+      body = {
+        "deliveredDateTime": formattedDateTime.toString(),
+        "deliveryassgnId": deliveryassgnId,
+        "status": "Delivered",
+      };
+    } else {
+      body = {
+        "deliveredDateTime": formattedDateTime.toString(),
+        "deliveryassgnId": deliveryassgnId,
+        "status": "Delivered",
+        "paymentstatus": paymentstatus,
+        "paymentMode": paymentMode,
+      };
+    }
+
+    Response response = await apiClient.invokeAPI(
+      url,
+      "PUT",
       jsonEncode(body),
       token: token,
     );
