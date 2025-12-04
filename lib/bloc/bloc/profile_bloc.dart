@@ -18,5 +18,36 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
         emit(ProfileBlocError());
       }
     });
+    on<UpdateProfileEvent>((event, emit) async {
+      emit(ProfileBlocLoading());
+      try {
+        final updateprofile = await sysRepository.updateProfile(
+          event.userID,
+          event.companyCode,
+          event.token,
+          event.name,
+          event.email,
+          event.phone,
+          event.password);
+        emit(UpdateProfileLoaded());
+      } catch (e) {
+        emit(ProfileBlocError());
+      }
+    });
+    on<UpdatePasswordEvent>((event, emit) async {
+      emit(ProfileBlocLoading());
+      try {
+        final updatepassword = await sysRepository.updatepassword(
+          event.userID,
+          event.companyCode,
+          event.token,
+          event.currentpass,
+          event.newPass,
+          event.newconfpass);
+        emit(UpdatePasswordLoaded());
+      } catch (e) {
+        emit(ProfileBlocError());
+      }
+    });
   }
 }

@@ -406,7 +406,6 @@ class SysRepository {
     String? paymentMode,
     String? paymentstatus,
   ) async {
-    print('0000000000000000000000000000000');
     final now = DateTime.now();
     final formattedDateTime =
         "${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')} "
@@ -439,6 +438,66 @@ class SysRepository {
       print('Upload successful: ${response.body}');
     } else {
       print('Upload failed: ${response.statusCode}');
+    }
+  }
+
+  Future<String> updateProfile(
+    String userID,
+    String companyCode,
+    String token,
+    String name,
+    String email,
+    String phone,
+    String password
+  ) async {
+   
+    String url =
+        "https://be.syswash.net/api/syswash/driverdetails/${userID}?code=${companyCode}";
+    body = {
+      "name": name, 
+      "email": email, 
+      "mobile": phone,
+      "password":password
+      };
+    Response response = await apiClient.invokeAPI(
+      url,
+      "PUT",
+      jsonEncode(body),
+      token: token,
+    );
+    if (response.statusCode == 200) {
+      return 'Profile updated successfully';
+    } else {
+      return 'Unable to update';
+    }
+  }
+
+  Future<String> updatepassword(
+    String userID,
+    String companyCode,
+    String token,
+    String currentpass,
+    String newPass,
+    String newconfpass,
+  ) async {
+   
+    String url =
+        "https://be.syswash.net/api/syswash/driverchangepass/${userID}?code=${companyCode}";
+    body = {
+      "currentPass": currentpass, 
+      "newPass": newPass, 
+      "newConfPass": newconfpass,
+      };
+    Response response = await apiClient.invokeAPI(
+      url,
+      "PUT",
+      jsonEncode(body),
+      token: token,
+    );
+    if (response.statusCode == 200) {
+      return 'Profile updated successfully';
+    } else {
+      return 'Unable to update';
     }
   }
 }

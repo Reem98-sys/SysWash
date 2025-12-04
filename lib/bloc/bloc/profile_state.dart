@@ -9,4 +9,6 @@ class ProfileBlocLoaded extends ProfileState {
   final ProfileModel profileModel;
   ProfileBlocLoaded({required this.profileModel});
 }
+class UpdateProfileLoaded extends ProfileState {}
+class UpdatePasswordLoaded extends ProfileState {}
 class ProfileBlocError extends ProfileState {}
