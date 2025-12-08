@@ -6,7 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:syswash/bloc/bloc/customerlist_bloc.dart';
 import 'package:syswash/bloc/bloc/uploadpickup_bloc.dart';
 
-Future<Map<String, String>?> showAddCustomerDialog(
+Future<bool?> showAddCustomerDialog(
   BuildContext context,
   String companyCode,
   String token,
@@ -26,7 +26,7 @@ Future<Map<String, String>?> showAddCustomerDialog(
   String currentDate = DateFormat('dd-MM-yyyy').format(DateTime.now());
   dateController = TextEditingController(text: currentDate);
   final dropDownKey = GlobalKey<DropdownSearchState>();
-  return showDialog<Map<String, String>?>(
+  return showDialog<bool?>(
     context: context,
     builder: (BuildContext context) {
       return AlertDialog(
@@ -427,7 +427,7 @@ Future<Map<String, String>?> showAddCustomerDialog(
               ),
               SizedBox(width: 12.w),
               GestureDetector(
-                onTap: () {
+                onTap: () async {
                   context.read<UploadpickupBloc>().add(
                     FetchUploadPickupEvent(
                       companyCode: companyCode,
@@ -446,7 +446,7 @@ Future<Map<String, String>?> showAddCustomerDialog(
                     ),
                   );
                   
-                    Navigator.pop(context);
+                    Navigator.pop(context,true);
                  
                   // close the dialog after triggering upload
                 },

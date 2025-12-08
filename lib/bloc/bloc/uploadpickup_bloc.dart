@@ -12,7 +12,7 @@ class UploadpickupBloc extends Bloc<UploadpickupEvent, UploadpickupState> {
     on<FetchUploadPickupEvent>((event, emit) async {
       emit(UploadpickupLoading());
       try {
-        await sysRepository.uploadPickupDatas(
+        final result = await sysRepository.uploadPickupDatas(
           event.companyCode,
           event.token,
           event.notes,
@@ -26,7 +26,13 @@ class UploadpickupBloc extends Bloc<UploadpickupEvent, UploadpickupState> {
           event.pickupDrivername,
           event.remarks,
         );
-        emit(UploadpickupLoaded(message: 'Data Saved Successfully'));
+        if (result) {
+          emit(UploadpickupLoaded(message: 'Data Saved Successfully'));
+        }
+        else if (result!){
+          emit(UploadpickupError(message: 'Unable to Upload'));
+        }
+        
       } catch (e, st) {
         print(" Upload error: $e\n$st");
         emit(UploadpickupError(message: e.toString()));

@@ -33,6 +33,15 @@ class _DeliveryState extends State<Delivery> {
       companyCode = companycode;
       userId = userid;
     });
+    if (token != null && userId != null && companyCode != null) {
+      context.read<PickuplistBloc>().add(
+            FetchDeliveryEvent(
+              token: token!,
+              companyCode: companyCode!,
+              userId: userId!,
+            ),
+          );
+    }
   }
 
   @override
@@ -40,16 +49,20 @@ class _DeliveryState extends State<Delivery> {
     super.initState();
     // Call it when screen loads
     getUserData();
-    // Listen to search input changes
-    searchData.addListener(() {
-      _filterSearchResults(searchData.text);
+    // Delay adding listener until after widget builds
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      searchData.addListener(() => _filterSearchResults(searchData.text));
     });
   }
 
+  // ------------------- Search Filter -------------------
   void _filterSearchResults(String query) {
+    if (fullList.isEmpty) {
+      return;
+    }
     if (query.isEmpty) {
       setState(() {
-        filteredList = fullList;
+        filteredList = List.from(fullList);
       });
       return;
     }
@@ -137,7 +150,7 @@ class _DeliveryState extends State<Delivery> {
                 decoration: InputDecoration(
                   // contentPadding: EdgeInsets.all(5),
                   border: InputBorder.none,
-                  hintText: 'Search',
+                  hintText: fullList.isEmpty ? '' : 'Search',
 
                   icon: Padding(
                     padding: const EdgeInsets.only(left: 10.0),
@@ -172,8 +185,13 @@ class _DeliveryState extends State<Delivery> {
                             .toList();
 
                     // If filteredList is empty (first load or cleared search)
-                    if (filteredList.isEmpty && searchData.text.isEmpty) {
-                      filteredList = fullList;
+                    if (searchData.text.isEmpty) {
+                      filteredList = List.from(fullList);
+                    } else {
+                      // Run filtering after build completes (no setState error)
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        _filterSearchResults(searchData.text);
+                      });
                     }
 
                     if (filteredList.isEmpty) {

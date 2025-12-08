@@ -4,14 +4,14 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:syswash/bloc/bloc/profile_bloc.dart';
 
-void showEditPasswordDialog(BuildContext context, String currentPassword) {
+Future<bool?> showEditPasswordDialog(BuildContext context, String currentPassword) async {
   final TextEditingController currentPasswordController =
       TextEditingController();
   final TextEditingController newPasswordController = TextEditingController();
   final TextEditingController reEnterPasswordController =
       TextEditingController();
 
-  showDialog(
+  return showDialog<bool>(
     context: context,
     barrierDismissible: true,
     builder: (BuildContext dialogContext) {
@@ -177,7 +177,9 @@ void showEditPasswordDialog(BuildContext context, String currentPassword) {
                               backgroundColor: Colors.green,
                             ),
                           );
-                          // Navigator.pop(dialogContext);
+                          await Future.delayed(const Duration(seconds: 1));
+                          print('XXXXXXXXXXXXXXXXXXXXXXXXXXX');
+                          Navigator.pop(dialogContext, true);
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF68188B),

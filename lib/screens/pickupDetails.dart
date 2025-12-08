@@ -105,6 +105,7 @@ class _PickupdetailsState extends State<Pickupdetails> {
     double subtotal,
     double discount,
     double totalAmount,
+    double totalDiscount,
   ) async {
     final companyCode = await storage.read(key: 'company_Code');
     final token = await storage.read(key: 'access_Token');
@@ -117,7 +118,7 @@ class _PickupdetailsState extends State<Pickupdetails> {
           pickupTime: TimeOfDay.now().format(context),
           quantity: totalquantity ?? 0,
           subTotal: subtotal,
-          discount: discount,
+          discount: totalDiscount,
           totalAmount: totalAmount,
           paidAmount: 0.0,
           balance: totalAmount,
@@ -133,6 +134,7 @@ class _PickupdetailsState extends State<Pickupdetails> {
     double subtotal,
     double totalamt,
     double blnc,
+    int totalDiscount,
   ) async {
     final companyCode = await storage.read(key: 'company_Code');
     final token = await storage.read(key: 'access_Token');
@@ -145,7 +147,7 @@ class _PickupdetailsState extends State<Pickupdetails> {
           balance: blnc.toString(),
           clothData: _orderItemsList,
           customerDiscount: pickupOrderItems.customerDiscount ?? 0,
-          discount: pickupOrderItems.discount ?? 0,
+          discount: totalDiscount,
           lastModifiedTime: TimeOfDay.now().format(context),
           lastModifieddate: DateTime.now().toIso8601String().split('T').first,
           paidAmount: pickupOrderItems.paidAmount ?? 0,
@@ -896,6 +898,7 @@ class _PickupdetailsState extends State<Pickupdetails> {
                               onTap: () async {
                                 double subtotal = 0.0;
                                 double totalamt = 0.0;
+                                double totalDiscount = 0.0;
                                 for (var item in _orderItemsList) {
                                   final price =
                                       double.tryParse(
@@ -936,17 +939,19 @@ class _PickupdetailsState extends State<Pickupdetails> {
                                                 .toLowerCase() ==
                                             "null") &&
                                     _orderItemsList.isNotEmpty) {
-                                  double totalDiscount =
+                                  totalDiscount =
                                       subtotal *
-                                      (double.tryParse(
-                                            customerDetailsModel.discount
-                                                    ?.toString() ??
-                                                '0',
-                                          ) ??
-                                          0.0 / 100);
+                                      ((double.tryParse(
+                                                customerDetailsModel.discount
+                                                        ?.toString() ??
+                                                    '0',
+                                              ) ??
+                                              0.0) /
+                                          100);
+                                  
                                   totalamt =
                                       subtotal -
-                                      totalDiscount +
+                                      totalDiscount.ceilToDouble() +
                                       (double.tryParse(
                                             settingsData.vatAmount
                                                     ?.toString() ??
@@ -969,18 +974,19 @@ class _PickupdetailsState extends State<Pickupdetails> {
                                         ) ??
                                         0.0,
                                     totalamt,
+                                    totalDiscount.ceil().toDouble(),
                                   );
                                 }
                                 //case 2 Adding items to existing ordered items
                                 else {
                                   if (pickupOrderItems.customerDiscount != 0) {
-                                    double totalDiscount =
+                                    totalDiscount =
                                         subtotal *
-                                        (pickupOrderItems.customerDiscount ??
-                                            0 / 100);
+                                        ((pickupOrderItems.customerDiscount ??
+                                            0 )/ 100);
                                     totalamt =
                                         subtotal -
-                                        totalDiscount -
+                                        totalDiscount.ceilToDouble() -
                                         (pickupOrderItems.paidAmount ?? 0.0) +
                                         (pickupOrderItems.vat ?? 0.0) +
                                         (pickupOrderItems.openingBalance ??
@@ -1010,6 +1016,7 @@ class _PickupdetailsState extends State<Pickupdetails> {
                                       subtotal,
                                       totalamt,
                                       blnc,
+                                      totalDiscount.ceil(),
                                     );
                                   } else {
                                     // no new items → directly call FetchStatusPickupEvent
