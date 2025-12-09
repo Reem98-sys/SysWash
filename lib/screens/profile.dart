@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:syswash/bloc/bloc/profile_bloc.dart';
 import 'package:syswash/screens/editProfile.dart';
+import 'package:syswash/screens/login.dart';
 import 'package:syswash/screens/password_dialog.dart';
 
 class Profile extends StatefulWidget {
@@ -45,6 +46,28 @@ class _ProfileState extends State<Profile> {
     super.initState();
     // Call it when screen loads
     getUserData();
+  }
+
+  Future<void> _signOut(BuildContext context) async {
+    const storage = FlutterSecureStorage();
+
+    // Clear stored user data
+    await storage.deleteAll();
+
+    // Optional: show confirmation toast
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Signed out successfully!'),
+        backgroundColor: Colors.green,
+      ),
+    );
+
+    // Navigate back to login screen
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (context) => const Login()),
+      (route) => false,
+    );
   }
 
   @override
@@ -374,56 +397,104 @@ class _ProfileState extends State<Profile> {
                           ),
                           Spacer(),
                           GestureDetector(
-                            onTap: () {
-                              showEditPasswordDialog(context,profileData.password!);
+                            onTap: () async {
+                              final result = await showEditPasswordDialog(
+                                context,
+                                profileData.password!,
+                              );
+                              if (result == true) {
+                                // Only refresh if password updated successfully
+                                getUserData();
+                              }
                             },
                             child: Icon(
-                                Icons.edit_outlined,
-                                color: const Color(0xFF68188B),
-                              ),
+                              Icons.edit_outlined,
+                              color: const Color(0xFF68188B),
+                            ),
                           ),
                         ],
                       ),
                     ),
                     SizedBox(height: 8.h),
-                    Container(
-                      width: 362.w,
-                      height: 60.h,
-                      decoration: ShapeDecoration(
-                        color: Colors.grey[100],
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                      child: Row(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.all(10.0),
-                            child: Container(
-                              width: 42.w,
-                              height: 42.h,
-                              decoration: ShapeDecoration(
-                                color: const Color(0xFFE2E5F4),
+                    GestureDetector(
+                      onTap: () async {
+                        final confirm = await showDialog<bool>(
+                          context: context,
+                          builder:
+                              (context) => AlertDialog(
                                 shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                title: const Text(
+                                  'Sign Out',
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                content: const Text(
+                                  'Are you sure you want to sign out?',
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed:
+                                        () => Navigator.pop(context, false),
+                                    child: const Text('Cancel'),
+                                  ),
+                                  TextButton(
+                                    onPressed:
+                                        () => Navigator.pop(context, true),
+                                    child: const Text(
+                                      'Sign Out',
+                                      style: TextStyle(color: Colors.red),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                        );
+
+                        if (confirm == true) {
+                          await _signOut(context);
+                        }
+                      },
+                      child: Container(
+                        width: 362.w,
+                        height: 60.h,
+                        decoration: ShapeDecoration(
+                          color: Colors.grey[100],
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.all(10.0),
+                              child: Container(
+                                width: 42.w,
+                                height: 42.h,
+                                decoration: ShapeDecoration(
+                                  color: const Color(0xFFE2E5F4),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                                child: Icon(
+                                  Icons.login_outlined,
+                                  color: const Color(0xFF68188B),
                                 ),
                               ),
-                              child: Icon(
-                                Icons.login_outlined,
-                                color: const Color(0xFF68188B),
+                            ),
+                            Text(
+                              'Sign Out',
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 16.sp,
+                                fontFamily: 'Poppins',
+                                fontWeight: FontWeight.w400,
                               ),
                             ),
-                          ),
-                          Text(
-                            'Sign Out',
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 16.sp,
-                              fontFamily: 'Poppins',
-                              fontWeight: FontWeight.w400,
-                            ),
-                          ),
-                        ],
+                            Spacer(),
+                            Icon(Icons.arrow_forward_ios_sharp),
+                          ],
+                        ),
                       ),
                     ),
                     SizedBox(height: 8.h),

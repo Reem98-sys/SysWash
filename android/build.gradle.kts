@@ -1,3 +1,11 @@
+// buildscript {
+//     ext.kotlin_version = '1.9.24'  
+//     dependencies {
+//         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+//         classpath 'com.google.gms:google-services:4.4.2'
+//     }
+// }
+
 allprojects {
     repositories {
         google()

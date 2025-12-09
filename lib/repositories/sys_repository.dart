@@ -342,7 +342,7 @@ class SysRepository {
     return data['status'];
   }
 
-  Future<void> uploadPickupDatas(
+  Future<bool> uploadPickupDatas(
     String companyCode,
     String token,
     String notes,
@@ -377,9 +377,9 @@ class SysRepository {
       token: token,
     );
     if (response.statusCode == 200) {
-      print('Upload successful: ${response.body}');
+      return true;
     } else {
-      print('Upload failed: ${response.statusCode}');
+      return false;
     }
   }
 
@@ -498,6 +498,31 @@ class SysRepository {
       return 'Profile updated successfully';
     } else {
       return 'Unable to update';
+    }
+  }
+  Future<String> adddevicetoken(
+    String userID,
+    String companyCode,
+    String token,
+    String devicetoken,
+  ) async {
+   
+    String url =
+        "https://be.syswash.net/api/syswash/driverdevicetoken?code=${companyCode}";
+    body = {
+      "driver_id": userID, 
+      "device_token": devicetoken
+      };
+    Response response = await apiClient.invokeAPI(
+      url,
+      "POST",
+      jsonEncode(body),
+      token: token,
+    );
+    if (response.statusCode == 200) {
+      return 'Device token registered successfully';
+    } else {
+      return '';
     }
   }
 }
