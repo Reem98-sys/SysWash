@@ -29,6 +29,7 @@ class _LoginState extends State<Login> {
     String companyCode,
     String token,
     String username,
+    String refreshtoken
   ) async {
     await storage.write(key: 'login_id', value: userId);
     await storage.write(key: 'company_Code', value: companyCode);
@@ -36,6 +37,7 @@ class _LoginState extends State<Login> {
     await storage.write(key: 'user_name', value: username);
     await storage.write(key: 'email', value: emailController.text);
     await storage.write(key: 'password', value: passwordController.text);
+    await storage.write(key: 'refresh_token', value: refreshtoken);
   }
 
   @override
@@ -374,6 +376,7 @@ class _LoginState extends State<Login> {
                         companyCode.text.trim(),
                         loginModel.access.toString(),
                         loginModel.username.toString(),
+                        loginModel.refresh.toString()
                       );
                       //  Initialize and sync device token
                       initializeDeviceTokenUpdates(

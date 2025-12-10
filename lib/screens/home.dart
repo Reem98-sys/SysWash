@@ -43,6 +43,9 @@ class _HomeState extends State<Home> {
         username = storedUsername ?? 'User';
       });
     }
+    print('userId : ${userId}');
+    print('companyCode : ${companyCode}');
+    print('token : ${token}');
     if (userId != null && companyCode != null && token != null) {
       context.read<HomeBloc>().add(
         FetchHomeEvent(userId: userId, companyCode: companyCode, token: token),

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart';
 import 'package:syswash/repositories/api_exception.dart';
 
@@ -8,7 +9,28 @@ import 'package:syswash/repositories/api_exception.dart';
 
 
 class ApiClient {
-  Future<Response> invokeAPI(String path, String method, Object? body,{String? token}) async {
+  Future<bool> _refreshToken() async {
+  final refreshToken = await TokenStorage.refreshToken();
+  if (refreshToken == null) return false;
+
+  final response = await post(
+    Uri.parse('https://be.syswash.net/api/syswash/token/refresh/'),
+    headers: {'Content-Type': 'application/json'},
+    body: jsonEncode({'refresh': refreshToken}),
+  );
+
+  if (response.statusCode == 200) {
+    final data = jsonDecode(response.body);
+    await TokenStorage.saveTokens(
+      accessToken: data['access_token'],
+    );
+    return true;
+  }
+
+  return false;
+}
+
+  Future<Response> invokeAPI(String path, String method, Object? body,{String? token, bool retry = true}) async {
     Map<String, String> headerParams = {};
     Response response;
 
@@ -80,6 +102,17 @@ print(headers);
         response = await get(Uri.parse(url), headers: headers);
     }
 
+//  ACCESS TOKEN EXPIRED
+  if (response.statusCode == 401 && retry) {
+    final refreshed = await _refreshToken();
+
+    if (refreshed) {
+      return invokeAPI(path, method, body, retry: false);
+    } else {
+      await TokenStorage.clear();
+      throw ApiException('Session expired', 401);
+    }
+  }
     print('status of $path =>' + (response.statusCode).toString());
     print(response.body);
     if (response.statusCode >= 400) {
@@ -101,5 +134,25 @@ print(headers);
     } else {
       return response.body;
     }
+  }
+}
+
+class TokenStorage {
+  static const _storage = FlutterSecureStorage();
+
+  static Future<String?> accessToken() =>
+      _storage.read(key: 'access_Token');
+
+  static Future<String?> refreshToken() =>
+      _storage.read(key: 'refresh_token');
+
+  static Future<void> saveTokens({
+    required String accessToken,
+  }) async {
+    await _storage.write(key: 'access_Token', value: accessToken);
+  }
+
+  static Future<void> clear() async {
+    await _storage.deleteAll();
   }
 }

@@ -129,7 +129,7 @@ class _MyAppState extends State<MyApp> {
           // tested with just a hot reload.
           scaffoldBackgroundColor: const Color(0xFFF8F8F8),
         ),
-        home: Login(),
+        home: SplashScreen(),
       ),
     );
   }
