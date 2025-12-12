@@ -12,7 +12,9 @@ import 'package:syswash/model/deliveryListModel.dart';
 import 'package:syswash/model/pickupListModel.dart';
 import 'package:syswash/model/totalOrder.dart';
 import 'package:syswash/screens/bottomnav.dart';
+import 'package:syswash/screens/deliveryDetail.dart';
 import 'package:syswash/screens/pickup.dart';
+import 'package:syswash/screens/pickupDetails.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -405,112 +407,123 @@ class _HomeState extends State<Home> {
                             child: Material(
                               color: const Color(0xFFF8F8F8),
                               borderRadius: BorderRadius.circular(8.r),
-                              child: Container(
-                                height: 60.h,
-                                padding: EdgeInsets.symmetric(horizontal: 10.w),
-                                child: Row(
-                                  children: [
-                                    Container(
-                                      width: 38.w,
-                                      height: 38.h,
-                                      decoration: BoxDecoration(
-                                        color: const Color(0xFF5D5FEF),
-                                        borderRadius: BorderRadius.circular(
-                                          8.r,
+                              child: GestureDetector(
+                                onTap: () {
+                                  if (isPickup) {
+                                    print('MMMMMMMMMMMMMMMMMMMmm');
+                                    Navigator.push(context, MaterialPageRoute(builder: (context) => Pickupdetails(customerId: order.pickupCustomerId.toString(), pickupOrderId: order.pickupOrderId.toString(), pickupAssignId: order.pickupassgnId ?? 0, notes: order.notes ?? '', remarks: order.remarks ?? '')));
+                                  }
+                                  else {
+                                    Navigator.push(context, MaterialPageRoute(builder: (context) => Deliverydetail(customerId: (order as DeliveryListModel).deliveryCustomerId.toString(), deliveryOrderId: order.deliveryInvoiceNo!.toString(), notes: '', remarks: '')));
+                                  }
+                                },
+                                child: Container(
+                                  height: 60.h,
+                                  padding: EdgeInsets.symmetric(horizontal: 10.w),
+                                  child: Row(
+                                    children: [
+                                      Container(
+                                        width: 38.w,
+                                        height: 38.h,
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFF5D5FEF),
+                                          borderRadius: BorderRadius.circular(
+                                            8.r,
+                                          ),
+                                        ),
+                                        child: Center(
+                                          child: SvgPicture.asset(
+                                            isPickup
+                                                ? 'assets/pickUp.svg'
+                                                : 'assets/delivery.svg',
+                                          ),
                                         ),
                                       ),
-                                      child: Center(
-                                        child: SvgPicture.asset(
-                                          isPickup
-                                              ? 'assets/pickUp.svg'
-                                              : 'assets/delivery.svg',
+                                      SizedBox(width: 12.w),
+                                      Expanded(
+                                        child: Padding(
+                                          padding: const EdgeInsets.only(
+                                            top: 5.0,
+                                          ),
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                name ?? 'No Name',
+                                                style: TextStyle(
+                                                  color: Colors.black,
+                                                  fontSize: 17.sp,
+                                                  fontFamily: 'Poppins',
+                                                  fontWeight: FontWeight.w500,
+                                                ),
+                                              ),
+                                              SizedBox(height: 5.h),
+                                              Container(
+                                                decoration: BoxDecoration(
+                                                  color:
+                                                      isPickup
+                                                          ? const Color(
+                                                            0xFFF38305,
+                                                          )
+                                                          : const Color(
+                                                            0xFF27AE60,
+                                                          ),
+                                                  borderRadius:
+                                                      BorderRadius.circular(4),
+                                                ),
+                                                padding: EdgeInsets.symmetric(
+                                                  horizontal: 8.w,
+                                                  vertical: 2.h,
+                                                ),
+                                                child: Text(
+                                                  isPickup
+                                                      ? 'Pickup'
+                                                      : 'Delivery',
+                                                  style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 10.sp,
+                                                    fontFamily: 'Poppins',
+                                                    fontWeight: FontWeight.w500,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                    SizedBox(width: 12.w),
-                                    Expanded(
-                                      child: Padding(
+                                      Padding(
                                         padding: const EdgeInsets.only(
-                                          top: 5.0,
+                                          top: 10,
+                                          right: 8,
                                         ),
                                         child: Column(
                                           crossAxisAlignment:
-                                              CrossAxisAlignment.start,
+                                              CrossAxisAlignment.end,
                                           children: [
                                             Text(
-                                              name ?? 'No Name',
+                                              location ?? 'Unknown',
                                               style: TextStyle(
-                                                color: Colors.black,
-                                                fontSize: 17.sp,
+                                                fontSize: 14.sp,
                                                 fontFamily: 'Poppins',
                                                 fontWeight: FontWeight.w500,
                                               ),
                                             ),
-                                            SizedBox(height: 5.h),
-                                            Container(
-                                              decoration: BoxDecoration(
-                                                color:
-                                                    isPickup
-                                                        ? const Color(
-                                                          0xFFF38305,
-                                                        )
-                                                        : const Color(
-                                                          0xFF27AE60,
-                                                        ),
-                                                borderRadius:
-                                                    BorderRadius.circular(4),
-                                              ),
-                                              padding: EdgeInsets.symmetric(
-                                                horizontal: 8.w,
-                                                vertical: 2.h,
-                                              ),
-                                              child: Text(
-                                                isPickup
-                                                    ? 'Pickup'
-                                                    : 'Delivery',
-                                                style: TextStyle(
-                                                  color: Colors.white,
-                                                  fontSize: 10.sp,
-                                                  fontFamily: 'Poppins',
-                                                  fontWeight: FontWeight.w500,
-                                                ),
+                                            SizedBox(height: 4.h),
+                                            Text(
+                                              date,
+                                              style: TextStyle(
+                                                color: const Color(0xFFFF0000),
+                                                fontSize: 12.sp,
+                                                fontFamily: 'Poppins',
+                                                fontWeight: FontWeight.w500,
                                               ),
                                             ),
                                           ],
                                         ),
                                       ),
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.only(
-                                        top: 10,
-                                        right: 8,
-                                      ),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.end,
-                                        children: [
-                                          Text(
-                                            location ?? 'Unknown',
-                                            style: TextStyle(
-                                              fontSize: 14.sp,
-                                              fontFamily: 'Poppins',
-                                              fontWeight: FontWeight.w500,
-                                            ),
-                                          ),
-                                          SizedBox(height: 4.h),
-                                          Text(
-                                            date,
-                                            style: TextStyle(
-                                              color: const Color(0xFFFF0000),
-                                              fontSize: 12.sp,
-                                              fontFamily: 'Poppins',
-                                              fontWeight: FontWeight.w500,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),

@@ -47,6 +47,8 @@ dependencies:
   firebase_messaging: ^16.0.4
   firebase_auth: ^6.1.2
   cloud_firestore: ^6.1.0
+  overlay_support: ^2.1.0
+  flutter_local_notifications: ^17.0.0
   
 
 dev_dependencies:

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:syswash/screens/login.dart';
 import 'package:syswash/screens/bottomnav.dart';
@@ -73,9 +74,12 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
+    return  Scaffold(
       body: Center(
-        child: CircularProgressIndicator(),
+        child: Image.asset(
+          'assets/splashscreen.png',
+          width: 350.w,
+          height: 70.h,)
       ),
     );
   }

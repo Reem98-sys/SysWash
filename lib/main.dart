@@ -1,10 +1,12 @@
 import 'dart:io';
-
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:overlay_support/overlay_support.dart';
+
 import 'package:syswash/bloc/bloc/clothdetails_bloc.dart';
 import 'package:syswash/bloc/bloc/customerlist_bloc.dart';
 import 'package:syswash/bloc/bloc/deliverystatus_bloc.dart';
@@ -17,44 +19,54 @@ import 'package:syswash/bloc/bloc/profile_bloc.dart';
 import 'package:syswash/bloc/bloc/servicedetails_bloc.dart';
 import 'package:syswash/bloc/bloc/settings_bloc.dart';
 import 'package:syswash/bloc/bloc/uploadpickup_bloc.dart';
+
 import 'package:syswash/firebase_options.dart';
 import 'package:syswash/screens/login.dart';
 import 'package:syswash/screens/splash.dart';
 
 
-
-
+// --------------------------------------------------------------------
+// BACKGROUND HANDLER
+// --------------------------------------------------------------------
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
-  print(" Background message: ${message.notification?.title}");
+  print("📨 Background message: ${message.notification?.title}");
 }
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized(); // Needed for Firebase initialization
+  WidgetsFlutterBinding.ensureInitialized();
+
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
   runApp(
-    MultiBlocProvider(
-      providers: [
-        BlocProvider(create: (context) => LoginBloc()),
-        BlocProvider(create: (context) => HomeBloc()),
-        BlocProvider(create: (context) => PickuplistBloc()),
-        BlocProvider(create: (context) => CustomerlistBloc()),
-        BlocProvider(create: (context) => PickupcustdetailsBloc()),
-        BlocProvider(create: (context) => UploadpickupBloc()),
-        BlocProvider(create: (context) => ClothdetailsBloc()),
-        BlocProvider(create: (context) => ServicedetailsBloc()),
-        BlocProvider(create: (context) => SettingsBloc()),
-        BlocProvider(create: (context) => DeliverystatusBloc()),
-        BlocProvider(create: (context) => ProfileBloc()),
-        BlocProvider(create: (context) => DevicetokenBloc()),
-      ],
-      child: const MyApp(),
+    OverlaySupport.global(          //Required for in-app banner
+      child: MultiBlocProvider(
+        providers: [
+          BlocProvider(create: (context) => LoginBloc()),
+          BlocProvider(create: (context) => HomeBloc()),
+          BlocProvider(create: (context) => PickuplistBloc()),
+          BlocProvider(create: (context) => CustomerlistBloc()),
+          BlocProvider(create: (context) => PickupcustdetailsBloc()),
+          BlocProvider(create: (context) => UploadpickupBloc()),
+          BlocProvider(create: (context) => ClothdetailsBloc()),
+          BlocProvider(create: (context) => ServicedetailsBloc()),
+          BlocProvider(create: (context) => SettingsBloc()),
+          BlocProvider(create: (context) => DeliverystatusBloc()),
+          BlocProvider(create: (context) => ProfileBloc()),
+          BlocProvider(create: (context) => DevicetokenBloc()),
+        ],
+        child: const MyApp(),
+      ),
     ),
   );
 }
 
+
+// --------------------------------------------------------------------
+// APP ROOT
+// --------------------------------------------------------------------
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
   @override
@@ -62,72 +74,87 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  late FlutterLocalNotificationsPlugin localNoti;
+
   @override
   void initState() {
     super.initState();
     _initFCM();
   }
 
-
-
   Future<void> _initFCM() async {
     FirebaseMessaging messaging = FirebaseMessaging.instance;
+
+    // ---------------------------------------------------------------
+    // LOCAL NOTIFICATIONS INITIALIZATION
+    // ---------------------------------------------------------------
+    localNoti = FlutterLocalNotificationsPlugin();
+
+    const AndroidInitializationSettings androidInit =
+        AndroidInitializationSettings('@mipmap/ic_launcher');
+
+    const InitializationSettings initSettings =
+        InitializationSettings(android: androidInit);
+
+    await localNoti.initialize(initSettings);
+
+    // ---------------------------------------------------------------
+    // PERMISSION REQUEST
+    // ---------------------------------------------------------------
     NotificationSettings settings = await messaging.requestPermission(
       alert: true,
       announcement: false,
       badge: true,
-      carPlay: false,
-      criticalAlert: false,
-      provisional: false,
       sound: true,
     );
-    print("🔔 Notification permission status: ${settings.authorizationStatus}");
-    
-    // Foreground messages
+
+    print("🔔 Permission: ${settings.authorizationStatus}");
+
+    // ---------------------------------------------------------------
+    // FOREGROUND NOTIFICATION → SHOW IN-APP BANNER
+    // ---------------------------------------------------------------
     FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
-      print("📩 Foreground message received: ${message.notification?.title}");
-      RemoteNotification? notification = message.notification;
-      AndroidNotification? android = message.notification?.android;
+      final title = message.notification?.title ?? "New Notification";
+      final body = message.notification?.body ?? "";
 
-      
+      print("📩 Foreground message: $title");
+
+      // ---------------------------------------------------------
+      // ALSO SHOW SYSTEM NOTIFICATION (OPTIONAL)
+      // ---------------------------------------------------------
+      const AndroidNotificationDetails androidDetails =
+          AndroidNotificationDetails(
+        'default_channel',
+        'Default Notifications',
+        importance: Importance.max,
+        priority: Priority.high,
+        ticker: 'ticker',
+      );
+
+      const NotificationDetails notiDetails =
+          NotificationDetails(android: androidDetails);
+
+      await localNoti.show(0, title, body, notiDetails);
     });
 
-    // When app opened from notification
+    // ---------------------------------------------------------------
+    // USER OPENED APP FROM NOTIFICATION
+    // ---------------------------------------------------------------
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      print("🟢 App opened via notification: ${message.notification?.title}");
+      print("🟢 App opened by notification: ${message.notification?.title}");
     });
-
-    // Token refresh
-    // FirebaseMessaging.instance.onTokenRefresh.listen((newToken) {
-    //   print("♻️ Token refreshed: $newToken");
-    //   context.read<DevicetokenBloc>().add(SaveDeviceToken(newToken));
-    // });
   }
 
+  // ----------------------------------------------------------------
   @override
   Widget build(BuildContext context) {
     return ScreenUtilInit(
       designSize: Size(430, 932),
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
-        title: 'Flutter Demo',
+        title: 'SysWash',
         theme: ThemeData(
-          // This is the theme of your application.
-          //
-          // TRY THIS: Try running your application with "flutter run". You'll see
-          // the application has a purple toolbar. Then, without quitting the app,
-          // try changing the seedColor in the colorScheme below to Colors.green
-          // and then invoke "hot reload" (save your changes or press the "hot
-          // reload" button in a Flutter-supported IDE, or press "r" if you used
-          // the command line to start the app).
-          //
-          // Notice that the counter didn't reset back to zero; the application
-          // state is not lost during the reload. To reset the state, use hot
-          // restart instead.
-          //
-          // This works for code too, not just values: Most code changes can be
-          // tested with just a hot reload.
-          scaffoldBackgroundColor: const Color(0xFFF8F8F8),
+          scaffoldBackgroundColor: Color(0xFFF8F8F8),
         ),
         home: SplashScreen(),
       ),

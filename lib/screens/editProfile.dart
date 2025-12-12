@@ -18,7 +18,7 @@ class Editprofile extends StatefulWidget {
     required this.phoneno,
     required this.gender,
     required this.location,
-    required this.password
+    required this.password,
   });
 
   @override
@@ -34,7 +34,11 @@ class _EditprofileState extends State<Editprofile> {
   String? token;
   String? companyCode;
   String? userId;
-  Future<void> _updateProfileData(String name,String email,String phone) async {
+  Future<void> _updateProfileData(
+    String name,
+    String email,
+    String phone,
+  ) async {
     const storage = FlutterSecureStorage();
     final tokenAccess = await storage.read(key: 'access_Token');
     final companycode = await storage.read(key: 'company_Code');
@@ -49,11 +53,11 @@ class _EditprofileState extends State<Editprofile> {
         UpdateProfileEvent(
           userID: userId ?? '',
           companyCode: companyCode ?? '',
-          token: token ?? '', 
-          name: name, 
-          email: email, 
+          token: token ?? '',
+          name: name,
+          email: email,
           phone: phone,
-          password: widget.password
+          password: widget.password,
         ),
       );
     } else {
@@ -101,26 +105,30 @@ class _EditprofileState extends State<Editprofile> {
           ),
         ),
       ),
-      body: BlocListener<ProfileBloc,ProfileState>(
-        listener: (context, state) {
+      body: BlocListener<ProfileBloc, ProfileState>(
+        listener: (context, state) async {
           if (state is UpdateProfileLoaded) {
+            const storage = FlutterSecureStorage();
+
+            await storage.write(key: 'user_name', value: nameController.text);
+            await storage.write(key: 'email', value: emailController.text);
             ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Profile updated successfully!'),
-              backgroundColor: Colors.green,
-              behavior: SnackBarBehavior.floating,
-            ),
-          );
-          Navigator.pop(context,true);
+              const SnackBar(
+                content: Text('Profile updated successfully!'),
+                backgroundColor: Colors.green,
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
+            Navigator.pop(context, true);
           }
           if (state is ProfileBlocError) {
             ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Failed to update profile'),
-              backgroundColor: Colors.red,
-              behavior: SnackBarBehavior.floating,
-            ),
-          );
+              SnackBar(
+                content: Text('Failed to update profile'),
+                backgroundColor: Colors.red,
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
           }
         },
         child: SingleChildScrollView(
@@ -377,11 +385,11 @@ class _EditprofileState extends State<Editprofile> {
                   GestureDetector(
                     onTap: () {
                       print('OOOOOOOOOOOOOOOOOOOOOOO');
-                    _updateProfileData(
-                      nameController.text,
-                      emailController.text,
-                      phoneController.text
-                    );
+                      _updateProfileData(
+                        nameController.text,
+                        emailController.text,
+                        phoneController.text,
+                      );
                     },
                     child: Container(
                       width: 352,
