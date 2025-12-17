@@ -11,6 +11,7 @@ import 'package:syswash/bloc/bloc/clothdetails_bloc.dart';
 import 'package:syswash/bloc/bloc/customerlist_bloc.dart';
 import 'package:syswash/bloc/bloc/deliverystatus_bloc.dart';
 import 'package:syswash/bloc/bloc/devicetoken_bloc.dart';
+import 'package:syswash/bloc/bloc/forgotpass_bloc.dart';
 import 'package:syswash/bloc/bloc/home_bloc.dart';
 import 'package:syswash/bloc/bloc/login_bloc.dart';
 import 'package:syswash/bloc/bloc/pickupcustdetails_bloc.dart';
@@ -56,6 +57,7 @@ void main() async {
           BlocProvider(create: (context) => DeliverystatusBloc()),
           BlocProvider(create: (context) => ProfileBloc()),
           BlocProvider(create: (context) => DevicetokenBloc()),
+          BlocProvider(create: (context) => ForgotpassBloc()),
         ],
         child: const MyApp(),
       ),

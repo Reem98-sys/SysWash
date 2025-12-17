@@ -525,4 +525,47 @@ class SysRepository {
       return '';
     }
   }
+
+  Future<String> forgotpass(
+    String companyCode,
+    String email,
+  ) async {
+   
+    String url =
+        "https://be.syswash.net/api/syswash/driverforgetpassword?code=${companyCode}";
+    body = {
+      "email": email,
+      };
+    Response response = await apiClient.invokeAPI(
+      url,
+      "POST",
+      jsonEncode(body)
+    );
+    
+      return response.body;
+    
+  }
+  Future<String> resetpass(
+    String companyCode,
+    String email,
+    String newpass,
+    int otp
+  ) async {
+   
+    String url =
+        "https://be.syswash.net/api/syswash/driverresetpassword?code=${companyCode}";
+    body = {
+      "email": email,
+      "new_password": newpass,
+      "otp": otp
+      };
+    Response response = await apiClient.invokeAPI(
+      url,
+      "POST",
+      jsonEncode(body)
+    );
+    
+      return response.body;
+    
+  }
 }

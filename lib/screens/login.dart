@@ -6,6 +6,7 @@ import 'package:syswash/bloc/bloc/devicetoken_bloc.dart';
 import 'package:syswash/bloc/bloc/login_bloc.dart';
 import 'package:syswash/model/loginModel.dart';
 import 'package:syswash/screens/bottomnav.dart';
+import 'package:syswash/screens/forgotpassword.dart';
 import 'package:syswash/screens/home.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
@@ -325,7 +326,10 @@ class _LoginState extends State<Login> {
                     // ),
                     Spacer(),
                     TextButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.push(context, 
+                        MaterialPageRoute(builder: (context) => Forgotpassword()));
+                      },
                       child: Text(
                         'Forgot Password ?',
                         style: TextStyle(
