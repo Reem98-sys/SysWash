@@ -100,7 +100,7 @@ Future<Map<String, dynamic>?> showAddItemDialog(
                           );
                         }
                         if (state is ServicedetailsError) {
-                          print(state.message);
+                          
                           return Center(
                             child: Text(
                               'Failed to load Cloth Details',
@@ -209,7 +209,7 @@ Future<Map<String, dynamic>?> showAddItemDialog(
                           );
                         }
                         if (state is ClothDetailsError) {
-                          print(state.message);
+                          
                           return Center(
                             child: Text(
                               'Failed to load Cloth Details',

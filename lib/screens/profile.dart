@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:syswash/bloc/bloc/profile_bloc.dart';
+import 'package:syswash/screens/bottomnav.dart';
 import 'package:syswash/screens/editProfile.dart';
 import 'package:syswash/screens/login.dart';
 import 'package:syswash/screens/password_dialog.dart';
@@ -76,7 +77,14 @@ class _ProfileState extends State<Profile> {
       appBar: AppBar(
         leading: GestureDetector(
           onTap: () {
-            // Navigator.pop(context);
+            Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder:
+                                        (context) =>
+                                            const Bottomnav(currentIndex: 3)
+                                  ),
+                                );
           },
           child: Icon(Icons.arrow_back_sharp),
         ),

@@ -11,10 +11,10 @@ import 'package:syswash/repositories/api_exception.dart';
 class ApiClient {
   Future<bool> _refreshToken() async {
   final refreshToken = await TokenStorage.refreshToken();
-  if (refreshToken == null) return false;
-
+  if (refreshToken == null || refreshToken.isEmpty) return false;
+  log('Refreshing token...');
   final response = await post(
-    Uri.parse('https://be.syswash.net/api/syswash/token/refresh/'),
+    Uri.parse('https://be.syswash.net/api/token/refresh/'),
     headers: {'Content-Type': 'application/json'},
     body: jsonEncode({'refresh': refreshToken}),
   );
@@ -22,18 +22,19 @@ class ApiClient {
   if (response.statusCode == 200) {
     final data = jsonDecode(response.body);
     await TokenStorage.saveTokens(
-      accessToken: data['access_token'],
+      accessToken: data['access'], refreshToken: data['refresh'],
     );
+    log('Token refreshed successfully');
     return true;
   }
-
+  log('Refresh token failed: ${response.body}');
   return false;
 }
 
   Future<Response> invokeAPI(String path, String method, Object? body,{String? token, bool retry = true}) async {
     Map<String, String> headerParams = {};
     Response response;
-
+    final accessToken = await TokenStorage.accessToken();
     String url = path;
     print(url);
 
@@ -43,12 +44,10 @@ class ApiClient {
     final headers = {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
+      if (accessToken != null) 'Authorization': 'Bearer $accessToken',
     };
-    
-    // Add Bearer token if available
-  if (token != null && token.isNotEmpty) {
-    headers['Authorization'] = 'Bearer $token';
-  }
+  
+  
     switch (method) {
       case "POST":
         response = await post(Uri.parse(url),
@@ -82,7 +81,6 @@ class ApiClient {
           Uri.parse(url),
           headers: headers,
         );
-print(headers);
         break;
       case "PATCH":
         response = await patch(
@@ -101,9 +99,12 @@ print(headers);
       default:
         response = await get(Uri.parse(url), headers: headers);
     }
+  
+
+    log('API [$method] $path => ${response.statusCode}');
 
 //  ACCESS TOKEN EXPIRED
-  if (response.statusCode == 401 && retry) {
+  if ((response.statusCode == 401 || response.statusCode == 403) && retry) {
     final refreshed = await _refreshToken();
 
     if (refreshed) {
@@ -113,6 +114,9 @@ print(headers);
       throw ApiException('Session expired', 401);
     }
   }
+  if (response.statusCode >= 400) {
+      throw ApiException(response.body, response.statusCode);
+    }
     print('status of $path =>' + (response.statusCode).toString());
     print(response.body);
     if (response.statusCode >= 400) {
@@ -136,10 +140,11 @@ print(headers);
     }
   }
 }
-
+/// ============================
+/// TOKEN STORAGE
+/// ============================
 class TokenStorage {
-  static const _storage = FlutterSecureStorage();
-
+  static const FlutterSecureStorage _storage = FlutterSecureStorage();
   static Future<String?> accessToken() =>
       _storage.read(key: 'access_Token');
 
@@ -148,11 +153,13 @@ class TokenStorage {
 
   static Future<void> saveTokens({
     required String accessToken,
+    required String refreshToken
   }) async {
     await _storage.write(key: 'access_Token', value: accessToken);
+    await _storage.write(key: 'refresh_token', value: refreshToken);
   }
-
   static Future<void> clear() async {
     await _storage.deleteAll();
   }
+  
 }

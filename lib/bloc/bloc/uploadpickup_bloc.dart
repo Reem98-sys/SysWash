@@ -34,7 +34,6 @@ class UploadpickupBloc extends Bloc<UploadpickupEvent, UploadpickupState> {
         }
         
       } catch (e, st) {
-        print(" Upload error: $e\n$st");
         emit(UploadpickupError(message: e.toString()));
       }
     });

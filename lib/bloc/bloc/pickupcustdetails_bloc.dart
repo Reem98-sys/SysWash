@@ -68,7 +68,6 @@ class PickupcustdetailsBloc
           event.totalAmount,
           event.userName,
         );
-        print(response);
         if (response == 200) {
           emit(AddPickupOrderLoaded());
         } 
@@ -90,7 +89,6 @@ class PickupcustdetailsBloc
         );
         emit(StatusPickupLoaded());
       } catch (e) {
-        print('&***************************');
         emit(PickupCustDetailsError(message: e.toString()));
       }
     });

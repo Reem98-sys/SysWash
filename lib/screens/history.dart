@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:syswash/screens/bottomnav.dart';
 import 'package:syswash/screens/historyDetail.dart';
 
 class History extends StatefulWidget {
@@ -100,7 +101,14 @@ class _HistoryState extends State<History> with SingleTickerProviderStateMixin {
                       ),
                       GestureDetector(
                         onTap: () {
-                          //  Navigator.pop(context);
+                          Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder:
+                                        (context) =>
+                                            const Bottomnav(currentIndex: 2),
+                                  ),
+                                );
                         },
                         child: SvgPicture.asset('assets/Back.svg'),
                       ),

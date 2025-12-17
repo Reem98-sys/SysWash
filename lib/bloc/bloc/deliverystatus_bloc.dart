@@ -10,12 +10,9 @@ class DeliverystatusBloc
   SysRepository sysRepository = SysRepository();
   DeliverystatusBloc() : super(DeliverystatusInitial()) {
     on<FetchDeliveryStatusEvent>((event, emit) async {
-      print('DDDDDDDDDDDDDDDDDDDDDDDDDD');
+      
       emit(DeliveryLoading());
       try {
-        print('AAAAAAAAAAAAAAAAAAAAAAAAAA');
-        print(event.companyCode);
-        print(event.token);
         final response = await sysRepository.deliverypaymentstatus(
           event.companyCode,
           event.token,
@@ -23,12 +20,8 @@ class DeliverystatusBloc
           event.paymentMode,
           event.paymentstatus,
         );
-        print('BBBBBBBBBBBBBBBBBBBBBBBBBBB');
         emit(DeliverySuccess());
-        print('CCCCCCCCCCCCCCCCCCCCCCCCCCCc');
       } catch (e,stackTrace) {
-        print(stackTrace);
-        print(e.toString());
         emit(DeliveryError());
       }
     });

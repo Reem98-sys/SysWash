@@ -384,7 +384,6 @@ class _EditprofileState extends State<Editprofile> {
                   SizedBox(height: 20.h),
                   GestureDetector(
                     onTap: () {
-                      print('OOOOOOOOOOOOOOOOOOOOOOO');
                       _updateProfileData(
                         nameController.text,
                         emailController.text,

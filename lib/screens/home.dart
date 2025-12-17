@@ -356,11 +356,11 @@ class _HomeState extends State<Home> {
                                     'received',
                               )
                               .toList();
-                      final deliveryOrdersList = 
-                                state.deliveryListModel?.data ?? [];  
+                      final deliveryOrdersList =
+                          state.deliveryListModel?.data ?? [];
                       final deliveryOrders =
                                 deliveryOrdersList.where((order) =>
-                                order.status?.toString().toLowerCase() !=
+                                    order.status?.toString().toLowerCase() !=
                                 "delivered").toList();
                       final allOrders = [...pickupOrders, ...deliveryOrders];
 
@@ -410,7 +410,6 @@ class _HomeState extends State<Home> {
                               child: GestureDetector(
                                 onTap: () {
                                   if (isPickup) {
-                                    print('MMMMMMMMMMMMMMMMMMMmm');
                                     Navigator.push(context, MaterialPageRoute(builder: (context) => Pickupdetails(customerId: order.pickupCustomerId.toString(), pickupOrderId: order.pickupOrderId.toString(), pickupAssignId: order.pickupassgnId ?? 0, notes: order.notes ?? '', remarks: order.remarks ?? '')));
                                   }
                                   else {

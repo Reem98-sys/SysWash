@@ -178,7 +178,6 @@ Future<bool?> showEditPasswordDialog(BuildContext context, String currentPasswor
                             ),
                           );
                           await Future.delayed(const Duration(seconds: 1));
-                          print('XXXXXXXXXXXXXXXXXXXXXXXXXXX');
                           Navigator.pop(dialogContext, true);
                         },
                         style: ElevatedButton.styleFrom(

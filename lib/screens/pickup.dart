@@ -7,6 +7,7 @@ import 'package:syswash/bloc/bloc/customerlist_bloc.dart';
 import 'package:syswash/bloc/bloc/pickuplist_bloc.dart';
 import 'package:syswash/bloc/bloc/uploadpickup_bloc.dart';
 import 'package:syswash/screens/add_customer_dialog.dart';
+import 'package:syswash/screens/bottomnav.dart';
 import 'package:syswash/screens/pickupDetails.dart';
 
 class Pickup extends StatefulWidget {
@@ -170,7 +171,16 @@ class _PickupState extends State<Pickup> {
                   ),
                 ),
                 GestureDetector(
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder:
+                                        (context) =>
+                                            const Bottomnav(currentIndex: 0),
+                                  ),
+                                );
+                  },
                   child: SvgPicture.asset('assets/Back.svg'),
                 ),
               ],

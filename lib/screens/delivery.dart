@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:syswash/bloc/bloc/pickuplist_bloc.dart';
+import 'package:syswash/screens/bottomnav.dart';
 import 'package:syswash/screens/deliveryDetail.dart';
 
 class Delivery extends StatefulWidget {
@@ -129,7 +130,14 @@ class _DeliveryState extends State<Delivery> {
                 ),
                 GestureDetector(
                   onTap: () {
-                    // Navigator.pop(context);
+                    Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder:
+                                        (context) =>
+                                            const Bottomnav(currentIndex: 1),
+                                  ),
+                                );
                   },
                   child: SvgPicture.asset('assets/Back.svg'),
                 ),
@@ -226,7 +234,6 @@ class _DeliveryState extends State<Delivery> {
                                       ),
                                 ),
                               );
-                              print('AAAAAAAAAAAAAAAAAA${result}');
                               //  If the result is true, reload data
                               if (result == true) {
                                 // clear old cached lists first
