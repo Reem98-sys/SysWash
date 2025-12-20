@@ -198,7 +198,6 @@ class _PickupState extends State<Pickup> {
                 ),
               ),
               child: TextField(
-                enabled: fullList.isNotEmpty,
                 controller: searchData,
                 decoration: InputDecoration(
                   border: InputBorder.none,

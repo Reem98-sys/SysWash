@@ -92,7 +92,7 @@ class _DeliverydetailState extends State<Deliverydetail> {
           ),
         ),
       ),
-      body: Center(
+      body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(15.0),
           child: BlocConsumer<PickupcustdetailsBloc, PickupcustdetailsState>(
@@ -340,7 +340,7 @@ class _DeliverydetailState extends State<Deliverydetail> {
                                   ),
                                   SizedBox(height: 17.h),
                                   Text(
-                                    'House no',
+                                    'Villa No',
                                     style: TextStyle(
                                       color: const Color(0xFFA9A5B8),
                                       fontSize: 14.sp,
@@ -350,7 +350,7 @@ class _DeliverydetailState extends State<Deliverydetail> {
                                     ),
                                   ),
                                   Text(
-                                    customerDetailsModel.roomNo.toString(),
+                                    customerDetailsModel.villaNumber.toString(),
                                     style: TextStyle(
                                       color: Colors.black,
                                       fontSize: 12.sp,
@@ -361,7 +361,7 @@ class _DeliverydetailState extends State<Deliverydetail> {
                                   ),
                                   SizedBox(height: 17.h),
                                   Text(
-                                    'Note',
+                                    'Fragrance',
                                     style: TextStyle(
                                       color: const Color(0xFFA9A5B8),
                                       fontSize: 14.sp,
@@ -371,7 +371,7 @@ class _DeliverydetailState extends State<Deliverydetail> {
                                     ),
                                   ),
                                   Text(
-                                    widget.notes,
+                                    customerDetailsModel.fragrance.toString(),
                                     style: TextStyle(
                                       color: Colors.black,
                                       fontSize: 12.sp,
@@ -386,6 +386,27 @@ class _DeliverydetailState extends State<Deliverydetail> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
+                                    'Zone',
+                                    style: TextStyle(
+                                      color: const Color(0xFFA9A5B8),
+                                      fontSize: 14.sp,
+                                      fontFamily: 'DM Sans',
+                                      fontWeight: FontWeight.w500,
+                                      height: 1.17,
+                                    ),
+                                  ),
+                                  Text(
+                                    customerDetailsModel.zone.toString(),
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 12.sp,
+                                      fontFamily: 'DM Sans',
+                                      fontWeight: FontWeight.w500,
+                                      height: 1.17,
+                                    ),
+                                  ),
+                                  SizedBox(height: 17.h),
+                                  Text(
                                     'Hotel',
                                     style: TextStyle(
                                       color: const Color(0xFFA9A5B8),
@@ -397,27 +418,6 @@ class _DeliverydetailState extends State<Deliverydetail> {
                                   ),
                                   Text(
                                     customerDetailsModel.hotel.toString(),
-                                    style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 12.sp,
-                                      fontFamily: 'DM Sans',
-                                      fontWeight: FontWeight.w500,
-                                      height: 1.17,
-                                    ),
-                                  ),
-                                  SizedBox(height: 17.h),
-                                  Text(
-                                    'Reference no',
-                                    style: TextStyle(
-                                      color: const Color(0xFFA9A5B8),
-                                      fontSize: 14.sp,
-                                      fontFamily: 'DM Sans',
-                                      fontWeight: FontWeight.w500,
-                                      height: 1.17,
-                                    ),
-                                  ),
-                                  Text(
-                                    customerDetailsModel.refNo.toString(),
                                     style: TextStyle(
                                       color: Colors.black,
                                       fontSize: 12.sp,
@@ -453,7 +453,7 @@ class _DeliverydetailState extends State<Deliverydetail> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    'Street Name',
+                                    'Street No',
                                     style: TextStyle(
                                       color: const Color(0xFFA9A5B8),
                                       fontSize: 14.sp,
@@ -474,7 +474,7 @@ class _DeliverydetailState extends State<Deliverydetail> {
                                   ),
                                   SizedBox(height: 17.h),
                                   Text(
-                                    'Fragrance',
+                                    'Reference No',
                                     style: TextStyle(
                                       color: const Color(0xFFA9A5B8),
                                       fontSize: 14.sp,
@@ -484,7 +484,7 @@ class _DeliverydetailState extends State<Deliverydetail> {
                                     ),
                                   ),
                                   Text(
-                                    customerDetailsModel.fragrance.toString(),
+                                    customerDetailsModel.refNo.toString(),
                                     style: TextStyle(
                                       color: Colors.black,
                                       fontSize: 12.sp,
@@ -493,7 +493,27 @@ class _DeliverydetailState extends State<Deliverydetail> {
                                       height: 1.17,
                                     ),
                                   ),
-                                  SizedBox(height: 50.h),
+                                  SizedBox(height: 17.h),
+                                  Text(
+                                    'Note',
+                                    style: TextStyle(
+                                      color: const Color(0xFFA9A5B8),
+                                      fontSize: 14.sp,
+                                      fontFamily: 'DM Sans',
+                                      fontWeight: FontWeight.w500,
+                                      height: 1.17,
+                                    ),
+                                  ),
+                                  Text(
+                                    widget.notes,
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 12.sp,
+                                      fontFamily: 'DM Sans',
+                                      fontWeight: FontWeight.w500,
+                                      height: 1.17,
+                                    ),
+                                  ),
                                 ],
                               ),
                             ],
@@ -693,8 +713,7 @@ class _DeliverydetailState extends State<Deliverydetail> {
                                   "PaymodeCash": settingsData.paymodeCash,
                                   "PaymodeBank": settingsData.paymodeBank,
                                   "PaymodeCard": settingsData.paymodeCard,
-                                  "PaymodeWallet": settingsData.paymodeWallet,
-                                  "PaymodeVoid": settingsData.paymodeVoid,
+                                  "PaymodeWallet": settingsData.paymodeWallet
                                 };
                                 final result = await DeliveryDialog.show(
                                   context,

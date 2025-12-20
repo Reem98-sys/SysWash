@@ -60,14 +60,11 @@ class _HistorydetailState extends State<Historydetail> {
             final name = widget.historyType == 'pickup'
             ? (item['pickupCustomerName']?.toString().toLowerCase() ?? '')
             : (item['customerName']?.toString().toLowerCase() ?? '');
-        final phone = widget.historyType == 'pickup'
-            ? (item['pickupCustomerPhno']?.toString() ?? '')
-            : (item['customerPhno']?.toString() ?? '');
+        
         final area = widget.historyType == 'pickup'
             ? (item['pickupCustomerArea']?.toString().toLowerCase() ?? '')
             : (item['customerAddress']?.toString().toLowerCase() ?? '');
         return name.contains(query.toLowerCase()) ||
-            phone.contains(query) ||
             area.contains(query.toLowerCase());
           }).toList();
     });
@@ -166,8 +163,8 @@ class _HistorydetailState extends State<Historydetail> {
                                     ),
                                   ),
                                   Text(
-                                    widget.historyType == 'pickup'?filteredList[index]['pickupCustomerPhno']
-                                        .toString():filteredList[index]['customerPhno']
+                                    widget.historyType == 'pickup'?filteredList[index]['pickupstatus']
+                                        .toString():filteredList[index]['deliveryassgn'][0]['paymentstatus']
                                         .toString(),
                                     style: TextStyle(
                                       color: const Color(0xFF514A6B),

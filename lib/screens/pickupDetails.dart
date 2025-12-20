@@ -4,7 +4,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:syswash/bloc/bloc/pickupcustdetails_bloc.dart';
 import 'package:syswash/bloc/bloc/servicedetails_bloc.dart';
-import 'package:syswash/bloc/bloc/settings_bloc.dart';
 import 'package:syswash/screens/add_item_dialog.dart';
 import 'package:syswash/screens/mapping.dart';
 
@@ -35,6 +34,7 @@ class _PickupdetailsState extends State<Pickupdetails> {
   List<Map<String, dynamic>> _orderItemsList = [];
   int? totalItem = 0;
   int? totalquantity = 0;
+  double totalAmount = 0.0;
 
   final storage = const FlutterSecureStorage();
 
@@ -74,7 +74,7 @@ class _PickupdetailsState extends State<Pickupdetails> {
 
       final newItem = await showAddItemDialog(context, token, companyCode);
 
-      // 👇 If user pressed Save and returned data
+      //  If user pressed Save and returned data
       if (newItem != null) {
         setState(() {
           _orderItemsList.add(newItem);
@@ -87,16 +87,23 @@ class _PickupdetailsState extends State<Pickupdetails> {
   }
 
   void _recalculateTotals() {
+    int qty = 0;
+    double subtotal = 0.0;
+
+    for (var item in _orderItemsList) {
+      final price =
+          double.tryParse(item['clothPrice']?.toString() ?? '0') ?? 0;
+      final qnty =
+          int.tryParse(item['qnty']?.toString() ?? '0') ?? 0;
+
+      qty += qnty;
+      subtotal += price * qnty;
+    }
+
     setState(() {
+      totalquantity = qty;
       totalItem = _orderItemsList.length;
-      totalquantity = _orderItemsList.fold<int>(0, (sum, item) {
-        final qty =
-            int.tryParse(
-              item["qnty"]?.toString() ?? item["qnty"]?.toString() ?? "0",
-            ) ??
-            0;
-        return sum + qty;
-      });
+      totalAmount = subtotal;
     });
   }
 
@@ -161,16 +168,18 @@ class _PickupdetailsState extends State<Pickupdetails> {
   }
 
   String buildFullAddress({
-    String? area,
     String? hotel,
+    String? area,
+    String? zone,
     String? street,
-    String? houseNumber,
+    String? villano,
   }) {
     // Collect only non-empty values
     final parts = [
-      if (houseNumber != null && houseNumber.trim().isNotEmpty) houseNumber,
-      if (street != null && street.trim().isNotEmpty) street,
       if (hotel != null && hotel.trim().isNotEmpty) hotel,
+      if (villano != null && villano.trim().isNotEmpty) villano,
+      if (street != null && street.trim().isNotEmpty) street,
+      if (zone != null && zone.trim().isNotEmpty) zone,
       if (area != null && area.trim().isNotEmpty) area,
     ];
 
@@ -197,7 +206,7 @@ class _PickupdetailsState extends State<Pickupdetails> {
         ),
       ),
       // bottomNavigationBar: Bottomnav(),
-      body: Center(
+      body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(15.0),
           child: BlocConsumer<PickupcustdetailsBloc, PickupcustdetailsState>(
@@ -379,18 +388,15 @@ class _PickupdetailsState extends State<Pickupdetails> {
                                 GestureDetector(
                                   onTap: () {
                                     final fullAddress = buildFullAddress(
+                                      hotel: customerDetailsModel.hotel,
                                       area:
-                                          customerDetailsModel.area ??
                                           customerDetailsModel.area,
-                                      hotel:
-                                          customerDetailsModel.hotel ??
-                                          customerDetailsModel.hotel,
+                                      zone:
+                                          customerDetailsModel.zone,
                                       street:
-                                          customerDetailsModel.streetNo ??
                                           customerDetailsModel.streetNo,
-                                      houseNumber:
-                                          customerDetailsModel.roomNo ??
-                                          customerDetailsModel.roomNo,
+                                      villano:
+                                          customerDetailsModel.villaNumber,
                                     );
                                     if (fullAddress.isNotEmpty) {
                                       openRoute(fullAddress);
@@ -517,7 +523,7 @@ class _PickupdetailsState extends State<Pickupdetails> {
                                   ),
                                   SizedBox(height: 17.h),
                                   Text(
-                                    'House no',
+                                    'Villa No',
                                     style: TextStyle(
                                       color: const Color(0xFFA9A5B8),
                                       fontSize: 14.sp,
@@ -527,7 +533,7 @@ class _PickupdetailsState extends State<Pickupdetails> {
                                     ),
                                   ),
                                   Text(
-                                    customerDetailsModel.roomNo.toString(),
+                                    customerDetailsModel.villaNumber.toString(),
                                     style: TextStyle(
                                       color: Colors.black,
                                       fontSize: 12.sp,
@@ -538,7 +544,7 @@ class _PickupdetailsState extends State<Pickupdetails> {
                                   ),
                                   SizedBox(height: 17.h),
                                   Text(
-                                    'Note',
+                                    'Fragrance',
                                     style: TextStyle(
                                       color: const Color(0xFFA9A5B8),
                                       fontSize: 14.sp,
@@ -548,7 +554,7 @@ class _PickupdetailsState extends State<Pickupdetails> {
                                     ),
                                   ),
                                   Text(
-                                    widget.notes,
+                                    customerDetailsModel.fragrance.toString(),
                                     style: TextStyle(
                                       color: Colors.black,
                                       fontSize: 12.sp,
@@ -563,6 +569,27 @@ class _PickupdetailsState extends State<Pickupdetails> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
+                                    'Zone',
+                                    style: TextStyle(
+                                      color: const Color(0xFFA9A5B8),
+                                      fontSize: 14.sp,
+                                      fontFamily: 'DM Sans',
+                                      fontWeight: FontWeight.w500,
+                                      height: 1.17,
+                                    ),
+                                  ),
+                                  Text(
+                                    customerDetailsModel.zone.toString(),
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 12.sp,
+                                      fontFamily: 'DM Sans',
+                                      fontWeight: FontWeight.w500,
+                                      height: 1.17,
+                                    ),
+                                  ),
+                                  SizedBox(height: 17.h),
+                                  Text(
                                     'Hotel',
                                     style: TextStyle(
                                       color: const Color(0xFFA9A5B8),
@@ -574,27 +601,6 @@ class _PickupdetailsState extends State<Pickupdetails> {
                                   ),
                                   Text(
                                     customerDetailsModel.hotel.toString(),
-                                    style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 12.sp,
-                                      fontFamily: 'DM Sans',
-                                      fontWeight: FontWeight.w500,
-                                      height: 1.17,
-                                    ),
-                                  ),
-                                  SizedBox(height: 17.h),
-                                  Text(
-                                    'Reference no',
-                                    style: TextStyle(
-                                      color: const Color(0xFFA9A5B8),
-                                      fontSize: 14.sp,
-                                      fontFamily: 'DM Sans',
-                                      fontWeight: FontWeight.w500,
-                                      height: 1.17,
-                                    ),
-                                  ),
-                                  Text(
-                                    customerDetailsModel.refNo.toString(),
                                     style: TextStyle(
                                       color: Colors.black,
                                       fontSize: 12.sp,
@@ -630,7 +636,7 @@ class _PickupdetailsState extends State<Pickupdetails> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    'Street Name',
+                                    'Street No',
                                     style: TextStyle(
                                       color: const Color(0xFFA9A5B8),
                                       fontSize: 14.sp,
@@ -651,7 +657,7 @@ class _PickupdetailsState extends State<Pickupdetails> {
                                   ),
                                   SizedBox(height: 17.h),
                                   Text(
-                                    'Fragrance',
+                                    'Reference No',
                                     style: TextStyle(
                                       color: const Color(0xFFA9A5B8),
                                       fontSize: 14.sp,
@@ -661,7 +667,7 @@ class _PickupdetailsState extends State<Pickupdetails> {
                                     ),
                                   ),
                                   Text(
-                                    customerDetailsModel.fragrance.toString(),
+                                    customerDetailsModel.refNo.toString(),
                                     style: TextStyle(
                                       color: Colors.black,
                                       fontSize: 12.sp,
@@ -670,7 +676,27 @@ class _PickupdetailsState extends State<Pickupdetails> {
                                       height: 1.17,
                                     ),
                                   ),
-                                  SizedBox(height: 50.h),
+                                  SizedBox(height: 17.h),
+                                  Text(
+                                    'Note',
+                                    style: TextStyle(
+                                      color: const Color(0xFFA9A5B8),
+                                      fontSize: 14.sp,
+                                      fontFamily: 'DM Sans',
+                                      fontWeight: FontWeight.w500,
+                                      height: 1.17,
+                                    ),
+                                  ),
+                                  Text(
+                                    widget.notes,
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 12.sp,
+                                      fontFamily: 'DM Sans',
+                                      fontWeight: FontWeight.w500,
+                                      height: 1.17,
+                                    ),
+                                  ),
                                 ],
                               ),
                             ],
@@ -843,7 +869,7 @@ class _PickupdetailsState extends State<Pickupdetails> {
                                 Row(
                                   children: [
                                     Text(
-                                      'Total Items :',
+                                      'Total Amount :',
                                       style: TextStyle(
                                         color: Colors.black,
                                         fontSize: 17.sp,
@@ -853,7 +879,7 @@ class _PickupdetailsState extends State<Pickupdetails> {
                                       ),
                                     ),
                                     Text(
-                                      totalItem.toString(),
+                                      totalAmount.toString(),
                                       style: TextStyle(
                                         color: const Color(0xFF68188B),
                                         fontSize: 15.sp,
@@ -869,10 +895,10 @@ class _PickupdetailsState extends State<Pickupdetails> {
                                 Row(
                                   children: [
                                     Text(
-                                      'Total QTY : ',
+                                      'Total Quantity : ',
                                       style: TextStyle(
                                         color: Colors.black,
-                                        fontSize: 15.sp,
+                                        fontSize: 17.sp,
                                         fontFamily: 'DM Sans',
                                         fontWeight: FontWeight.w700,
                                         height: 1,
