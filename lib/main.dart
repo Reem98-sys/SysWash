@@ -155,8 +155,12 @@ class _MyAppState extends State<MyApp> {
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'SysWash',
+        
         theme: ThemeData(
           scaffoldBackgroundColor: Color(0xFFF8F8F8),
+          appBarTheme: AppBarTheme(
+            backgroundColor: Color(0xFFF8F8F8), // AppBar background
+          ),
         ),
         home: SplashScreen(),
       ),

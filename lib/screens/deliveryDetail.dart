@@ -380,6 +380,27 @@ class _DeliverydetailState extends State<Deliverydetail> {
                                       height: 1.17,
                                     ),
                                   ),
+                                  SizedBox(height: 17.h),
+                                  Text(
+                                    'Remark',
+                                    style: TextStyle(
+                                      color: const Color(0xFFA9A5B8),
+                                      fontSize: 14.sp,
+                                      fontFamily: 'DM Sans',
+                                      fontWeight: FontWeight.w500,
+                                      height: 1.17,
+                                    ),
+                                  ),
+                                  Text(
+                                    widget.remarks,
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 12.sp,
+                                      fontFamily: 'DM Sans',
+                                      fontWeight: FontWeight.w500,
+                                      height: 1.17,
+                                    ),
+                                  ),
                                 ],
                               ),
                               Column(
@@ -428,7 +449,7 @@ class _DeliverydetailState extends State<Deliverydetail> {
                                   ),
                                   SizedBox(height: 17.h),
                                   Text(
-                                    'Remark',
+                                    'Reference No',
                                     style: TextStyle(
                                       color: const Color(0xFFA9A5B8),
                                       fontSize: 14.sp,
@@ -438,7 +459,7 @@ class _DeliverydetailState extends State<Deliverydetail> {
                                     ),
                                   ),
                                   Text(
-                                    widget.remarks,
+                                    customerDetailsModel.refNo.toString(),
                                     style: TextStyle(
                                       color: Colors.black,
                                       fontSize: 12.sp,
@@ -447,6 +468,9 @@ class _DeliverydetailState extends State<Deliverydetail> {
                                       height: 1.17,
                                     ),
                                   ),
+                                  SizedBox(
+                                    height: 50.h,
+                                  )
                                 ],
                               ),
                               Column(
@@ -474,7 +498,7 @@ class _DeliverydetailState extends State<Deliverydetail> {
                                   ),
                                   SizedBox(height: 17.h),
                                   Text(
-                                    'Reference No',
+                                    'Room No',
                                     style: TextStyle(
                                       color: const Color(0xFFA9A5B8),
                                       fontSize: 14.sp,
@@ -484,7 +508,7 @@ class _DeliverydetailState extends State<Deliverydetail> {
                                     ),
                                   ),
                                   Text(
-                                    customerDetailsModel.refNo.toString(),
+                                    customerDetailsModel.roomNo.toString(),
                                     style: TextStyle(
                                       color: Colors.black,
                                       fontSize: 12.sp,
@@ -514,6 +538,9 @@ class _DeliverydetailState extends State<Deliverydetail> {
                                       height: 1.17,
                                     ),
                                   ),
+                                  SizedBox(
+                                    height: 50.h,
+                                  )
                                 ],
                               ),
                             ],
@@ -640,7 +667,7 @@ class _DeliverydetailState extends State<Deliverydetail> {
                       ),
                     Container(
                       width: 380.w,
-                      height: 72.h,
+                      height: 76.h,
                       decoration: ShapeDecoration(
                         color: Colors.white,
                         shape: RoundedRectangleBorder(
@@ -648,10 +675,11 @@ class _DeliverydetailState extends State<Deliverydetail> {
                         ),
                       ),
                       child: Padding(
-                        padding: const EdgeInsets.all(15.0),
+                        padding: const EdgeInsets.all(12.0),
                         child: Row(
                           children: [
                             Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Row(
                                   children: [

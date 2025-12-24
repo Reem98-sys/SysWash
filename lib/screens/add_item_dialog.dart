@@ -327,7 +327,7 @@ Future<Map<String, dynamic>?> showAddItemDialog(
                       children: [
                         Container(
                           width: 140.w,
-                          height: 66.h,
+                          height: 70.h,
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -381,10 +381,10 @@ Future<Map<String, dynamic>?> showAddItemDialog(
                             ],
                           ),
                         ),
-                        SizedBox(width: 15.w),
+                        Spacer(),
                         Container(
                           width: 140.w,
-                          height: 66.h,
+                          height: 70.h,
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -458,7 +458,7 @@ Future<Map<String, dynamic>?> showAddItemDialog(
                             ),
                           ),
                         ),
-                        SizedBox(width: 15.w),
+                        Spacer(),
                         GestureDetector(
                           onTap: () {
                             if (billingType == 'Express') {

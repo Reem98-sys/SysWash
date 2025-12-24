@@ -563,6 +563,27 @@ class _PickupdetailsState extends State<Pickupdetails> {
                                       height: 1.17,
                                     ),
                                   ),
+                                  SizedBox(height: 17.h),
+                                  Text(
+                                    'Remark',
+                                    style: TextStyle(
+                                      color: const Color(0xFFA9A5B8),
+                                      fontSize: 14.sp,
+                                      fontFamily: 'DM Sans',
+                                      fontWeight: FontWeight.w500,
+                                      height: 1.17,
+                                    ),
+                                  ),
+                                  Text(
+                                    widget.remarks,
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 12.sp,
+                                      fontFamily: 'DM Sans',
+                                      fontWeight: FontWeight.w500,
+                                      height: 1.17,
+                                    ),
+                                  ),
                                 ],
                               ),
                               Column(
@@ -611,7 +632,7 @@ class _PickupdetailsState extends State<Pickupdetails> {
                                   ),
                                   SizedBox(height: 17.h),
                                   Text(
-                                    'Remark',
+                                    'Reference No',
                                     style: TextStyle(
                                       color: const Color(0xFFA9A5B8),
                                       fontSize: 14.sp,
@@ -621,7 +642,7 @@ class _PickupdetailsState extends State<Pickupdetails> {
                                     ),
                                   ),
                                   Text(
-                                    widget.remarks,
+                                    customerDetailsModel.refNo.toString(),
                                     style: TextStyle(
                                       color: Colors.black,
                                       fontSize: 12.sp,
@@ -630,6 +651,9 @@ class _PickupdetailsState extends State<Pickupdetails> {
                                       height: 1.17,
                                     ),
                                   ),
+                                  SizedBox(
+                                    height: 50.h,
+                                  )
                                 ],
                               ),
                               Column(
@@ -657,7 +681,7 @@ class _PickupdetailsState extends State<Pickupdetails> {
                                   ),
                                   SizedBox(height: 17.h),
                                   Text(
-                                    'Reference No',
+                                    'Room No',
                                     style: TextStyle(
                                       color: const Color(0xFFA9A5B8),
                                       fontSize: 14.sp,
@@ -667,7 +691,7 @@ class _PickupdetailsState extends State<Pickupdetails> {
                                     ),
                                   ),
                                   Text(
-                                    customerDetailsModel.refNo.toString(),
+                                    customerDetailsModel.roomNo.toString(),
                                     style: TextStyle(
                                       color: Colors.black,
                                       fontSize: 12.sp,
@@ -697,6 +721,9 @@ class _PickupdetailsState extends State<Pickupdetails> {
                                       height: 1.17,
                                     ),
                                   ),
+                                  SizedBox(
+                                    height: 50.h,
+                                  )
                                 ],
                               ),
                             ],
@@ -853,7 +880,7 @@ class _PickupdetailsState extends State<Pickupdetails> {
                     // Spacer(),
                     Container(
                       width: 380.w,
-                      height: 72.h,
+                      height: 76.h,
                       decoration: ShapeDecoration(
                         color: Colors.white,
                         shape: RoundedRectangleBorder(
@@ -861,10 +888,11 @@ class _PickupdetailsState extends State<Pickupdetails> {
                         ),
                       ),
                       child: Padding(
-                        padding: const EdgeInsets.all(15.0),
+                        padding: const EdgeInsets.all(12.0),
                         child: Row(
                           children: [
                             Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Row(
                                   children: [
@@ -1021,7 +1049,6 @@ class _PickupdetailsState extends State<Pickupdetails> {
                                     totalamt =
                                         subtotal -
                                         (pickupOrderItems.discount ?? 0.0) -
-                                        (pickupOrderItems.paidAmount ?? 0.0) +
                                         (pickupOrderItems.vat ?? 0.0) +
                                         (pickupOrderItems.openingBalance ??
                                             0.0);
@@ -1042,7 +1069,7 @@ class _PickupdetailsState extends State<Pickupdetails> {
                                       subtotal,
                                       totalamt,
                                       blnc,
-                                      totalDiscount.ceil(),
+                                      totalDiscount != 0.0 ? totalDiscount.ceil() : pickupOrderItems.discount!,
                                     );
                                   } else {
                                     // no new items → directly call FetchStatusPickupEvent

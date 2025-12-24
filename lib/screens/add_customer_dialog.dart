@@ -226,7 +226,7 @@ Future<bool?> showAddCustomerDialog(
                     children: [
                       Container(
                         width: 140.w,
-                        height: 66.h,
+                        height: 80.h,
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -242,7 +242,7 @@ Future<bool?> showAddCustomerDialog(
                             SizedBox(height: 10.h),
                             Container(
                               width: 140.w,
-                              height: 40.h,
+                              height: 50.h,
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 16,
                               ),
@@ -268,10 +268,10 @@ Future<bool?> showAddCustomerDialog(
                           ],
                         ),
                       ),
-                      SizedBox(width: 10.w),
+                      Spacer(),
                       Container(
                         width: 140.w,
-                        height: 66.h,
+                        height: 80.h,
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -287,7 +287,7 @@ Future<bool?> showAddCustomerDialog(
                             SizedBox(height: 10.h),
                             Container(
                               width: 140.w,
-                              height: 40.h,
+                              height: 50.h,
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 16,
                               ),
@@ -425,7 +425,7 @@ Future<bool?> showAddCustomerDialog(
                   ),
                 ),
               ),
-              SizedBox(width: 12.w),
+              Spacer(),
               GestureDetector(
                 onTap: () async {
                   context.read<UploadpickupBloc>().add(
