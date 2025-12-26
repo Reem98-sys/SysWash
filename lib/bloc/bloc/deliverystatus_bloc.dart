@@ -13,16 +13,17 @@ class DeliverystatusBloc
       
       emit(DeliveryLoading());
       try {
-        final response = await sysRepository.deliverypaymentstatus(
+        final message = await sysRepository.deliverypaymentstatus(
           event.companyCode,
           event.token,
           event.deliveryassgnId,
           event.paymentMode,
           event.paymentstatus,
+          event.remark
         );
-        emit(DeliverySuccess());
-      } catch (e,stackTrace) {
-        emit(DeliveryError());
+        emit(DeliverySuccess(message: message));
+      } catch (e) {
+        emit(DeliveryError(message: e.toString().replaceFirst('Exception: ', '')));
       }
     });
   }

@@ -9,11 +9,13 @@ class FetchDeliveryStatusEvent extends DeliverystatusEvent {
   final int deliveryassgnId;
   final String? paymentMode;
   final String? paymentstatus;
+  final String? remark;
   FetchDeliveryStatusEvent({
     required this.companyCode,
     required this.token,
     required this.deliveryassgnId,
      this.paymentMode,
-     this.paymentstatus
+     this.paymentstatus,
+     this.remark
   });
 }

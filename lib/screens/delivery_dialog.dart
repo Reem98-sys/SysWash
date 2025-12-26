@@ -43,24 +43,17 @@ class _DeliveryDialogContent extends StatelessWidget {
     return BlocListener<DeliverystatusBloc, DeliverystatusState>(
       listener: (context, state) {
         if (state is DeliveryLoading) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(const SnackBar(content: Text('Updating delivery...')));
+          Center(child: CircularProgressIndicator());
         } else if (state is DeliverySuccess) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Updated Successfully'),
-              backgroundColor: Colors.green,
-            ),
-          );
-          // Wait for snackbar to finish before closing dialog
-          Future.delayed(const Duration(seconds: 2), () {
+          
             Navigator.of(context, rootNavigator: true).pop(true);
-          });
+          
         } else if (state is DeliveryError) {
+          Navigator.of(context).popUntil((route) => route.isFirst);
+
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Something went wrong'),
+            SnackBar(
+              content: Text(state.message),
               backgroundColor: Colors.red,
             ),
           );
@@ -89,11 +82,10 @@ class _DeliveryDialogContent extends StatelessWidget {
               ),
             ),
             onPressed: () async {
-              final selectedMethod = await _showPaymentOptions(
-                context,
-                payModes,
-              );
-              if (selectedMethod != null) {
+              final result = await _showPaymentOptions(context, payModes);
+              if (result != null) {
+                final selectedMethod = result['method'];
+                final remark = result['remark'];
                 // Now call API here
                 const storage = FlutterSecureStorage();
                 final companyCode = await storage.read(key: 'company_Code');
@@ -108,6 +100,7 @@ class _DeliveryDialogContent extends StatelessWidget {
                       deliveryassgnId: deliveryassgnId ?? 0,
                       paymentMode: selectedMethod,
                       paymentstatus: 'Collected',
+                      remark: remark ?? '',
                     ),
                   );
                 }
@@ -126,7 +119,6 @@ class _DeliveryDialogContent extends StatelessWidget {
               final storage = const FlutterSecureStorage();
               final companyCode = await storage.read(key: 'company_Code');
               final token = await storage.read(key: 'access_Token');
-              
 
               if (token != null && companyCode != null) {
                 context.read<DeliverystatusBloc>().add(
@@ -136,6 +128,7 @@ class _DeliveryDialogContent extends StatelessWidget {
                     deliveryassgnId: deliveryassgnId ?? 0,
                     paymentMode: '',
                     paymentstatus: '',
+                    remark: '',
                   ),
                 );
               }
@@ -152,44 +145,93 @@ class _DeliveryDialogContent extends StatelessWidget {
 }
 
 //  Secondary dialog for payment options
-Future<String?> _showPaymentOptions(
+Future<Map<String, String>?> _showPaymentOptions(
   BuildContext context,
   Map<String, dynamic> payModes,
 ) async {
+  String? selectedMethod;
+  final TextEditingController remarkController = TextEditingController();
+
   final List<String> availableMethods = [];
   if (payModes['PaymodeCash'] == true) availableMethods.add('Cash');
   if (payModes['PaymodeBank'] == true) availableMethods.add('Bank');
   if (payModes['PaymodeCard'] == true) availableMethods.add('Card');
   if (payModes['PaymodeWallet'] == true) availableMethods.add('Wallet');
-  if (payModes['PaymodeVoid'] == true) availableMethods.add('Void');
 
-  return showDialog(
+  return showDialog<Map<String, String>>(
     context: context,
     builder: (BuildContext context) {
-      return AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        title: const Text(
-          'Select Payment Method',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: Color(0xFF68188B),
-          ),
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children:
-              availableMethods.isNotEmpty
-                  ? availableMethods
-                      .map((method) => _paymentOption(context, method))
-                      .toList()
-                  : [
-                    const Text(
-                      'No payment methods available',
-                      style: TextStyle(color: Colors.red),
+      return StatefulBuilder(
+        builder: (context, setState) {
+          return AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            title: const Text(
+              'Select Payment Method',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF68188B),
+              ),
+            ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ...availableMethods.map(
+                  (method) => CheckboxListTile(
+                    title: Text(method),
+                    value: selectedMethod == method,
+                    activeColor: const Color(0xFF68188B),
+                    onChanged: (value) {
+                      setState(() {
+                        selectedMethod = value == true ? method : null;
+                      });
+                    },
+                  ),
+                ),
+
+                // 🔹 Remark only for Bank / Card
+                if (selectedMethod == 'Bank' || selectedMethod == 'Card')
+                  Padding(
+                    padding: const EdgeInsets.only(top: 10),
+                    child: TextField(
+                      controller: remarkController,
+                      decoration: const InputDecoration(
+                        labelText: 'Remark',
+                        border: OutlineInputBorder(),
+                      ),
                     ),
-                  ],
-        ),
+                  ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(null),
+                child: const Text('Cancel'),
+              ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF68188B),
+                ),
+                onPressed:
+                    selectedMethod == null
+                        ? null
+                        : () {
+                          Navigator.of(context).pop({
+                            'method': selectedMethod!,
+                            'remark': remarkController.text,
+                          });
+                          // Navigator.pop(context, selectedMethod);
+                        },
+                child: const Text(
+                  'Confirm',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            ],
+          );
+        },
       );
     },
   );

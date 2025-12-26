@@ -399,12 +399,13 @@ class SysRepository {
     return ProfileModel.fromJson(jsonDecode(response.body));
   }
 
-  Future<void> deliverypaymentstatus(
+  Future<String> deliverypaymentstatus(
     String companyCode,
     String token,
     int deliveryassgnId,
     String? paymentMode,
     String? paymentstatus,
+    String? remark
   ) async {
     final now = DateTime.now();
     final formattedDateTime =
@@ -419,13 +420,26 @@ class SysRepository {
         "status": "Delivered",
       };
     } else {
-      body = {
+      if (remark == '') {
+        body = {
         "deliveredDateTime": formattedDateTime.toString(),
         "deliveryassgnId": deliveryassgnId,
         "status": "Delivered",
         "paymentstatus": paymentstatus,
         "paymentMode": paymentMode,
-      };
+        };
+      }
+      else {
+        body = {
+        "deliveredDateTime": formattedDateTime.toString(),
+        "deliveryassgnId": deliveryassgnId,
+        "status": "Delivered",
+        "paymentstatus": paymentstatus,
+        "paymentMode": paymentMode,
+        "paymentremarks": remark
+        };
+      }
+      
     }
 
     Response response = await apiClient.invokeAPI(
@@ -434,11 +448,15 @@ class SysRepository {
       jsonEncode(body),
       token: token,
     );
-    if (response.statusCode == 200) {
-      print('Upload successful: ${response.body}');
-    } else {
-      print('Upload failed: ${response.statusCode}');
+    final Map<String, dynamic> data = jsonDecode(response.body);
+
+    if (data['status'] != 200 && data['status'] != true && data['status'] != 1) {
+      throw Exception(
+      data['Message'] ?? data['message'] ?? 'Delivery failed',
+      );
     }
+
+    return data['Message'] ?? 'Updated Successfully';
   }
 
   Future<String> updateProfile(
