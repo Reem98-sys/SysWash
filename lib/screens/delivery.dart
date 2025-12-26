@@ -20,10 +20,11 @@ class _DeliveryState extends State<Delivery> {
   String? token;
   String? companyCode;
   String? userId;
+  final storage = FlutterSecureStorage();
   List<dynamic> filteredList = [];
   List<dynamic> fullList = [];
   Future<void> getUserData() async {
-    const storage = FlutterSecureStorage();
+    
     final name = await storage.read(key: 'user_name');
     final tokenAccess = await storage.read(key: 'access_Token');
     final companycode = await storage.read(key: 'company_Code');
@@ -44,6 +45,22 @@ class _DeliveryState extends State<Delivery> {
           );
     }
   }
+
+  Future<void> _onRefresh() async {
+  final userId = await storage.read(key: 'login_id');
+  final companyCode = await storage.read(key: 'company_Code');
+  final token = await storage.read(key: 'access_Token');
+
+  if (userId != null && companyCode != null && token != null) {
+    context.read<PickuplistBloc>().add(
+            FetchDeliveryEvent(
+              token: token!,
+              companyCode: companyCode!,
+              userId: userId!,
+            ),
+          );
+  }
+}
 
   @override
   void initState() {
@@ -112,236 +129,245 @@ class _DeliveryState extends State<Delivery> {
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
-        child: Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Delivery Customers',
-                  style: TextStyle(
-                    color: const Color(0xFF63629C),
-                    fontSize: 16.sp,
-                    fontFamily: 'Poppins',
-                    fontWeight: FontWeight.w600,
+      body: RefreshIndicator(
+        onRefresh: _onRefresh,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Delivery Customers',
+                    style: TextStyle(
+                      color: const Color(0xFF63629C),
+                      fontSize: 16.sp,
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder:
+                                          (context) =>
+                                              const Bottomnav(currentIndex: 1),
+                                    ),
+                                  );
+                    },
+                    child: SvgPicture.asset('assets/Back.svg'),
+                  ),
+                ],
+              ),
+              SizedBox(height: 18.h),
+              Container(
+                width: 400.w,
+                height: 51.h,
+                decoration: ShapeDecoration(
+                  color: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10.r),
                   ),
                 ),
-                GestureDetector(
-                  onTap: () {
-                    Navigator.pushReplacement(
+                child: TextField(
+                  controller: searchData,
+                  decoration: InputDecoration(
+                    // contentPadding: EdgeInsets.all(5),
+                    border: InputBorder.none,
+                    hintText: fullList.isEmpty ? '' : 'Search',
+        
+                    icon: Padding(
+                      padding: const EdgeInsets.only(left: 10.0),
+                      child: Icon(Icons.search),
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(height: 15.h),
+              Expanded(
+                child: BlocBuilder<PickuplistBloc, PickuplistState>(
+                  builder: (context, state) {
+                    if (state is PickUpBlocLoading) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                    if (state is PickUpBlocError) {
+                      return Center(
+                        child: Text(
+                          'Failed to load orders\n${state.message}',
+                          style: TextStyle(color: Colors.red, fontSize: 14.sp),
+                        ),
+                      );
+                    }
+                    if (state is PickUpBlocLoaded) {
+                      fullList =
+                          (state.deliveryListModel?.data ?? [])
+                              .where(
+                                (order) =>
+                                    order.status?.toString().toLowerCase() !=
+                                    "delivered",
+                              )
+                              .toList();
+        
+                      // If filteredList is empty (first load or cleared search)
+                      if (searchData.text.isEmpty) {
+                        filteredList = List.from(fullList);
+                      } else {
+                        // Run filtering after build completes (no setState error)
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          _filterSearchResults(searchData.text);
+                        });
+                      }
+        
+                      if (filteredList.isEmpty) {
+                        return const Center(child: Text('No results found.'));
+                      }
+        
+                      return ListView.builder(
+                        itemCount: filteredList.length,
+                        itemBuilder: (context, index) {
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 8.0),
+                            child: GestureDetector(
+                              onTap: () async {
+                                final result = await Navigator.push(
                                   context,
                                   MaterialPageRoute(
                                     builder:
-                                        (context) =>
-                                            const Bottomnav(currentIndex: 1),
+                                        (context) => Deliverydetail(
+                                          customerId:
+                                              filteredList[index]
+                                                  .deliveryCustomerId,
+                                          deliveryOrderId:
+                                              filteredList[index]
+                                                  .deliveryInvoiceNo
+                                                  .toString(),
+                                          notes:
+                                              // filteredList[index].notes ??
+                                              '',
+                                          remarks:
+                                              // filteredList[index].remarks ??
+                                              '',
+                                        ),
                                   ),
                                 );
-                  },
-                  child: SvgPicture.asset('assets/Back.svg'),
-                ),
-              ],
-            ),
-            SizedBox(height: 18.h),
-            Container(
-              width: 400.w,
-              height: 51.h,
-              decoration: ShapeDecoration(
-                color: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10.r),
-                ),
-              ),
-              child: TextField(
-                controller: searchData,
-                decoration: InputDecoration(
-                  // contentPadding: EdgeInsets.all(5),
-                  border: InputBorder.none,
-                  hintText: fullList.isEmpty ? '' : 'Search',
-
-                  icon: Padding(
-                    padding: const EdgeInsets.only(left: 10.0),
-                    child: Icon(Icons.search),
-                  ),
-                ),
-              ),
-            ),
-            SizedBox(height: 15.h),
-            Expanded(
-              child: BlocBuilder<PickuplistBloc, PickuplistState>(
-                builder: (context, state) {
-                  if (state is PickUpBlocLoading) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-                  if (state is PickUpBlocError) {
-                    return Center(
-                      child: Text(
-                        'Failed to load orders\n${state.message}',
-                        style: TextStyle(color: Colors.red, fontSize: 14.sp),
-                      ),
-                    );
-                  }
-                  if (state is PickUpBlocLoaded) {
-                    fullList =
-                        (state.deliveryListModel?.data ?? [])
-                            .where(
-                              (order) =>
-                                  order.status?.toString().toLowerCase() !=
-                                  "delivered",
-                            )
-                            .toList();
-
-                    // If filteredList is empty (first load or cleared search)
-                    if (searchData.text.isEmpty) {
-                      filteredList = List.from(fullList);
-                    } else {
-                      // Run filtering after build completes (no setState error)
-                      WidgetsBinding.instance.addPostFrameCallback((_) {
-                        _filterSearchResults(searchData.text);
-                      });
-                    }
-
-                    if (filteredList.isEmpty) {
-                      return const Center(child: Text('No results found.'));
-                    }
-
-                    return ListView.builder(
-                      itemCount: filteredList.length,
-                      itemBuilder: (context, index) {
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 8.0),
-                          child: GestureDetector(
-                            onTap: () async {
-                              final result = await Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder:
-                                      (context) => Deliverydetail(
-                                        customerId:
+                                //  If the result is true, reload data
+                                if (result == true) {
+                                  // clear old cached lists first
+                                  setState(() {
+                                    fullList.clear();
+                                    filteredList.clear();
+                                  });
+                                  await Future.delayed(const Duration(seconds: 1), () {
+                                    context.read<PickuplistBloc>().add(
+                                      FetchDeliveryEvent(
+                                        userId: userId ?? '',
+                                        companyCode: companyCode ?? '',
+                                        token: token ?? '',
+                                      ),
+                                    );
+                                  });
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Updated Successfully'),
+                                    backgroundColor: Colors.green,
+                                  ),
+                                );
+                                }
+                              },
+                              child: Container(
+                                width: 364.w,
+                                height: 90.h,
+                                decoration: ShapeDecoration(
+                                  color: Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10.r),
+                                  ),
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(10.0),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        filteredList[index].deliveryCustomerName
+                                            .toString(),
+                                        style: TextStyle(
+                                          color: const Color(0xFF150B3D),
+                                          fontSize: 16.sp,
+                                          fontFamily: 'DM Sans',
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                      Text(
+                                        filteredList[index].deliveryCustomerPhno
+                                            .toString(),
+                                        style: TextStyle(
+                                          color: const Color(0xFF514A6B),
+                                          fontSize: 14.sp,
+                                          fontFamily: 'DM Sans',
+                                          fontWeight: FontWeight.w400,
+                                        ),
+                                      ),
+                                      SizedBox(height: 3.h),
+                                      Row(
+                                        children: [
+                                          Icon(
+                                            Icons.location_on,
+                                            size: 18.sp,
+                                            color: Colors.grey,
+                                          ),
+                                          Text(
                                             filteredList[index]
-                                                .deliveryCustomerId,
-                                        deliveryOrderId:
-                                            filteredList[index]
-                                                .deliveryInvoiceNo
+                                                .deliveryCustomerArea
                                                 .toString(),
-                                        notes:
-                                            // filteredList[index].notes ??
-                                            '',
-                                        remarks:
-                                            // filteredList[index].remarks ??
-                                            '',
-                                      ),
-                                ),
-                              );
-                              //  If the result is true, reload data
-                              if (result == true) {
-                                // clear old cached lists first
-                                setState(() {
-                                  fullList.clear();
-                                  filteredList.clear();
-                                });
-                                await Future.delayed(const Duration(seconds: 1), () {
-                                  context.read<PickuplistBloc>().add(
-                                    FetchDeliveryEvent(
-                                      userId: userId ?? '',
-                                      companyCode: companyCode ?? '',
-                                      token: token ?? '',
-                                    ),
-                                  );
-                                });
-                              }
-                            },
-                            child: Container(
-                              width: 364.w,
-                              height: 90.h,
-                              decoration: ShapeDecoration(
-                                color: Colors.white,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10.r),
-                                ),
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.all(10.0),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      filteredList[index].deliveryCustomerName
-                                          .toString(),
-                                      style: TextStyle(
-                                        color: const Color(0xFF150B3D),
-                                        fontSize: 16.sp,
-                                        fontFamily: 'DM Sans',
-                                        fontWeight: FontWeight.w700,
-                                      ),
-                                    ),
-                                    Text(
-                                      filteredList[index].deliveryCustomerPhno
-                                          .toString(),
-                                      style: TextStyle(
-                                        color: const Color(0xFF514A6B),
-                                        fontSize: 14.sp,
-                                        fontFamily: 'DM Sans',
-                                        fontWeight: FontWeight.w400,
-                                      ),
-                                    ),
-                                    SizedBox(height: 3.h),
-                                    Row(
-                                      children: [
-                                        Icon(
-                                          Icons.location_on,
-                                          size: 18.sp,
-                                          color: Colors.grey,
-                                        ),
-                                        Text(
-                                          filteredList[index]
-                                              .deliveryCustomerArea
-                                              .toString(),
-                                          style: TextStyle(
-                                            color: Colors.black,
-                                            fontSize: 11.sp,
-                                            fontFamily: 'Poppins',
-                                            fontWeight: FontWeight.w400,
-                                            height: 1.17,
-                                            letterSpacing: 0.20,
+                                            style: TextStyle(
+                                              color: Colors.black,
+                                              fontSize: 11.sp,
+                                              fontFamily: 'Poppins',
+                                              fontWeight: FontWeight.w400,
+                                              height: 1.17,
+                                              letterSpacing: 0.20,
+                                            ),
                                           ),
-                                        ),
-                                        SizedBox(width: 10.w),
-                                        Icon(
-                                          Icons.access_time,
-                                          size: 18.sp,
-                                          color: Colors.grey,
-                                        ),
-                                        Text(
-                                          filteredList[index].deliveryDate
-                                              .toString(),
-                                          style: TextStyle(
-                                            color: Colors.black,
-                                            fontSize: 11.sp,
-                                            fontFamily: 'Roboto',
-                                            fontWeight: FontWeight.w400,
-                                            height: 1.56,
-                                            letterSpacing: 0.70,
+                                          SizedBox(width: 10.w),
+                                          Icon(
+                                            Icons.access_time,
+                                            size: 18.sp,
+                                            color: Colors.grey,
                                           ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
+                                          Text(
+                                            filteredList[index].deliveryDate
+                                                .toString(),
+                                            style: TextStyle(
+                                              color: Colors.black,
+                                              fontSize: 11.sp,
+                                              fontFamily: 'Roboto',
+                                              fontWeight: FontWeight.w400,
+                                              height: 1.56,
+                                              letterSpacing: 0.70,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                        );
-                      },
-                    );
-                  } else {
-                    return SizedBox();
-                  }
-                },
+                          );
+                        },
+                      );
+                    } else {
+                      return SizedBox();
+                    }
+                  },
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

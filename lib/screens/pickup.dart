@@ -19,7 +19,7 @@ class Pickup extends StatefulWidget {
 
 class _PickupState extends State<Pickup> {
   final TextEditingController searchData = TextEditingController();
-
+  final storage = const FlutterSecureStorage();
   String? userName;
   String? token;
   String? companyCode;
@@ -28,9 +28,24 @@ class _PickupState extends State<Pickup> {
   List<dynamic> filteredList = [];
   List<dynamic> fullList = [];
 
+  Future<void> _onRefresh() async {
+  final userId = await storage.read(key: 'login_id');
+  final companyCode = await storage.read(key: 'company_Code');
+  final token = await storage.read(key: 'access_Token');
+
+  if (userId != null && companyCode != null && token != null) {
+    context.read<PickuplistBloc>().add(
+        FetchPickUpEvent(
+          token: token ?? '',
+          companyCode: companyCode ?? '',
+          userId: userId ?? '',
+        ),
+      );
+  }
+}
+
   // ------------------- Fetch User Data & Pickup List -------------------
   Future<void> getUserData() async {
-    const storage = FlutterSecureStorage();
     final name = await storage.read(key: 'user_name');
     final tokenAccess = await storage.read(key: 'access_Token');
     final companycode = await storage.read(key: 'company_Code');
@@ -154,218 +169,221 @@ class _PickupState extends State<Pickup> {
       ),
 
       // ------------------- Body -------------------
-      body: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
-        child: Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Pickup Customers',
-                  style: TextStyle(
-                    color: const Color(0xFF63629C),
-                    fontSize: 16.sp,
-                    fontFamily: 'Poppins',
-                    fontWeight: FontWeight.w600,
+      body: RefreshIndicator(
+        onRefresh: _onRefresh,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Pickup Customers',
+                    style: TextStyle(
+                      color: const Color(0xFF63629C),
+                      fontSize: 16.sp,
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder:
+                                          (context) =>
+                                              const Bottomnav(currentIndex: 0),
+                                    ),
+                                  );
+                    },
+                    child: SvgPicture.asset('assets/Back.svg'),
+                  ),
+                ],
+              ),
+              SizedBox(height: 18.h),
+        
+              // ------------------- Search Box -------------------
+              Container(
+                width: 400.w,
+                height: 51.h,
+                decoration: ShapeDecoration(
+                  color: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10.r),
                   ),
                 ),
-                GestureDetector(
-                  onTap: () {
-                    Navigator.pushReplacement(
+                child: TextField(
+                  controller: searchData,
+                  decoration: InputDecoration(
+                    border: InputBorder.none,
+                    hintText: fullList.isEmpty ? '' : 'Search',
+                    icon: const Padding(
+                      padding: EdgeInsets.only(left: 10.0),
+                      child: Icon(Icons.search),
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(height: 15.h),
+        
+              // ------------------- Pickup List -------------------
+              Expanded(
+                child: BlocBuilder<PickuplistBloc, PickuplistState>(
+                  builder: (context, state) {
+                    if (state is PickUpBlocLoading) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+        
+                    if (state is PickUpBlocError) {
+                      return Center(
+                        child: Text(
+                          'Failed to load orders\n${state.message}',
+                          style: TextStyle(color: Colors.red, fontSize: 14.sp),
+                        ),
+                      );
+                    }
+        
+                    if (state is PickUpBlocLoaded) {
+                      fullList =
+                          (state.pickUpListModel?.data ?? [])
+                              .where(
+                                (order) =>
+                                    order.pickupstatus?.toLowerCase() !=
+                                    'received',
+                              )
+                              .toList();
+        
+                      if (searchData.text.isEmpty) {
+                        filteredList = List.from(fullList);
+                      } else {
+                        // Run filtering after build completes (no setState error)
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          _filterSearchResults(searchData.text);
+                        });
+                      }
+        
+                      if (filteredList.isEmpty) {
+                        return const Center(child: Text('No results found.'));
+                      }
+        
+                      return ListView.builder(
+                        itemCount: filteredList.length,
+                        itemBuilder: (context, index) {
+                          final order = filteredList[index];
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 8.0),
+                            child: GestureDetector(
+                              onTap: () async {
+                                final result = await Navigator.push(
                                   context,
                                   MaterialPageRoute(
                                     builder:
-                                        (context) =>
-                                            const Bottomnav(currentIndex: 0),
+                                        (context) => Pickupdetails(
+                                          customerId:
+                                              order.pickupCustomerId.toString(),
+                                          pickupOrderId:
+                                              order.pickupOrderId.toString(),
+                                          pickupAssignId:
+                                              order.pickupassgnId ?? 0,
+                                          notes: order.notes ?? '',
+                                          remarks: order.remarks ?? '',
+                                        ),
                                   ),
                                 );
-                  },
-                  child: SvgPicture.asset('assets/Back.svg'),
-                ),
-              ],
-            ),
-            SizedBox(height: 18.h),
-
-            // ------------------- Search Box -------------------
-            Container(
-              width: 400.w,
-              height: 51.h,
-              decoration: ShapeDecoration(
-                color: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10.r),
-                ),
-              ),
-              child: TextField(
-                controller: searchData,
-                decoration: InputDecoration(
-                  border: InputBorder.none,
-                  hintText: fullList.isEmpty ? '' : 'Search',
-                  icon: const Padding(
-                    padding: EdgeInsets.only(left: 10.0),
-                    child: Icon(Icons.search),
-                  ),
-                ),
-              ),
-            ),
-            SizedBox(height: 15.h),
-
-            // ------------------- Pickup List -------------------
-            Expanded(
-              child: BlocBuilder<PickuplistBloc, PickuplistState>(
-                builder: (context, state) {
-                  if (state is PickUpBlocLoading) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-
-                  if (state is PickUpBlocError) {
-                    return Center(
-                      child: Text(
-                        'Failed to load orders\n${state.message}',
-                        style: TextStyle(color: Colors.red, fontSize: 14.sp),
-                      ),
-                    );
-                  }
-
-                  if (state is PickUpBlocLoaded) {
-                    fullList =
-                        (state.pickUpListModel?.data ?? [])
-                            .where(
-                              (order) =>
-                                  order.pickupstatus?.toLowerCase() !=
-                                  'received',
-                            )
-                            .toList();
-
-                    if (searchData.text.isEmpty) {
-                      filteredList = List.from(fullList);
-                    } else {
-                      // Run filtering after build completes (no setState error)
-                      WidgetsBinding.instance.addPostFrameCallback((_) {
-                        _filterSearchResults(searchData.text);
-                      });
-                    }
-
-                    if (filteredList.isEmpty) {
-                      return const Center(child: Text('No results found.'));
-                    }
-
-                    return ListView.builder(
-                      itemCount: filteredList.length,
-                      itemBuilder: (context, index) {
-                        final order = filteredList[index];
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 8.0),
-                          child: GestureDetector(
-                            onTap: () async {
-                              final result = await Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder:
-                                      (context) => Pickupdetails(
-                                        customerId:
-                                            order.pickupCustomerId.toString(),
-                                        pickupOrderId:
-                                            order.pickupOrderId.toString(),
-                                        pickupAssignId:
-                                            order.pickupassgnId ?? 0,
-                                        notes: order.notes ?? '',
-                                        remarks: order.remarks ?? '',
-                                      ),
-                                ),
-                              );
-                              if (result == true) {
-                                context.read<PickuplistBloc>().add(
-                                  FetchPickUpEvent(
-                                    token: token ?? '',
-                                    companyCode: companyCode ?? '',
-                                    userId: userId ?? '',
+                                if (result == true) {
+                                  context.read<PickuplistBloc>().add(
+                                    FetchPickUpEvent(
+                                      token: token ?? '',
+                                      companyCode: companyCode ?? '',
+                                      userId: userId ?? '',
+                                    ),
+                                  );
+                                }
+                              },
+                              child: Container(
+                                width: 364.w,
+                                height: 90.h,
+                                decoration: ShapeDecoration(
+                                  color: Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10.r),
                                   ),
-                                );
-                              }
-                            },
-                            child: Container(
-                              width: 364.w,
-                              height: 90.h,
-                              decoration: ShapeDecoration(
-                                color: Colors.white,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10.r),
                                 ),
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.all(10.0),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      order.pickupCustomerName.toString(),
-                                      style: TextStyle(
-                                        color: const Color(0xFF150B3D),
-                                        fontSize: 16.sp,
-                                        fontFamily: 'DM Sans',
-                                        fontWeight: FontWeight.w700,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(10.0),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        order.pickupCustomerName.toString(),
+                                        style: TextStyle(
+                                          color: const Color(0xFF150B3D),
+                                          fontSize: 16.sp,
+                                          fontFamily: 'DM Sans',
+                                          fontWeight: FontWeight.w700,
+                                        ),
                                       ),
-                                    ),
-                                    Text(
-                                      order.pickupCustomerPhno.toString(),
-                                      style: TextStyle(
-                                        color: const Color(0xFF514A6B),
-                                        fontSize: 14.sp,
-                                        fontFamily: 'DM Sans',
-                                        fontWeight: FontWeight.w400,
+                                      Text(
+                                        order.pickupCustomerPhno.toString(),
+                                        style: TextStyle(
+                                          color: const Color(0xFF514A6B),
+                                          fontSize: 14.sp,
+                                          fontFamily: 'DM Sans',
+                                          fontWeight: FontWeight.w400,
+                                        ),
                                       ),
-                                    ),
-                                    SizedBox(height: 3.h),
-                                    Row(
-                                      children: [
-                                        Icon(
-                                          Icons.location_on,
-                                          size: 18.sp,
-                                          color: Colors.grey,
-                                        ),
-                                        Text(
-                                          order.pickupCustomerArea ?? '',
-                                          style: TextStyle(
-                                            color: Colors.black,
-                                            fontSize: 11.sp,
-                                            fontFamily: 'Poppins',
-                                            fontWeight: FontWeight.w400,
+                                      SizedBox(height: 3.h),
+                                      Row(
+                                        children: [
+                                          Icon(
+                                            Icons.location_on,
+                                            size: 18.sp,
+                                            color: Colors.grey,
                                           ),
-                                        ),
-                                        SizedBox(width: 10.w),
-                                        Icon(
-                                          Icons.access_time,
-                                          size: 18.sp,
-                                          color: Colors.grey,
-                                        ),
-                                        Text(
-                                          order.pickupDate.toString(),
-                                          style: TextStyle(
-                                            color: Colors.black,
-                                            fontSize: 11.sp,
-                                            fontFamily: 'Roboto',
-                                            fontWeight: FontWeight.w400,
+                                          Text(
+                                            order.pickupCustomerArea ?? '',
+                                            style: TextStyle(
+                                              color: Colors.black,
+                                              fontSize: 11.sp,
+                                              fontFamily: 'Poppins',
+                                              fontWeight: FontWeight.w400,
+                                            ),
                                           ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
+                                          SizedBox(width: 10.w),
+                                          Icon(
+                                            Icons.access_time,
+                                            size: 18.sp,
+                                            color: Colors.grey,
+                                          ),
+                                          Text(
+                                            order.pickupDate.toString(),
+                                            style: TextStyle(
+                                              color: Colors.black,
+                                              fontSize: 11.sp,
+                                              fontFamily: 'Roboto',
+                                              fontWeight: FontWeight.w400,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                        );
-                      },
-                    );
-                  }
-
-                  return const SizedBox();
-                },
+                          );
+                        },
+                      );
+                    }
+        
+                    return const SizedBox();
+                  },
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
 
