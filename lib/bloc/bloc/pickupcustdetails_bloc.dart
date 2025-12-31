@@ -33,7 +33,7 @@ class PickupcustdetailsBloc
           );
         } else {
           items =
-              PickupOrderItemsModel.empty(); // this line errors if not defined
+              PickupOrderItemsModel.empty(); 
         }
         emit(
           PickupCustDetailsLoaded(
@@ -86,6 +86,7 @@ class PickupcustdetailsBloc
           event.pickupAssignId,
           event.token,
           event.companyCode,
+          event.status
         );
         emit(StatusPickupLoaded());
       } catch (e) {

@@ -151,6 +151,7 @@ Future<Map<String, String>?> _showPaymentOptions(
 ) async {
   String? selectedMethod;
   final TextEditingController remarkController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
 
   final List<String> availableMethods = [];
   if (payModes['PaymodeCash'] == true) availableMethods.add('Cash');
@@ -175,35 +176,45 @@ Future<Map<String, String>?> _showPaymentOptions(
                 color: Color(0xFF68188B),
               ),
             ),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                ...availableMethods.map(
-                  (method) => CheckboxListTile(
-                    title: Text(method),
-                    value: selectedMethod == method,
-                    activeColor: const Color(0xFF68188B),
-                    onChanged: (value) {
-                      setState(() {
-                        selectedMethod = value == true ? method : null;
-                      });
-                    },
-                  ),
-                ),
-
-                // 🔹 Remark only for Bank / Card
-                if (selectedMethod == 'Bank' || selectedMethod == 'Card')
-                  Padding(
-                    padding: const EdgeInsets.only(top: 10),
-                    child: TextField(
-                      controller: remarkController,
-                      decoration: const InputDecoration(
-                        labelText: 'Remark',
-                        border: OutlineInputBorder(),
-                      ),
+            content: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ...availableMethods.map(
+                    (method) => CheckboxListTile(
+                      title: Text(method),
+                      value: selectedMethod == method,
+                      activeColor: const Color(0xFF68188B),
+                      onChanged: (value) {
+                        setState(() {
+                          selectedMethod = value == true ? method : null;
+                          remarkController.clear();
+                        });
+                      },
                     ),
                   ),
-              ],
+              
+                  // 🔹 Remark only for Bank / Card
+                  if (selectedMethod == 'Bank' || selectedMethod == 'Card')
+                    Padding(
+                      padding: const EdgeInsets.only(top: 10),
+                      child: TextFormField(
+                        controller: remarkController,
+                        decoration: const InputDecoration(
+                          labelText: 'Remark',
+                          border: OutlineInputBorder(),
+                        ),
+                         validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return 'Remark is required';
+                          }
+                          return null;
+                        },
+                      ),
+                    ),
+                ],
+              ),
             ),
             actions: [
               TextButton(
@@ -218,6 +229,12 @@ Future<Map<String, String>?> _showPaymentOptions(
                     selectedMethod == null
                         ? null
                         : () {
+                          // Validate only for Bank / Card
+                        if ((selectedMethod == 'Bank' ||
+                                selectedMethod == 'Card') &&
+                            !_formKey.currentState!.validate()) {
+                          return;
+                        }
                           Navigator.of(context).pop({
                             'method': selectedMethod!,
                             'remark': remarkController.text,

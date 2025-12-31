@@ -287,10 +287,11 @@ class SysRepository {
     int pickupAssignId,
     String token,
     String companyCode,
+    String status
   ) async {
     String url =
         "https://be.syswash.net/api/syswash/pickupstatus/${pickupAssignId}?code=${companyCode}";
-    body = {"pickupstatus": "Received"};
+    body = {"pickupstatus": status};
     Response response = await apiClient.invokeAPI(
       url,
       "PUT",

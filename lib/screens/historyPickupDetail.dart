@@ -3,39 +3,34 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:syswash/bloc/bloc/pickupcustdetails_bloc.dart';
-import 'package:syswash/bloc/bloc/servicedetails_bloc.dart';
-import 'package:syswash/screens/add_item_dialog.dart';
-import 'package:syswash/screens/mapping.dart';
 
-class Pickupdetails extends StatefulWidget {
+class Historypickupdetail extends StatefulWidget {
   final String customerId;
   final dynamic pickupOrderId;
   final int pickupAssignId;
   final String notes;
   final String remarks;
-  const Pickupdetails({
+  final String status;
+  final statusColor;
+  const Historypickupdetail({
     super.key,
     required this.customerId,
     required this.pickupOrderId,
     required this.pickupAssignId,
     required this.notes,
     required this.remarks,
+    required this.status,
+    required this.statusColor,
   });
 
   @override
-  State<Pickupdetails> createState() => _PickupdetailsState();
+  State<Historypickupdetail> createState() => _HistorypickupdetailState();
 }
 
-class _PickupdetailsState extends State<Pickupdetails> {
+class _HistorypickupdetailState extends State<Historypickupdetail> {
   bool showDetails = false;
-  // late CustomerDetailsModel customerDetailsModel;
   String? companyCode;
   String? token;
-  List<Map<String, dynamic>> _orderItemsList = [];
-  int? totalItem = 0;
-  int? totalquantity = 0;
-  double totalAmount = 0.0;
-
   final storage = const FlutterSecureStorage();
 
   @override
@@ -61,132 +56,6 @@ class _PickupdetailsState extends State<Pickupdetails> {
     }
   }
 
-  Future<void> _openAddItemDialog(BuildContext context) async {
-    final companyCode = await storage.read(key: 'company_Code');
-    final token = await storage.read(key: 'access_Token');
-    if (companyCode != null && token != null) {
-      context.read<ServicedetailsBloc>().add(
-        FetchServiceDetailsEvent(
-          token: token ?? '',
-          companyCode: companyCode ?? '',
-        ),
-      );
-
-      final newItem = await showAddItemDialog(context, token, companyCode);
-
-      //  If user pressed Save and returned data
-      if (newItem != null) {
-        setState(() {
-          _orderItemsList.add(newItem);
-        });
-        _recalculateTotals();
-      }
-    } else {
-      debugPrint('Missing token or companyCode in storage');
-    }
-  }
-
-  void _recalculateTotals() {
-    int qty = 0;
-    double subtotal = 0.0;
-
-    for (var item in _orderItemsList) {
-      final price =
-          double.tryParse(item['clothPrice']?.toString() ?? '0') ?? 0;
-      final qnty =
-          int.tryParse(item['qnty']?.toString() ?? '0') ?? 0;
-
-      qty += qnty;
-      subtotal += price * qnty;
-    }
-
-    setState(() {
-      totalquantity = qty;
-      totalItem = _orderItemsList.length;
-      totalAmount = subtotal;
-    });
-  }
-
-  Future<void> _handleNewItemTap(
-    BuildContext context,
-    double subtotal,
-    double discount,
-    double totalAmount,
-    double totalDiscount,
-  ) async {
-    final companyCode = await storage.read(key: 'company_Code');
-    final token = await storage.read(key: 'access_Token');
-    if (token != null && companyCode != null) {
-      context.read<PickupcustdetailsBloc>().add(
-        FetchAddNewPickupEvent(
-          token: token,
-          companyCode: companyCode,
-          pickupassgnId: widget.pickupAssignId.toString(),
-          pickupTime: TimeOfDay.now().format(context),
-          quantity: totalquantity ?? 0,
-          subTotal: subtotal,
-          discount: totalDiscount,
-          totalAmount: totalAmount,
-          paidAmount: 0.0,
-          balance: totalAmount,
-          clothData: _orderItemsList,
-        ),
-      );
-    }
-  }
-
-  Future<void> _handleTap(
-    BuildContext context,
-    dynamic pickupOrderItems,
-    double subtotal,
-    double totalamt,
-    double blnc,
-    int totalDiscount,
-  ) async {
-    final companyCode = await storage.read(key: 'company_Code');
-    final token = await storage.read(key: 'access_Token');
-    if (token != null && companyCode != null) {
-      context.read<PickupcustdetailsBloc>().add(
-        FetchAddPickupOrderEvent(
-          token: token,
-          companyCode: companyCode,
-          pickupOrderId: widget.pickupOrderId,
-          balance: blnc.toString(),
-          clothData: _orderItemsList,
-          customerDiscount: pickupOrderItems.customerDiscount ?? 0,
-          discount: totalDiscount,
-          lastModifiedTime: TimeOfDay.now().format(context),
-          lastModifieddate: DateTime.now().toIso8601String().split('T').first,
-          paidAmount: pickupOrderItems.paidAmount ?? 0,
-          quantity: totalquantity ?? 0,
-          subTotal: subtotal.toString(),
-          totalAmount: totalamt.toString(),
-          userName: pickupOrderItems.customerName ?? '',
-        ),
-      );
-    }
-  }
-
-  String buildFullAddress({
-    String? hotel,
-    String? area,
-    String? zone,
-    String? street,
-    String? villano,
-  }) {
-    // Collect only non-empty values
-    final parts = [
-      if (hotel != null && hotel.trim().isNotEmpty) hotel,
-      if (villano != null && villano.trim().isNotEmpty) villano,
-      if (street != null && street.trim().isNotEmpty) street,
-      if (zone != null && zone.trim().isNotEmpty) zone,
-      if (area != null && area.trim().isNotEmpty) area,
-    ];
-
-    // Join with comma
-    return parts.join(', ');
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -196,7 +65,7 @@ class _PickupdetailsState extends State<Pickupdetails> {
           child: Icon(Icons.arrow_back_rounded),
         ),
         title: Text(
-          'Pickup Order',
+          'History Detail',
           style: TextStyle(
             color: Colors.black,
             fontSize: 22.sp,
@@ -205,101 +74,23 @@ class _PickupdetailsState extends State<Pickupdetails> {
           ),
         ),
       ),
-      // bottomNavigationBar: Bottomnav(),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(15.0),
-          child: BlocConsumer<PickupcustdetailsBloc, PickupcustdetailsState>(
-            listener: (context, state) async {
-              if (state is PickupCustDetailsError) {
-                Navigator.pop(context);
-                print('❌ Bloc Error: ${state.message}');
-                ScaffoldMessenger.of(
-                  context,
-                ).showSnackBar(SnackBar(content: Text('Failed to load data')));
-              }
-              if (state is PickupCustDetailsLoaded) {
-                //  Update local list when new data arrives
-                _orderItemsList =
-                    state.pickupOrderItemsModel.clothData?.map((cloth) {
-                      return {
-                        "arabicName": cloth.arabicName,
-                        "billing": cloth.billing,
-                        "clothImg": cloth.clothImg,
-                        "clothName": cloth.clothName,
-                        "clothPrice": cloth.clothPrice,
-                        "priceId": cloth.priceId,
-                        "qnty": cloth.qnty,
-                        "service": cloth.service,
-                        "unit": cloth.unit,
-                      };
-                    }).toList() ??
-                    [];
-
-                _recalculateTotals();
-              }
-              if (state is AddPickupOrderLoaded) {
-                final companyCode = await storage.read(key: 'company_Code');
-                final token = await storage.read(key: 'access_Token');
-
-                if (token != null && companyCode != null) {
-                  context.read<PickupcustdetailsBloc>().add(
-                    FetchStatusPickupEvent(
-                      pickupAssignId: widget.pickupAssignId,
-                      token: token,
-                      companyCode: companyCode,
-                      status: 'Received'
-                    ),
-                  );
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('❌ Missing token or company code'),
-                    ),
-                  );
-                }
-              }
-              if (state is AddNewPickupOrderLoaded) {
-                final companyCode = await storage.read(key: 'company_Code');
-                final token = await storage.read(key: 'access_Token');
-
-                if (token != null && companyCode != null) {
-                  context.read<PickupcustdetailsBloc>().add(
-                    FetchStatusPickupEvent(
-                      pickupAssignId: widget.pickupAssignId,
-                      token: token,
-                      companyCode: companyCode,
-                      status: 'Collected'
-                    ),
-                  );
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('❌ Missing token or company code'),
-                    ),
-                  );
-                }
-              }
-
-              if (state is StatusPickupLoaded) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Order picked up successfully'),
-                    backgroundColor: Colors.green,
-                  ),
-                );
-                Navigator.pop(context, true);
-              }
-            },
+          child: BlocBuilder<PickupcustdetailsBloc, PickupcustdetailsState>(
             builder: (context, state) {
               if (state is PickupCustDetailsLoading) {
                 return const Center(child: CircularProgressIndicator());
               }
-
+              if (state is PickupCustDetailsError) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Failed to load data')),
+                );
+                Navigator.pop(context);
+              }
               if (state is PickupCustDetailsLoaded) {
                 final customerDetailsModel = state.customerDetailsModel;
                 final pickupOrderItems = state.pickupOrderItemsModel;
-                final settingsData = state.settingsModel;
 
                 return Column(
                   children: [
@@ -382,103 +173,48 @@ class _PickupdetailsState extends State<Pickupdetails> {
                                     ),
                                   ],
                                 ),
+                                
                               ],
                             ),
                             Spacer(),
-                            Column(
-                              children: [
-                                GestureDetector(
-                                  onTap: () {
-                                    final fullAddress = buildFullAddress(
-                                      hotel: customerDetailsModel.hotel,
-                                      area:
-                                          customerDetailsModel.area,
-                                      zone:
-                                          customerDetailsModel.zone,
-                                      street:
-                                          customerDetailsModel.streetNo,
-                                      villano:
-                                          customerDetailsModel.villaNumber,
-                                    );
-                                    if (fullAddress.isNotEmpty) {
-                                      openRoute(fullAddress);
-                                    } else {
-                                      ScaffoldMessenger.of(
-                                        context,
-                                      ).showSnackBar(
-                                        const SnackBar(
-                                          content: Text(
-                                            'Address not available',
+                                Column(
+                                  children: [
+                                    SizedBox(height: 40.h),
+                                    GestureDetector(
+                                      onTap: () {
+                                        setState(() {
+                                          showDetails = !showDetails;
+                                        });
+                                      },
+                                      child: Row(
+                                        children: [
+                                          Text(
+                                            showDetails
+                                                ? 'Close Details'
+                                                : 'View Details',
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(
+                                              color: const Color(0xFF68188B),
+                                              fontSize: 12.sp,
+                                              fontFamily: 'Poppins',
+                                              fontWeight: FontWeight.w600,
+                                              height: 1.17,
+                                              letterSpacing: 0.20,
+                                            ),
                                           ),
-                                        ),
-                                      );
-                                    }
-                                  },
-                                  child: Container(
-                                    width: 100.w,
-                                    height: 30.h,
-                                    decoration: ShapeDecoration(
-                                      color: const Color(0xFF68188B),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(3),
-                                      ),
-                                      shadows: [
-                                        BoxShadow(
-                                          color: Color(0x3F000000),
-                                          blurRadius: 4,
-                                          offset: Offset(0, 4),
-                                          spreadRadius: 0,
-                                        ),
-                                      ],
-                                    ),
-                                    child: Center(
-                                      child: Text(
-                                        'Route',
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 14.sp,
-                                          fontFamily: 'DM Sans',
-                                          fontWeight: FontWeight.w700,
-                                        ),
+                                          Icon(
+                                            showDetails
+                                                ? Icons.keyboard_arrow_up_sharp
+                                                : Icons
+                                                    .keyboard_arrow_down_sharp,
+                                            color: const Color(0xFF68188B),
+                                            size: 22.sp,
+                                          ),
+                                        ],
                                       ),
                                     ),
-                                  ),
+                                  ],
                                 ),
-                                SizedBox(height: 10.h),
-                                GestureDetector(
-                                  onTap: () {
-                                    setState(() {
-                                      showDetails = !showDetails;
-                                    });
-                                  },
-                                  child: Row(
-                                    children: [
-                                      Text(
-                                        showDetails
-                                            ? 'Close Details'
-                                            : 'View Details',
-                                        textAlign: TextAlign.center,
-                                        style: TextStyle(
-                                          color: const Color(0xFF68188B),
-                                          fontSize: 12.sp,
-                                          fontFamily: 'Poppins',
-                                          fontWeight: FontWeight.w600,
-                                          height: 1.17,
-                                          letterSpacing: 0.20,
-                                        ),
-                                      ),
-                                      Icon(
-                                        showDetails
-                                            ? Icons.keyboard_arrow_up_sharp
-                                            : Icons.keyboard_arrow_down_sharp,
-                                        color: const Color(0xFF68188B),
-                                        size: 22.sp,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
                           ],
                         ),
                       ),
@@ -666,7 +402,9 @@ class _PickupdetailsState extends State<Pickupdetails> {
                                   ),
                                   Text(
                                     widget.pickupOrderId != null &&
-                                    widget.pickupOrderId != 'null' ? widget.pickupOrderId : '',
+                                            widget.pickupOrderId != 'null'
+                                        ? widget.pickupOrderId
+                                        : '',
                                     style: TextStyle(
                                       color: Colors.black,
                                       fontSize: 12.sp,
@@ -775,13 +513,11 @@ class _PickupdetailsState extends State<Pickupdetails> {
                               : CrossFadeState.showFirst,
                       duration: const Duration(milliseconds: 300),
                     ),
-
                     SizedBox(height: 21.h),
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Order Items',
+                          'Pickedup Items',
                           style: TextStyle(
                             color: Colors.black,
                             fontSize: 18,
@@ -790,47 +526,13 @@ class _PickupdetailsState extends State<Pickupdetails> {
                             height: 0.87,
                           ),
                         ),
-                        GestureDetector(
-                          onTap: () => _openAddItemDialog(context),
-                          child: Container(
-                            width: 110.w,
-                            height: 40.h,
-                            decoration: ShapeDecoration(
-                              color: const Color(0xFF68188B),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(3),
-                              ),
-                              shadows: [
-                                BoxShadow(
-                                  color: Color(0x3F000000),
-                                  blurRadius: 4,
-                                  offset: Offset(0, 4),
-                                  spreadRadius: 0,
-                                ),
-                              ],
-                            ),
-                            child: Center(
-                              child: Text(
-                                'ADD ITEMS',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 14.sp,
-                                  fontFamily: 'DM Sans',
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
                       ],
                     ),
                     SizedBox(height: 17.h),
-                    if (widget.pickupOrderId != null &&
-                        widget.pickupOrderId.toString().isNotEmpty &&
-                        _orderItemsList.isNotEmpty)
+                    if (pickupOrderItems.clothData!.isNotEmpty)
                       Expanded(
                         child: ListView.builder(
-                          itemCount: _orderItemsList.length,
+                          itemCount: pickupOrderItems.clothData!.length,
                           itemBuilder: (context, index) {
                             return Padding(
                               padding: const EdgeInsets.only(bottom: 10.0),
@@ -848,7 +550,9 @@ class _PickupdetailsState extends State<Pickupdetails> {
                                   child: Row(
                                     children: [
                                       Image.network(
-                                        _orderItemsList[index]['clothImg']
+                                        pickupOrderItems
+                                            .clothData![index]
+                                            .clothImg
                                             .toString(),
                                         width: 46.w,
                                         height: 44.h,
@@ -860,7 +564,9 @@ class _PickupdetailsState extends State<Pickupdetails> {
                                         children: [
                                           SizedBox(height: 2.h),
                                           Text(
-                                            _orderItemsList[index]['clothName']
+                                            pickupOrderItems
+                                                .clothData![index]
+                                                .clothName
                                                 .toString(),
                                             style: TextStyle(
                                               color: const Color(0xFF150B3D),
@@ -870,7 +576,7 @@ class _PickupdetailsState extends State<Pickupdetails> {
                                             ),
                                           ),
                                           Text(
-                                            '${_orderItemsList[index]['qnty']} QTY',
+                                            '${pickupOrderItems.clothData![index].qnty} QTY',
                                             style: TextStyle(
                                               color: Colors.black,
                                               fontSize: 14.sp,
@@ -887,7 +593,9 @@ class _PickupdetailsState extends State<Pickupdetails> {
                                         children: [
                                           SizedBox(height: 2.h),
                                           Text(
-                                            _orderItemsList[index]['service']
+                                            pickupOrderItems
+                                                .clothData![index]
+                                                .service
                                                 .toString(),
                                             style: TextStyle(
                                               color: const Color(0xFF150B3D),
@@ -897,7 +605,9 @@ class _PickupdetailsState extends State<Pickupdetails> {
                                             ),
                                           ),
                                           Text(
-                                            _orderItemsList[index]['billing']
+                                            pickupOrderItems
+                                                .clothData![index]
+                                                .billing
                                                 .toString(),
                                             style: TextStyle(
                                               color: const Color(0xFF68188B),
@@ -916,7 +626,6 @@ class _PickupdetailsState extends State<Pickupdetails> {
                           },
                         ),
                       ),
-                    // Spacer(),
                     Container(
                       width: 380.w,
                       height: 76.h,
@@ -927,7 +636,7 @@ class _PickupdetailsState extends State<Pickupdetails> {
                         ),
                       ),
                       child: Padding(
-                        padding: const EdgeInsets.all(12.0),
+                        padding: const EdgeInsets.fromLTRB(8, 12, 8, 12),
                         child: Row(
                           children: [
                             Column(
@@ -936,7 +645,7 @@ class _PickupdetailsState extends State<Pickupdetails> {
                                 Row(
                                   children: [
                                     Text(
-                                      'Total Amount :',
+                                      'Total Quantity :',
                                       style: TextStyle(
                                         color: Colors.black,
                                         fontSize: 17.sp,
@@ -946,7 +655,7 @@ class _PickupdetailsState extends State<Pickupdetails> {
                                       ),
                                     ),
                                     Text(
-                                      totalAmount.toString(),
+                                      pickupOrderItems.quantity.toString(),
                                       style: TextStyle(
                                         color: const Color(0xFF68188B),
                                         fontSize: 15.sp,
@@ -962,7 +671,7 @@ class _PickupdetailsState extends State<Pickupdetails> {
                                 Row(
                                   children: [
                                     Text(
-                                      'Total Quantity : ',
+                                      'Total Amount : ',
                                       style: TextStyle(
                                         color: Colors.black,
                                         fontSize: 17.sp,
@@ -972,7 +681,7 @@ class _PickupdetailsState extends State<Pickupdetails> {
                                       ),
                                     ),
                                     Text(
-                                      totalquantity.toString(),
+                                      pickupOrderItems.totalAmount.toString(),
                                       style: TextStyle(
                                         color: const Color(0xFF68188B),
                                         fontSize: 15.sp,
@@ -987,173 +696,36 @@ class _PickupdetailsState extends State<Pickupdetails> {
                               ],
                             ),
                             Spacer(),
-                            GestureDetector(
-                              onTap: () async {
-                                double subtotal = 0.0;
-                                double totalamt = 0.0;
-                                double totalDiscount = 0.0;
-                                for (var item in _orderItemsList) {
-                                  final price =
-                                      double.tryParse(
-                                        item['clothPrice']?.toString() ?? '0',
-                                      ) ??
-                                      0;
-                                  final qty =
-                                      int.tryParse(
-                                        item['qnty']?.toString() ?? '0',
-                                      ) ??
-                                      0;
-                                  subtotal += price * qty;
-                                }
-                                final companyCode = await storage.read(
-                                  key: 'company_Code',
-                                );
-                                final token = await storage.read(
-                                  key: 'access_Token',
-                                );
-
-                                if (token == null || companyCode == null) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text(
-                                        '❌ Missing token or company code',
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Row(
+                                  children: [
+                                    Text(
+                                      'Status : ',
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 16.sp,
+                                        fontFamily: 'DM Sans',
+                                        fontWeight: FontWeight.w700,
+                                        height: 1,
                                       ),
                                     ),
-                                  );
-                                  return;
-                                }
-                                // case 1 : new order (no pickupOrderId)
-                                if ((widget.pickupOrderId == null ||
-                                        widget.pickupOrderId
-                                            .toString()
-                                            .isEmpty ||
-                                        widget.pickupOrderId
-                                                .toString()
-                                                .toLowerCase() ==
-                                            "null") &&
-                                    _orderItemsList.isNotEmpty) {
-                                  totalDiscount =
-                                      subtotal *
-                                      ((double.tryParse(
-                                                customerDetailsModel.discount
-                                                        ?.toString() ??
-                                                    '0',
-                                              ) ??
-                                              0.0) /
-                                          100);
-                                  
-                                  totalamt =
-                                      subtotal -
-                                      totalDiscount.ceilToDouble() +
-                                      (double.tryParse(
-                                            settingsData.vatAmount
-                                                    ?.toString() ??
-                                                '0',
-                                          ) ??
-                                          0.0) +
-                                      (double.tryParse(
-                                            customerDetailsModel.openingBalance
-                                                    ?.toString() ??
-                                                '0',
-                                          ) ??
-                                          0.0);
-                                  await _handleNewItemTap(
-                                    context,
-                                    subtotal,
-                                    double.tryParse(
-                                          customerDetailsModel.discount
-                                                  ?.toString() ??
-                                              '0',
-                                        ) ??
-                                        0.0,
-                                    totalamt,
-                                    totalDiscount.ceil().toDouble(),
-                                  );
-                                }
-                                //case 2 Adding items to existing ordered items
-                                else {
-                                  if (pickupOrderItems.customerDiscount != 0) {
-                                    totalDiscount =
-                                        subtotal *
-                                        ((pickupOrderItems.customerDiscount ??
-                                            0 )/ 100);
-                                    totalamt =
-                                        subtotal -
-                                        totalDiscount.ceilToDouble() -
-                                        (double.tryParse(pickupOrderItems.paidAmount?.toString() ?? '0') ?? 0.0) +
-                                        (pickupOrderItems.vat ?? 0.0) +
-                                        (pickupOrderItems.openingBalance ??
-                                            0.0);
-                                  } else {
-                                    totalamt =
-                                        subtotal -
-                                        (double.tryParse(pickupOrderItems.discount?.toString() ?? '0') ?? 0.0) -
-                                        (pickupOrderItems.vat ?? 0.0) +
-                                        (pickupOrderItems.openingBalance ??
-                                            0.0);
-                                  }
-                                  double blnc =
-                                      totalamt -
-                                      (double.tryParse(pickupOrderItems.paidAmount?.toString() ?? '0') ?? 0.0);
-
-                                  // Check if new items were added
-                                  if (_orderItemsList.isNotEmpty &&
-                                      pickupOrderItems.clothData != null &&
-                                      _orderItemsList.length !=
-                                          pickupOrderItems.clothData!.length) {
-                                    // Items added → call AddPickupOrder API first
-                                    await _handleTap(
-                                      context,
-                                      pickupOrderItems,
-                                      subtotal,
-                                      totalamt,
-                                      blnc,
-                                      totalDiscount != 0.0 ? totalDiscount.ceil() : (double.tryParse(pickupOrderItems.discount?.toString() ?? '0') ?? 0.0).ceil(),
-                                    );
-                                  } else {
-                                    // no new items → directly call FetchStatusPickupEvent
-                                    if (_orderItemsList.length != 0) {
-                                      context.read<PickupcustdetailsBloc>().add(
-                                        FetchStatusPickupEvent(
-                                          pickupAssignId: widget.pickupAssignId,
-                                          token: token,
-                                          companyCode: companyCode,
-                                          status: 'Received'
-                                        ),
-                                      );
-                                    } else {
-                                      ScaffoldMessenger.of(
-                                        context,
-                                      ).showSnackBar(
-                                        SnackBar(
-                                          content: Text('Please add Items'),
-                                        ),
-                                      );
-                                    }
-                                  }
-                                }
-                              },
-                              child: Container(
-                                width: 125.w,
-                                height: 40.h,
-                                decoration: ShapeDecoration(
-                                  color: const Color(0xFF68188B),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(3),
-                                  ),
-                                ),
-                                child: Center(
-                                  child: Text(
-                                    'Collect now',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 15.sp,
-                                      fontFamily: 'DM Sans',
-                                      fontWeight: FontWeight.w700,
+                                    SizedBox(height: 10.h),
+                                    Text(
+                                      widget.status,
+                                      style: TextStyle(
+                                        color: widget.statusColor,
+                                        fontSize: 16.sp,
+                                        fontFamily: 'DM Sans',
+                                        fontWeight: FontWeight.w700,
+                                        height: 1,
+                                        letterSpacing: 1.20,
+                                      ),
                                     ),
-                                  ),
+                                  ],
                                 ),
-                              ),
+                              ],
                             ),
                           ],
                         ),
@@ -1168,10 +740,6 @@ class _PickupdetailsState extends State<Pickupdetails> {
           ),
         ),
       ),
-      // bottomSheet: Padding(
-      //   padding: const EdgeInsets.all(15.0),
-      //   child:
-      // ),
     );
   }
 }

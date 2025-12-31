@@ -6,6 +6,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:syswash/bloc/bloc/customerlist_bloc.dart';
 import 'package:syswash/bloc/bloc/pickuplist_bloc.dart';
 import 'package:syswash/bloc/bloc/uploadpickup_bloc.dart';
+import 'package:syswash/helper/date_helper.dart';
 import 'package:syswash/screens/add_customer_dialog.dart';
 import 'package:syswash/screens/bottomnav.dart';
 import 'package:syswash/screens/pickupDetails.dart';
@@ -251,9 +252,10 @@ class _PickupState extends State<Pickup> {
                               .where(
                                 (order) =>
                                     order.pickupstatus?.toLowerCase() !=
-                                    'received',
+                                    'received' && order.pickupstatus?.toLowerCase() !=
+                                    'collected',
                               )
-                              .toList();
+                              .toList().reversed.toList();
         
                       if (searchData.text.isEmpty) {
                         filteredList = List.from(fullList);
@@ -304,7 +306,7 @@ class _PickupState extends State<Pickup> {
                               },
                               child: Container(
                                 width: 364.w,
-                                height: 90.h,
+                                height: 105.h,
                                 decoration: ShapeDecoration(
                                   color: Colors.white,
                                   shape: RoundedRectangleBorder(
@@ -334,6 +336,15 @@ class _PickupState extends State<Pickup> {
                                           fontWeight: FontWeight.w400,
                                         ),
                                       ),
+                                      Text(
+                                        'Pending',
+                                        style: TextStyle(
+                                          color: const Color(0xFFF38305),
+                                          fontSize: 14.sp,
+                                          fontFamily: 'DM Sans',
+                                          fontWeight: FontWeight.w400,
+                                        ),
+                                      ),
                                       SizedBox(height: 3.h),
                                       Row(
                                         children: [
@@ -358,7 +369,7 @@ class _PickupState extends State<Pickup> {
                                             color: Colors.grey,
                                           ),
                                           Text(
-                                            order.pickupDate.toString(),
+                                            formatDate(order.pickupDate.toString()),
                                             style: TextStyle(
                                               color: Colors.black,
                                               fontSize: 11.sp,

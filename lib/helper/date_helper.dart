@@ -27,3 +27,8 @@ String formatOrderDate(String? dateString) {
     return dateString;
   }
 }
+
+String formatDate(String input) {
+  final date = DateTime.parse(input); // 2025-11-25
+  return DateFormat('dd-MM-yyyy').format(date);
+}

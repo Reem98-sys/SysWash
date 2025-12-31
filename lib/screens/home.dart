@@ -440,7 +440,7 @@ class _HomeState extends State<Home> {
                                       Navigator.push(context, MaterialPageRoute(builder: (context) => Pickupdetails(customerId: order.pickupCustomerId.toString(), pickupOrderId: order.pickupOrderId.toString(), pickupAssignId: order.pickupassgnId ?? 0, notes: order.notes ?? '', remarks: order.remarks ?? '')));
                                     }
                                     else {
-                                      Navigator.push(context, MaterialPageRoute(builder: (context) => Deliverydetail(customerId: (order as DeliveryListModel).deliveryCustomerId.toString(), deliveryOrderId: order.deliveryInvoiceNo!.toString(), notes: '', remarks: '')));
+                                      Navigator.push(context, MaterialPageRoute(builder: (context) => Deliverydetail(customerId: (order as DeliveryListModel).deliveryCustomerId.toString(), deliveryOrderId: order.deliveryInvoiceNo!.toString(),deliveryAssgnId: order.deliveryassgnId, notes: '', remarks: '')));
                                     }
                                   },
                                   child: Container(

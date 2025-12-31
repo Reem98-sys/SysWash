@@ -12,7 +12,7 @@ class PickupOrderItemsModel {
     String? orderTime;
     String? deliveryDate;
     String? deliveryTime;
-    dynamic deliveredDateTime;
+    String? deliveredDateTime;
     dynamic lastModifieddate;
     dynamic lastModifiedTime;
     String? customerId;
@@ -34,11 +34,11 @@ class PickupOrderItemsModel {
     int? pickupDriverId;
     String? pickupDriverName;
     int? quantity;
-    int? subTotal;
-    int? discount;
-    int? totalAmount;
-    int? paidAmount;
-    int? balance;
+    String? subTotal;
+    String? discount;
+    String? totalAmount;
+    String? paidAmount;
+    String? balance;
     dynamic bill;
     String? deliveryType;
     String? accountType;
@@ -66,9 +66,10 @@ class PickupOrderItemsModel {
     int? openingBalance;
     String? packingType;
     String? starch;
+    dynamic paymentremarks;
     bool? trash;
 
-    PickupOrderItemsModel({this.orderId, this.refNo, this.remarks, this.payment, this.editHistory, this.deliveryassgn, this.dueDate, this.previousPaidAmount, this.orderDate, this.orderTime, this.deliveryDate, this.deliveryTime, this.deliveredDateTime, this.lastModifieddate, this.lastModifiedTime, this.customerId, this.customerCode, this.customerName, this.customerPhno, this.customerAddress, this.customerStreet, this.customerReffrNo, this.customerHotel, this.customerRoomNo, this.villaAddress, this.customerDiscount, this.cusfragrance, this.employeeId, this.employeeName, this.driverId, this.driverName, this.pickupDriverId, this.pickupDriverName, this.quantity, this.subTotal, this.discount, this.totalAmount, this.paidAmount, this.balance, this.bill, this.deliveryType, this.accountType, this.paymentMode, this.clothData, this.clothWiseStatus, this.folded, this.hanger, this.packing, this.status, this.rackName, this.rackFloor, this.clothAndMechineId, this.tenderCurrency, this.commission, this.tenderDate, this.tenderTime, this.billReceiver, this.pickupStatus, this.nasha, this.orderReceiver, this.wallet, this.vat, this.vatValue, this.openingBalance, this.packingType, this.starch, this.trash});
+    PickupOrderItemsModel({this.orderId, this.refNo, this.remarks, this.payment, this.editHistory, this.deliveryassgn, this.dueDate, this.previousPaidAmount, this.orderDate, this.orderTime, this.deliveryDate, this.deliveryTime, this.deliveredDateTime, this.lastModifieddate, this.lastModifiedTime, this.customerId, this.customerCode, this.customerName, this.customerPhno, this.customerAddress, this.customerStreet, this.customerReffrNo, this.customerHotel, this.customerRoomNo, this.villaAddress, this.customerDiscount, this.cusfragrance, this.employeeId, this.employeeName, this.driverId, this.driverName, this.pickupDriverId, this.pickupDriverName, this.quantity, this.subTotal, this.discount, this.totalAmount, this.paidAmount, this.balance, this.bill, this.deliveryType, this.accountType, this.paymentMode, this.clothData, this.clothWiseStatus, this.folded, this.hanger, this.packing, this.status, this.rackName, this.rackFloor, this.clothAndMechineId, this.tenderCurrency, this.commission, this.tenderDate, this.tenderTime, this.billReceiver, this.pickupStatus, this.nasha, this.orderReceiver, this.wallet, this.vat, this.vatValue, this.openingBalance, this.packingType, this.starch, this.paymentremarks, this.trash});
 
     PickupOrderItemsModel.fromJson(Map<String, dynamic> json) {
         if(json["orderId"] is num) {
@@ -107,7 +108,9 @@ class PickupOrderItemsModel {
         if(json["deliveryTime"] is String) {
             deliveryTime = json["deliveryTime"];
         }
-        deliveredDateTime = json["deliveredDateTime"];
+        if(json["deliveredDateTime"] is String) {
+            deliveredDateTime = json["deliveredDateTime"];
+        }
         lastModifieddate = json["lastModifieddate"];
         lastModifiedTime = json["lastModifiedTime"];
         if(json["customerId"] is String) {
@@ -163,20 +166,20 @@ class PickupOrderItemsModel {
         if(json["quantity"] is num) {
             quantity = (json["quantity"] as num).toInt();
         }
-        if(json["subTotal"] is num) {
-            subTotal = (json["subTotal"] as num).toInt();
+        if(json["subTotal"] is String) {
+            subTotal = json["subTotal"];
         }
-        if(json["discount"] is num) {
-            discount = (json["discount"] as num).toInt();
+        if(json["discount"] is String) {
+            discount = json["discount"];
         }
-        if(json["totalAmount"] is num) {
-            totalAmount = (json["totalAmount"] as num).toInt();
+        if(json["totalAmount"] is String) {
+            totalAmount = json["totalAmount"];
         }
-        if(json["paidAmount"] is num) {
-            paidAmount = (json["paidAmount"] as num).toInt();
+        if(json["paidAmount"] is String) {
+            paidAmount = json["paidAmount"];
         }
-        if(json["balance"] is num) {
-            balance = (json["balance"] as num).toInt();
+        if(json["balance"] is String) {
+            balance = json["balance"];
         }
         bill = json["bill"];
         if(json["deliveryType"] is String) {
@@ -245,6 +248,7 @@ class PickupOrderItemsModel {
         if(json["starch"] is String) {
             starch = json["starch"];
         }
+        paymentremarks = json["paymentremarks"];
         if(json["trash"] is bool) {
             trash = json["trash"];
         }
@@ -330,6 +334,7 @@ class PickupOrderItemsModel {
         _data["openingBalance"] = openingBalance;
         _data["packingType"] = packingType;
         _data["starch"] = starch;
+        _data["paymentremarks"] = paymentremarks;
         _data["trash"] = trash;
         return _data;
     }
@@ -347,7 +352,7 @@ class PickupOrderItemsModel {
         String? orderTime,
         String? deliveryDate,
         String? deliveryTime,
-        dynamic deliveredDateTime,
+        String? deliveredDateTime,
         dynamic lastModifieddate,
         dynamic lastModifiedTime,
         String? customerId,
@@ -369,11 +374,11 @@ class PickupOrderItemsModel {
         int? pickupDriverId,
         String? pickupDriverName,
         int? quantity,
-        int? subTotal,
-        int? discount,
-        int? totalAmount,
-        int? paidAmount,
-        int? balance,
+        String? subTotal,
+        String? discount,
+        String? totalAmount,
+        String? paidAmount,
+        String? balance,
         dynamic bill,
         String? deliveryType,
         String? accountType,
@@ -401,6 +406,7 @@ class PickupOrderItemsModel {
         int? openingBalance,
         String? packingType,
         String? starch,
+        dynamic paymentremarks,
         bool? trash,
     }) => PickupOrderItemsModel(
         orderId: orderId ?? this.orderId,
@@ -469,6 +475,7 @@ class PickupOrderItemsModel {
         openingBalance: openingBalance ?? this.openingBalance,
         packingType: packingType ?? this.packingType,
         starch: starch ?? this.starch,
+        paymentremarks: paymentremarks ?? this.paymentremarks,
         trash: trash ?? this.trash,
     );
     factory PickupOrderItemsModel.empty() {
@@ -578,10 +585,11 @@ class Deliveryassgn {
     String? status;
     String? paymentstatus;
     String? paymentMode;
+    String? paymentremarks;
     bool? trash;
     int? deliveryInvoiceNo;
 
-    Deliveryassgn({this.deliveryassgnId, this.deliveryDate, this.deliveryTime, this.deliveryCustomerId, this.deliveryCustomerName, this.deliveryCustomerArea, this.deliveryCustomerCode, this.deliveryCustomerPhno, this.deliveryDriverid, this.deliveryDrivername, this.status, this.paymentstatus, this.paymentMode, this.trash, this.deliveryInvoiceNo});
+    Deliveryassgn({this.deliveryassgnId, this.deliveryDate, this.deliveryTime, this.deliveryCustomerId, this.deliveryCustomerName, this.deliveryCustomerArea, this.deliveryCustomerCode, this.deliveryCustomerPhno, this.deliveryDriverid, this.deliveryDrivername, this.status, this.paymentstatus, this.paymentMode, this.paymentremarks, this.trash, this.deliveryInvoiceNo});
 
     Deliveryassgn.fromJson(Map<String, dynamic> json) {
         if(json["deliveryassgnId"] is num) {
@@ -623,6 +631,9 @@ class Deliveryassgn {
         if(json["paymentMode"] is String) {
             paymentMode = json["paymentMode"];
         }
+        if(json["paymentremarks"] is String) {
+            paymentremarks = json["paymentremarks"];
+        }
         if(json["trash"] is bool) {
             trash = json["trash"];
         }
@@ -650,6 +661,7 @@ class Deliveryassgn {
         _data["status"] = status;
         _data["paymentstatus"] = paymentstatus;
         _data["paymentMode"] = paymentMode;
+        _data["paymentremarks"] = paymentremarks;
         _data["trash"] = trash;
         _data["deliveryInvoiceNo"] = deliveryInvoiceNo;
         return _data;
@@ -669,6 +681,7 @@ class Deliveryassgn {
         String? status,
         String? paymentstatus,
         String? paymentMode,
+        String? paymentremarks,
         bool? trash,
         int? deliveryInvoiceNo,
     }) => Deliveryassgn(
@@ -685,6 +698,7 @@ class Deliveryassgn {
         status: status ?? this.status,
         paymentstatus: paymentstatus ?? this.paymentstatus,
         paymentMode: paymentMode ?? this.paymentMode,
+        paymentremarks: paymentremarks ?? this.paymentremarks,
         trash: trash ?? this.trash,
         deliveryInvoiceNo: deliveryInvoiceNo ?? this.deliveryInvoiceNo,
     );

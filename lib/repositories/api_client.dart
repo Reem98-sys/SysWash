@@ -50,11 +50,9 @@ class ApiClient {
   
     switch (method) {
       case "POST":
-      print('AAAAAAAAAAAAAAAAAAAA');
         response = await post(Uri.parse(url),
             headers: headers,
             body: body);
-            print('BBBBBBBBBBBBBBBBBBBBb');
         break;
       case "PUT":
         response = await put(Uri.parse(url),

@@ -10,12 +10,14 @@ import 'package:syswash/screens/mapping.dart';
 class Deliverydetail extends StatefulWidget {
   final String customerId;
   final dynamic deliveryOrderId;
+  final dynamic deliveryAssgnId;
   final String notes;
   final String remarks;
   const Deliverydetail({
     super.key,
     required this.customerId,
     required this.deliveryOrderId,
+    required this.deliveryAssgnId,
     required this.notes,
     required this.remarks,
   });
@@ -468,9 +470,27 @@ class _DeliverydetailState extends State<Deliverydetail> {
                                       height: 1.17,
                                     ),
                                   ),
-                                  SizedBox(
-                                    height: 50.h,
-                                  )
+                                  SizedBox(height: 17.h),
+                                  Text(
+                                    'Order No',
+                                    style: TextStyle(
+                                      color: const Color(0xFFA9A5B8),
+                                      fontSize: 14.sp,
+                                      fontFamily: 'DM Sans',
+                                      fontWeight: FontWeight.w500,
+                                      height: 1.17,
+                                    ),
+                                  ),
+                                  Text(
+                                    deliveryItems.orderId.toString(),
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 12.sp,
+                                      fontFamily: 'DM Sans',
+                                      fontWeight: FontWeight.w500,
+                                      height: 1.17,
+                                    ),
+                                  ),
                                 ],
                               ),
                               Column(
@@ -538,9 +558,27 @@ class _DeliverydetailState extends State<Deliverydetail> {
                                       height: 1.17,
                                     ),
                                   ),
-                                  SizedBox(
-                                    height: 50.h,
-                                  )
+                                  SizedBox(height: 17.h),
+                                  Text(
+                                    'Pickup Id',
+                                    style: TextStyle(
+                                      color: const Color(0xFFA9A5B8),
+                                      fontSize: 14.sp,
+                                      fontFamily: 'DM Sans',
+                                      fontWeight: FontWeight.w500,
+                                      height: 1.17,
+                                    ),
+                                  ),
+                                  Text(
+                                    widget.deliveryAssgnId.toString(),
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 12.sp,
+                                      fontFamily: 'DM Sans',
+                                      fontWeight: FontWeight.w500,
+                                      height: 1.17,
+                                    ),
+                                  ),
                                 ],
                               ),
                             ],
@@ -720,7 +758,7 @@ class _DeliverydetailState extends State<Deliverydetail> {
                                       ),
                                     ),
                                     Text(
-                                      deliveryItems.totalAmount.toString(),
+                                      deliveryItems.totalAmount!,
                                       style: TextStyle(
                                         color: const Color(0xFF68188B),
                                         fontSize: 15.sp,

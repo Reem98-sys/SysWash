@@ -76,10 +76,12 @@ class FetchStatusPickupEvent extends PickupcustdetailsEvent {
   final int pickupAssignId;
   final String token;
   final String companyCode;
+  final String status;
   FetchStatusPickupEvent({
     required this.pickupAssignId,
     required this.token,
-    required this.companyCode
+    required this.companyCode,
+    required this.status
   });
 }
 

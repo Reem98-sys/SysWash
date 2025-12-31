@@ -3,7 +3,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:syswash/bloc/bloc/home_bloc.dart';
+import 'package:syswash/helper/date_helper.dart';
 import 'package:syswash/model/totalOrder.dart';
+import 'package:syswash/screens/deliveryDetail.dart';
+import 'package:syswash/screens/historyPickupDetail.dart';
+import 'package:syswash/screens/historyViewDetails.dart';
+import 'package:syswash/screens/pickupDetails.dart';
 
 class Historydetail extends StatefulWidget {
   final String historyType; 
@@ -117,9 +122,9 @@ class _HistorydetailState extends State<Historydetail> {
                                     context,
                                   ).totalOrderModel;
                     if (widget.historyType == 'pickup') {
-                      fullList = totalOrderModel.pickup!;
+                      fullList = totalOrderModel.pickup!.reversed.toList();
                     } else {
-                      fullList = totalOrderModel.delivery!;
+                      fullList = totalOrderModel.delivery!.reversed.toList();
                     }              
                     
 
@@ -135,88 +140,121 @@ class _HistorydetailState extends State<Historydetail> {
                     return ListView.builder(
                       itemCount: filteredList.length,
                       itemBuilder: (context, index) {
+                        String status;
+                        var statusColor;
+                        if (widget.historyType == 'pickup') {
+                          status = filteredList[index]['pickupstatus'].toString();
+                          if (status == 'Collected') {
+                            statusColor = Color(0xFFF38305);
+                          }
+                          else {
+                            statusColor = Colors.green;
+                          }
+                        }
+                        else {
+                          status = filteredList[index]['deliveryassgn'][0]['paymentstatus'].toString();
+                          if (status == 'Unpaid') {
+                            statusColor = Colors.red;
+                          }
+                          else if (status == 'Paid') {
+                            statusColor = Colors.green;
+                          }
+                          else {
+                            statusColor = Color(0xFFF38305);
+                          }
+                        }
+                                          
                         return Padding(
                           padding: const EdgeInsets.fromLTRB(20,0,20,8),
-                          child:  Container(
-                            width: 364.w,
-                            height: 90.h,
-                            decoration: ShapeDecoration(
-                              color: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10.r),
+                          child:  GestureDetector(
+                            onTap: () {
+                              if (widget.historyType == 'pickup') {
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => Historypickupdetail(customerId: filteredList[index]['pickupCustomerId'], pickupOrderId: filteredList[index]['pickupOrderId'] != null ? filteredList[index]['pickupOrderId'] : filteredList[index]['pickupassgn'][0]['pickuporderId'].toString() , pickupAssignId: filteredList[index]['pickupassgnId'], notes: filteredList[index]['notes'] ?? '', remarks: filteredList[index]['remarks'] ?? '', status: status, statusColor: statusColor)));
+                              }
+                              else {
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => Historyviewdetails(customerId: filteredList[index]['customerId'], deliveryOrderId: filteredList[index]['orderId'], deliveryAssgnId: filteredList[index]['deliveryassgn'][0]['deliveryassgnId'], notes: '', remarks: filteredList[index]['remarks'],status: status,statusColor : statusColor,)));
+                              }
+                              
+                            },
+                            child: Container(
+                              width: 364.w,
+                              height: 90.h,
+                              decoration: ShapeDecoration(
+                                color: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10.r),
+                                ),
                               ),
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(10.0),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    widget.historyType == 'pickup'?filteredList[index]['pickupCustomerName']
-                                        .toString():filteredList[index]['customerName']
-                                        .toString(),
-                                    style: TextStyle(
-                                      color: const Color(0xFF150B3D),
-                                      fontSize: 16.sp,
-                                      fontFamily: 'DM Sans',
-                                      fontWeight: FontWeight.w700,
+                              child: Padding(
+                                padding: const EdgeInsets.all(10.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      widget.historyType == 'pickup'?filteredList[index]['pickupCustomerName']
+                                          .toString():filteredList[index]['customerName']
+                                          .toString(),
+                                      style: TextStyle(
+                                        color: const Color(0xFF150B3D),
+                                        fontSize: 16.sp,
+                                        fontFamily: 'DM Sans',
+                                        fontWeight: FontWeight.w700,
+                                      ),
                                     ),
-                                  ),
-                                  Text(
-                                    widget.historyType == 'pickup'?filteredList[index]['pickupstatus']
-                                        .toString():filteredList[index]['deliveryassgn'][0]['paymentstatus']
-                                        .toString(),
-                                    style: TextStyle(
-                                      color: const Color(0xFF514A6B),
-                                      fontSize: 14.sp,
-                                      fontFamily: 'DM Sans',
-                                      fontWeight: FontWeight.w400,
+                                    Text(
+                                      status,
+                                      style: TextStyle(
+                                        color: statusColor,
+                                        fontSize: 14.sp,
+                                        fontFamily: 'DM Sans',
+                                        fontWeight: FontWeight.w400,
+                                      ),
                                     ),
-                                  ),
-                                  SizedBox(height: 3.h),
-                                  Row(
-                                    children: [
-                                      Icon(
-                                        Icons.location_on,
-                                        size: 18.sp,
-                                        color: Colors.grey,
-                                      ),
-                                      Text(
-                                        widget.historyType == 'pickup'?filteredList[index]
-                                            ['pickupCustomerArea']
-                                            .toString():filteredList[index]['customerAddress']
-                                        .toString(),
-                                        style: TextStyle(
-                                          color: Colors.black,
-                                          fontSize: 11.sp,
-                                          fontFamily: 'Poppins',
-                                          fontWeight: FontWeight.w400,
-                                          height: 1.17,
-                                          letterSpacing: 0.20,
+                                    SizedBox(height: 3.h),
+                                    Row(
+                                      children: [
+                                        Icon(
+                                          Icons.location_on,
+                                          size: 18.sp,
+                                          color: Colors.grey,
                                         ),
-                                      ),
-                                      SizedBox(width: 10.w),
-                                      Icon(
-                                        Icons.access_time,
-                                        size: 18.sp,
-                                        color: Colors.grey,
-                                      ),
-                                      Text(
-                                        widget.historyType == 'pickup'?filteredList[index]['pickupDate']
-                                            .toString():filteredList[index]['deliveryDate']
-                                        .toString(),
-                                        style: TextStyle(
-                                          color: Colors.black,
-                                          fontSize: 11.sp,
-                                          fontFamily: 'Roboto',
-                                          fontWeight: FontWeight.w400,
-                                          height: 1.56,
-                                          letterSpacing: 0.70,
+                                        Text(
+                                          widget.historyType == 'pickup'?filteredList[index]
+                                              ['pickupCustomerArea']
+                                              .toString():filteredList[index]['customerAddress']
+                                          .toString(),
+                                          style: TextStyle(
+                                            color: Colors.black,
+                                            fontSize: 11.sp,
+                                            fontFamily: 'Poppins',
+                                            fontWeight: FontWeight.w400,
+                                            height: 1.17,
+                                            letterSpacing: 0.20,
+                                          ),
                                         ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
+                                        SizedBox(width: 10.w),
+                                        Icon(
+                                          Icons.access_time,
+                                          size: 18.sp,
+                                          color: Colors.grey,
+                                        ),
+                                        Text(
+                                          widget.historyType == 'pickup'? formatDate(filteredList[index]['pickupDate'])
+                                              : formatDate(filteredList[index]['deliveryDate'])
+                                          .toString(),
+                                          style: TextStyle(
+                                            color: Colors.black,
+                                            fontSize: 11.sp,
+                                            fontFamily: 'Roboto',
+                                            fontWeight: FontWeight.w400,
+                                            height: 1.56,
+                                            letterSpacing: 0.70,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           ),
