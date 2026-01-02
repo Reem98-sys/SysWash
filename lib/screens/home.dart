@@ -429,6 +429,8 @@ class _HomeState extends State<Home> {
           
                             final date = formatOrderDate(rawDate);
           
+                            final time = isPickup ? order.pickuptime ?? '' : (order as DeliveryListModel).deliveryTime;
+                            
                             return Padding(
                               padding: const EdgeInsets.only(bottom: 8.0),
                               child: Material(
@@ -537,7 +539,7 @@ class _HomeState extends State<Home> {
                                               ),
                                               SizedBox(height: 4.h),
                                               Text(
-                                                date,
+                                                '$date $time',
                                                 style: TextStyle(
                                                   color: const Color(0xFFFF0000),
                                                   fontSize: 12.sp,

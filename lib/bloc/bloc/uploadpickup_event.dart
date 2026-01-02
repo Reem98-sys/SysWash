@@ -12,6 +12,7 @@ class FetchUploadPickupEvent extends UploadpickupEvent {
   final String pickupCustomerName;
   final String pickupCustomerPhno;
   final String pickupDate;
+  final String pickuptime;
   final String pickupDriverid;
   final String pickupDrivername;
   final String remarks;
@@ -24,6 +25,7 @@ class FetchUploadPickupEvent extends UploadpickupEvent {
     required this.pickupCustomerName,
     required this.pickupCustomerPhno,
     required this.pickupDate,
+    required this.pickuptime,
     required this.pickupDriverid,
     required this.pickupDrivername,
     required this.remarks,

@@ -33,9 +33,18 @@ class _SplashScreenState extends State<SplashScreen> {
 
     if (!mounted) return;
 
-    final String? userId = await storage.read(key: 'login_id');
-    final String? companyCode = await storage.read(key: 'company_Code');
-    final String? accessToken = await storage.read(key: 'access_Token');
+    String? userId;
+    String? companyCode;
+    String? accessToken;
+
+    try {
+      userId = await storage.read(key: 'login_id').timeout(const Duration(seconds: 2));
+      companyCode = await storage.read(key: 'company_Code').timeout(const Duration(seconds: 2));
+      accessToken = await storage.read(key: 'access_Token').timeout(const Duration(seconds: 2));
+    } catch (e) {
+      debugPrint('Secure storage error : $e');
+    }
+    
 
     if (!mounted) return;
 
@@ -44,7 +53,7 @@ class _SplashScreenState extends State<SplashScreen> {
       // ✅ Optional: re-sync device token (safe version)
       try {
         final String? deviceToken =
-            await FirebaseMessaging.instance.getToken();
+            await FirebaseMessaging.instance.getToken().timeout(const Duration(seconds: 3));
 
         if (deviceToken != null && mounted) {
           context.read<DevicetokenBloc>().add(

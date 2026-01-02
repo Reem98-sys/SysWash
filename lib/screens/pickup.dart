@@ -369,7 +369,8 @@ class _PickupState extends State<Pickup> {
                                             color: Colors.grey,
                                           ),
                                           Text(
-                                            formatDate(order.pickupDate.toString()),
+                                            '${formatDate(order.pickupDate.toString())} '
+                                            '${filteredList[index].pickuptime ?? ''}',
                                             style: TextStyle(
                                               color: Colors.black,
                                               fontSize: 11.sp,

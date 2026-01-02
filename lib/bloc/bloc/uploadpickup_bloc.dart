@@ -22,6 +22,7 @@ class UploadpickupBloc extends Bloc<UploadpickupEvent, UploadpickupState> {
           event.pickupCustomerName,
           event.pickupCustomerPhno,
           event.pickupDate,
+          event.pickuptime,
           event.pickupDriverid,
           event.pickupDrivername,
           event.remarks,

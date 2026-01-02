@@ -16,8 +16,9 @@ class PickUpListModel {
     bool? trash;
     String? remarks;
     String? notes;
+    String? pickuptime;
 
-    PickUpListModel({this.pickupassgnId, this.pickupassgn, this.pickupDate, this.pickupCustomerId, this.pickupCustomerName, this.pickupCustomerArea, this.pickupCustomerCode, this.pickupCustomerPhno, this.pickupDriverid, this.pickupDrivername, this.pickupstatus, this.assignedFrom, this.pickupOrderId, this.trash, this.remarks, this.notes});
+    PickUpListModel({this.pickupassgnId, this.pickupassgn, this.pickupDate, this.pickupCustomerId, this.pickupCustomerName, this.pickupCustomerArea, this.pickupCustomerCode, this.pickupCustomerPhno, this.pickupDriverid, this.pickupDrivername, this.pickupstatus, this.assignedFrom, this.pickupOrderId, this.trash, this.remarks, this.notes, this.pickuptime});
 
     PickUpListModel.fromJson(Map<String, dynamic> json) {
         if(json["pickupassgnId"] is num) {
@@ -68,6 +69,9 @@ class PickUpListModel {
         if(json["notes"] is String) {
             notes = json["notes"];
         }
+        if(json["pickuptime"] is String) {
+            pickuptime = json["pickuptime"];
+        }
     }
 
     static List<PickUpListModel> fromList(List<Map<String, dynamic>> list) {
@@ -94,6 +98,7 @@ class PickUpListModel {
         _data["trash"] = trash;
         _data["remarks"] = remarks;
         _data["notes"] = notes;
+        _data["pickuptime"] = pickuptime;
         return _data;
     }
 
@@ -114,6 +119,7 @@ class PickUpListModel {
         bool? trash,
         String? remarks,
         String? notes,
+        String? pickuptime,
     }) => PickUpListModel(
         pickupassgnId: pickupassgnId ?? this.pickupassgnId,
         pickupassgn: pickupassgn ?? this.pickupassgn,
@@ -131,5 +137,6 @@ class PickUpListModel {
         trash: trash ?? this.trash,
         remarks: remarks ?? this.remarks,
         notes: notes ?? this.notes,
+        pickuptime: pickuptime ?? this.pickuptime,
     );
 }

@@ -239,8 +239,8 @@ class _HistorydetailState extends State<Historydetail> {
                                           color: Colors.grey,
                                         ),
                                         Text(
-                                          widget.historyType == 'pickup'? formatDate(filteredList[index]['pickupDate'])
-                                              : formatDate(filteredList[index]['deliveryDate'])
+                                          widget.historyType == 'pickup'? '${formatDate(filteredList[index]['pickupDate'])} ''${filteredList[index]['pickuptime'] ?? ''}'
+                                              : '${formatDate(filteredList[index]['deliveryDate'])} ${filteredList[index]['deliveryTime']}'
                                           .toString(),
                                           style: TextStyle(
                                             color: Colors.black,

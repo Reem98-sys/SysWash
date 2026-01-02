@@ -175,16 +175,16 @@ class _PickupdetailsState extends State<Pickupdetails> {
     String? villano,
   }) {
     // Collect only non-empty values
-    final parts = [
-      if (hotel != null && hotel.trim().isNotEmpty) hotel,
-      if (villano != null && villano.trim().isNotEmpty) villano,
-      if (street != null && street.trim().isNotEmpty) street,
-      if (zone != null && zone.trim().isNotEmpty) zone,
-      if (area != null && area.trim().isNotEmpty) area,
-    ];
+    String address = '';
+      if (hotel != null && hotel.trim().isNotEmpty) address += 'Hotel $hotel, ';
+      if (villano != null && villano.trim().isNotEmpty) address += 'Villa  $villano, ';
+      if (street != null && street.trim().isNotEmpty) address += 'Street $street, ';
+      if (zone != null && zone.trim().isNotEmpty) address += 'Zone $zone, ';
+      if (area != null && area.trim().isNotEmpty) address += '$area, ';
+    address += 'Qatar';
 
     // Join with comma
-    return parts.join(', ');
+    return address;
   }
 
   @override

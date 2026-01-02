@@ -13,12 +13,12 @@ Future<void> openRoute(String address) async {
   final wazeApp = Uri.parse('waze://?q=$encodedAddress&navigate=yes'); // deep link to Waze app
   final appleMaps = Uri.parse('http://maps.apple.com/?q=$encodedAddress');
   try {
-    if (await canLaunchUrl(wazeApp)) {
-      await launchUrl(wazeApp, mode: LaunchMode.externalApplication);
-    }
-
-    else if (await canLaunchUrl(googleMapsApp)) {
+    
+    if (await canLaunchUrl(googleMapsApp)) {
       await launchUrl(googleMapsApp, mode: LaunchMode.externalApplication);
+    }
+    else if (await canLaunchUrl(wazeApp)) {
+      await launchUrl(wazeApp, mode: LaunchMode.externalApplication);
     } else if (await canLaunchUrl(appleMaps)) {
       await launchUrl(appleMaps, mode: LaunchMode.externalApplication);
     }

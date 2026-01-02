@@ -440,6 +440,7 @@ Future<bool?> showAddCustomerDialog(
                           dropDownKey.currentState?.getSelectedItem ?? "",
                       pickupCustomerPhno: phoneController.text.trim(),
                       pickupDate: DateTime.now().toIso8601String().split('T')[0],
+                      pickuptime:DateFormat('HH:mm').format(DateTime.now()),
                       pickupDriverid: pickupDriverid,
                       pickupDrivername: pickupDrivername,
                       remarks: remarkController.text.trim() ?? '',
