@@ -1,5 +1,20 @@
 import 'package:url_launcher/url_launcher.dart';
 
+Future<void> openRouteLatLng(double lat, double lng) async {
+  final googleMapsApp = Uri.parse('geo:0,0?q=$lat,$lng');
+  final googleMapsWeb =
+      Uri.parse('https://www.google.com/maps/search/?api=1&query=$lat,$lng');
+  final wazeApp = Uri.parse('waze://?ll=$lat,$lng&navigate=yes');
+
+  if (await canLaunchUrl(googleMapsApp)) {
+    await launchUrl(googleMapsApp, mode: LaunchMode.externalApplication);
+  } else if (await canLaunchUrl(wazeApp)) {
+    await launchUrl(wazeApp, mode: LaunchMode.externalApplication);
+  } else {
+    await launchUrl(googleMapsWeb, mode: LaunchMode.externalApplication);
+  }
+}
+
 Future<void> openRoute(String address) async {
   if (address.trim().isEmpty) {
     throw Exception('Address is empty');

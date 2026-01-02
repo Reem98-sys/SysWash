@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:syswash/bloc/bloc/pickupcustdetails_bloc.dart';
 import 'package:syswash/bloc/bloc/settings_bloc.dart';
+import 'package:syswash/helper/gis_qatar_service.dart';
 import 'package:syswash/screens/delivery_dialog.dart';
 import 'package:syswash/screens/mapping.dart';
 
@@ -36,21 +37,22 @@ class _DeliverydetailState extends State<Deliverydetail> {
   final storage = const FlutterSecureStorage();
 
   String buildFullAddress({
-    String? area,
     String? hotel,
+    String? area,
+    String? zone,
     String? street,
-    String? houseNumber,
+    String? villano,
   }) {
     // Collect only non-empty values
-    final parts = [
-      if (houseNumber != null && houseNumber.trim().isNotEmpty) houseNumber,
-      if (street != null && street.trim().isNotEmpty) street,
-      if (hotel != null && hotel.trim().isNotEmpty) hotel,
-      if (area != null && area.trim().isNotEmpty) area,
-    ];
+    String address = '';
+      if (hotel != null && hotel.trim().isNotEmpty) address += 'Hotel $hotel, ';
+      if (villano != null && villano.trim().isNotEmpty) address += 'Villa  $villano, ';
+      if (street != null && street.trim().isNotEmpty) address += 'Street $street, ';
+      if (zone != null && zone.trim().isNotEmpty) address += 'Zone $zone, ';
+      if (area != null && area.trim().isNotEmpty) address += '$area, ';
+    address += 'Qatar';
 
-    // Join with comma
-    return parts.join(', ');
+    return address;
   }
 
   @override
@@ -202,20 +204,34 @@ class _DeliverydetailState extends State<Deliverydetail> {
                             Column(
                               children: [
                                 GestureDetector(
-                                  onTap: () {
+                                  onTap: () async {
+                                    
+                                      final zone = customerDetailsModel.zone?.toString();
+                                      final street = customerDetailsModel.streetNo?.toString();
+                                      final villano = customerDetailsModel.villaNumber?.toString();
+                                    
+                                    if (zone == null || street == null || villano == null) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(content: Text('Address details incomplete')),
+                                    );
+                                    return;
+                                  }
+                                  final coords = await GisQatarService.getLatLng(
+                                    zone: zone,
+                                    street: street,
+                                    building: villano,
+                                  );
+                                  if (coords == null) {
                                     final fullAddress = buildFullAddress(
+                                      hotel: customerDetailsModel.hotel,
                                       area:
-                                          customerDetailsModel.area ??
                                           customerDetailsModel.area,
-                                      hotel:
-                                          customerDetailsModel.hotel ??
-                                          customerDetailsModel.hotel,
+                                      zone:
+                                          customerDetailsModel.zone,
                                       street:
-                                          customerDetailsModel.streetNo ??
                                           customerDetailsModel.streetNo,
-                                      houseNumber:
-                                          customerDetailsModel.roomNo ??
-                                          customerDetailsModel.roomNo,
+                                      villano:
+                                          customerDetailsModel.villaNumber,
                                     );
                                     if (fullAddress.isNotEmpty) {
                                       openRoute(fullAddress);
@@ -230,6 +246,9 @@ class _DeliverydetailState extends State<Deliverydetail> {
                                         ),
                                       );
                                     }
+                                  } else {
+                                    await openRouteLatLng(coords['lat']!, coords['lng']!);
+                                  }
                                   },
                                   child: Container(
                                     width: 100.w,
@@ -758,7 +777,7 @@ class _DeliverydetailState extends State<Deliverydetail> {
                                       ),
                                     ),
                                     Text(
-                                      deliveryItems.totalAmount!,
+                                      deliveryItems.totalAmount?? '',
                                       style: TextStyle(
                                         color: const Color(0xFF68188B),
                                         fontSize: 15.sp,
