@@ -563,7 +563,7 @@ class SysRepository {
       jsonEncode(body)
     );
     
-      return response.body;
+      return jsonDecode(response.body)["message"];
     
   }
   Future<String> resetpass(
@@ -578,15 +578,21 @@ class SysRepository {
     body = {
       "email": email,
       "new_password": newpass,
-      "otp": otp
+      "otp": otp.toString()
       };
     Response response = await apiClient.invokeAPI(
       url,
       "POST",
       jsonEncode(body)
     );
-    
-      return response.body;
+    final decoded = jsonDecode(response.body);
+
+  if (response.statusCode == 200) {
+    return decoded["message"].toString();
+  } else {
+    return decoded["error"]?.toString() ?? "Something went wrong";
+  }
+      
     
   }
 }

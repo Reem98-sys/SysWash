@@ -652,6 +652,17 @@ class _DeliverydetailState extends State<Deliverydetail> {
                                             .toString(),
                                         width: 46.w,
                                         height: 44.h,
+                                        fit : BoxFit.cover,
+                                        loadingBuilder: (context, child, loadingProgress) {
+                                        if (loadingProgress == null) return child;
+                                         return const Center(child: CircularProgressIndicator());
+                                        },
+                                        errorBuilder: (context, error, stackTrace) {
+                                          return const Icon(
+                                          Icons.broken_image,
+                                          color: Colors.grey,
+                                          size: 40,
+                                        );}
                                       ),
                                       SizedBox(width: 10.w),
                                       Column(

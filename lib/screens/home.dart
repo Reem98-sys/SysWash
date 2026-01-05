@@ -88,6 +88,24 @@ class _HomeState extends State<Home> {
   }
 }
 
+  DateTime _getOrderDateTime(dynamic order) {
+  try {
+    if (order is PickUpListModel) {
+      final date = order.pickupDate ?? '';
+      final time = order.pickuptime ?? '00:00';
+      return DateTime.parse('$date $time');
+    } else if (order is DeliveryListModel) {
+      final date = order.deliveryDate ?? '';
+      final time = order.deliveryTime ?? '00:00';
+      return DateTime.parse('$date $time');
+    }
+  } catch (_) {
+    
+  }
+
+  // fallback if parsing fails
+  return DateTime.fromMillisecondsSinceEpoch(0);
+}
 
   @override
   Widget build(BuildContext context) {
@@ -380,7 +398,9 @@ class _HomeState extends State<Home> {
                                       order.pickupstatus
                                           ?.toString()
                                           .toLowerCase() !=
-                                      'received',
+                                      'received' && order.pickupstatus
+                                          ?.toString()
+                                          .toLowerCase() != 'collected',
                                 )
                                 .toList();
                         final deliveryOrdersList =
@@ -390,7 +410,23 @@ class _HomeState extends State<Home> {
                                       order.status?.toString().toLowerCase() !=
                                   "delivered").toList();
                         final allOrders = [...pickupOrders, ...deliveryOrders];
-          
+                        // sort pickup orders
+                        pickupOrders.sort((a, b) {
+                          return _getOrderDateTime(b).compareTo(_getOrderDateTime(a));
+                        });
+
+                        // sort delivery orders
+                        deliveryOrders.sort((a, b) {
+                          return _getOrderDateTime(b).compareTo(_getOrderDateTime(a));
+                        });
+                        
+                        allOrders.sort((a, b) {
+                          final dateA = _getOrderDateTime(a);
+                          final dateB = _getOrderDateTime(b);
+                          return dateB.compareTo(dateA); // newest first
+                        });
+
+
                         final filteredOrders =
                             selectedFilter == 'All'
                                 ? allOrders
@@ -437,12 +473,24 @@ class _HomeState extends State<Home> {
                                 color: const Color(0xFFF8F8F8),
                                 borderRadius: BorderRadius.circular(8.r),
                                 child: GestureDetector(
-                                  onTap: () {
+                                  onTap: () async {
                                     if (isPickup) {
-                                      Navigator.push(context, MaterialPageRoute(builder: (context) => Pickupdetails(customerId: order.pickupCustomerId.toString(), pickupOrderId: order.pickupOrderId.toString(), pickupAssignId: order.pickupassgnId ?? 0, notes: order.notes ?? '', remarks: order.remarks ?? '')));
+                                      final result = await Navigator.push(context, MaterialPageRoute(builder: (context) => Pickupdetails(customerId: order.pickupCustomerId.toString(), pickupOrderId: order.pickupOrderId.toString(), pickupAssignId: order.pickupassgnId ?? 0, notes: order.notes ?? '', remarks: order.remarks ?? '')));
+                                      if (result == true) {
+                                       _loadUserAndFetchData();
+                                      }
                                     }
                                     else {
-                                      Navigator.push(context, MaterialPageRoute(builder: (context) => Deliverydetail(customerId: (order as DeliveryListModel).deliveryCustomerId.toString(), deliveryOrderId: order.deliveryInvoiceNo!.toString(),deliveryAssgnId: order.deliveryassgnId, notes: '', remarks: '')));
+                                      final result = await Navigator.push(context, MaterialPageRoute(builder: (context) => Deliverydetail(customerId: (order as DeliveryListModel).deliveryCustomerId.toString(), deliveryOrderId: order.deliveryInvoiceNo!.toString(),deliveryAssgnId: order.deliveryassgnId, notes: '', remarks: '')));
+                                      if (result == true) {
+                                       _loadUserAndFetchData();
+                                       ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(
+                                          content: Text('Updated Successfully'),
+                                          backgroundColor: Colors.green,
+                                        ),
+                                      );
+                                      }
                                     }
                                   },
                                   child: Container(

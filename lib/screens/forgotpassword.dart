@@ -195,11 +195,11 @@ class _ForgotpasswordState extends State<Forgotpassword> {
               },
               child: GestureDetector(
                   onTap: () {
-                    // BlocProvider.of<ForgotpassBloc>(context).add(
-                    //   FetchForgotEvent(
-                    //     companyCode: codeController.text.trim(), 
-                    //     email: emailController.text.trim())
-                    // );
+                    BlocProvider.of<ForgotpassBloc>(context).add(
+                      FetchForgotEvent(
+                        companyCode: codeController.text.trim(), 
+                        email: emailController.text.trim())
+                    );
                   },
                   child: Container(
                         width: 317.w,

@@ -114,9 +114,9 @@ class ApiClient {
       throw ApiException('Session expired', 401);
     }
   }
-  if (response.statusCode >= 400) {
-      throw ApiException(response.body, response.statusCode);
-    }
+  // if (response.statusCode >= 400) {
+  //     throw ApiException(response.body, response.statusCode);
+  //   }
     print('status of $path =>' + (response.statusCode).toString());
     print(response.body);
     if (response.statusCode >= 400) {
@@ -131,14 +131,34 @@ class ApiClient {
     return response;
   }
 
+  // String _decodeBodyBytes(Response response) {
+  //   var contentType = response.headers['content-type'];
+  //   if (contentType != null && contentType.contains("application/json")) {
+  //     return jsonDecode(response.body)['message'];
+  //   } else {
+  //     return response.body;
+  //   }
+  // }
   String _decodeBodyBytes(Response response) {
-    var contentType = response.headers['content-type'];
-    if (contentType != null && contentType.contains("application/json")) {
-      return jsonDecode(response.body)['message'];
-    } else {
-      return response.body;
+  final contentType = response.headers['content-type'];
+
+  if (contentType != null && contentType.contains("application/json")) {
+    final decoded = jsonDecode(response.body);
+
+    if (decoded is Map<String, dynamic>) {
+      if (decoded.containsKey('message')) {
+        return decoded['message'].toString();
+      }
+      if (decoded.containsKey('error')) {
+        return decoded['error'].toString();
+      }
     }
+    return 'Something went wrong';
+  } else {
+    return response.body;
   }
+}
+
 }
 /// ============================
 /// TOKEN STORAGE
