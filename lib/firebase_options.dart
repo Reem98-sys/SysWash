@@ -64,7 +64,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '197388954178',
     projectId: 'syswash-69645',
     storageBucket: 'syswash-69645.firebasestorage.app',
-    iosBundleId: 'com.example.syswash',
+    iosBundleId: 'com.pupa.syswash',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
@@ -73,7 +73,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '197388954178',
     projectId: 'syswash-69645',
     storageBucket: 'syswash-69645.firebasestorage.app',
-    iosBundleId: 'com.example.syswash',
+    iosBundleId: 'com.pupa.syswash',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
