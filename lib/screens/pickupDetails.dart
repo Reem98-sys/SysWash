@@ -158,7 +158,7 @@ class _PickupdetailsState extends State<Pickupdetails> {
           discount: totalDiscount,
           lastModifiedTime: TimeOfDay.now().format(context),
           lastModifieddate: DateTime.now().toIso8601String().split('T').first,
-          paidAmount: pickupOrderItems.paidAmount ?? 0,
+          paidAmount: double.parse(pickupOrderItems.paidAmount).toInt() ?? 0,
           quantity: totalquantity ?? 0,
           subTotal: subtotal.toString(),
           totalAmount: totalamt.toString(),

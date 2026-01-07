@@ -197,7 +197,7 @@ class _DeliveryState extends State<Delivery> {
                     if (state is PickUpBlocError) {
                       return Center(
                         child: Text(
-                          'Failed to load orders\n${state.message}',
+                          'Failed to load orders',
                           style: TextStyle(color: Colors.red, fontSize: 14.sp),
                         ),
                       );
