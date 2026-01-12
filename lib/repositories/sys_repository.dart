@@ -34,6 +34,10 @@ class SysRepository {
       "POST",
       jsonEncode(body),
     );
+    final decoded = jsonDecode(response.body);
+    if (decoded is Map && decoded.containsKey('status')) {
+      throw Exception(decoded['Message']);
+    }
     return LoginModel.fromJson(jsonDecode(response.body));
   }
 

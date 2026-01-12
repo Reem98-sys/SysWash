@@ -32,22 +32,37 @@ class _LoginState extends State<Login> {
     String username,
     String refreshtoken
   ) async {
+    try{
     await storage.write(key: 'login_id', value: userId);
     await storage.write(key: 'company_Code', value: companyCode);
     await storage.write(key: 'access_Token', value: token);
     await storage.write(key: 'user_name', value: username);
     await storage.write(key: 'email', value: emailController.text);
-    await storage.write(key: 'password', value: passwordController.text);
+    // await storage.write(key: 'password', value: passwordController.text);
     await storage.write(key: 'refresh_token', value: refreshtoken);
+    } catch (e) {
+      await storage.deleteAll();
+    }
   }
 
   @override
   void initState() {
     super.initState();
+    clearSecureStorageIfBroken().then((_) {
     _loadSavedLogin();
+  });
   }
 
+  Future<void> clearSecureStorageIfBroken() async {
+  try {
+    await storage.readAll();
+  } catch (e) {
+    await storage.deleteAll();
+  }
+}
+
   Future<void> _loadSavedLogin() async {
+    try{
     const storage = FlutterSecureStorage();
     final savedEmail = await storage.read(key: 'email');
     final savedPassword = await storage.read(key: 'password');
@@ -57,6 +72,9 @@ class _LoginState extends State<Login> {
     }
     if (savedPassword != null) {
       passwordController.text = savedPassword;
+    }
+    } catch (e) {
+      await storage.deleteAll();
     }
   }
 
@@ -366,14 +384,14 @@ class _LoginState extends State<Login> {
                   if (state is LoginBlocLoaded) {
                     Navigator.pop(context);
                     loginModel = BlocProvider.of<LoginBloc>(context).loginModel;
-                    if (loginModel.id == null) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('Invalid username or password'),
-                          backgroundColor: Colors.red,
-                        ),
-                      );
-                    } else {
+                    // if (loginModel.id == null) {
+                    //   ScaffoldMessenger.of(context).showSnackBar(
+                    //     SnackBar(
+                    //       content: Text('Invalid username or password'),
+                    //       backgroundColor: Colors.red,
+                    //     ),
+                    //   );
+                    // } else {
                       print(loginModel.id.toString());
                       saveLoginId(
                         loginModel.id.toString(),
@@ -393,7 +411,7 @@ class _LoginState extends State<Login> {
                         context,
                         MaterialPageRoute(builder: (context) => Bottomnav()),
                       );
-                    }
+                    // }
                   }
                 },
                 child: GestureDetector(

@@ -16,7 +16,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
         loginModel = await sysRepository.loginIn(event.email, event.password, event.companyCode);
         emit(LoginBlocLoaded());
       } catch (e) {
-        emit(LoginBlocError('Invalid username or password'));
+        emit(LoginBlocError(e.toString()));
       }
     });
   }
