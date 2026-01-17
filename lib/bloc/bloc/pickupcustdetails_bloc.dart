@@ -67,6 +67,7 @@ class PickupcustdetailsBloc
           event.subTotal,
           event.totalAmount,
           event.userName,
+          event.vatValue
         );
         if (response == 200) {
           emit(AddPickupOrderLoaded());
@@ -108,7 +109,8 @@ class PickupcustdetailsBloc
           event.totalAmount,
           event.paidAmount,
           event.balance,
-          event.clothData
+          event.clothData,
+          event.vatValue
         );
         emit(AddNewPickupOrderLoaded());
       } catch (e) {

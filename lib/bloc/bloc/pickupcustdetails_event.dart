@@ -54,6 +54,7 @@ class FetchAddPickupOrderEvent extends PickupcustdetailsEvent {
   final String subTotal;
   final String totalAmount;
   final String userName;
+  final double vatValue;
   FetchAddPickupOrderEvent({
     required this.pickupOrderId,
     required this.token,
@@ -69,6 +70,7 @@ class FetchAddPickupOrderEvent extends PickupcustdetailsEvent {
     required this.subTotal,
     required this.totalAmount,
     required this.userName,
+    required this.vatValue
   });
 }
 
@@ -97,6 +99,7 @@ class FetchAddNewPickupEvent extends PickupcustdetailsEvent {
   final double paidAmount;
   final double balance;
   final List<Map<String,dynamic>> clothData;
+  final double vatValue;
   FetchAddNewPickupEvent({
     required this.token,
     required this.companyCode,
@@ -108,7 +111,8 @@ class FetchAddNewPickupEvent extends PickupcustdetailsEvent {
     required this.totalAmount,
     required this.paidAmount,
     required this.balance,
-    required this.clothData
+    required this.clothData,
+    required this.vatValue
   });
 }
 

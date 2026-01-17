@@ -114,6 +114,7 @@ class _PickupdetailsState extends State<Pickupdetails> {
     double discount,
     double totalAmount,
     double totalDiscount,
+    double vatAmount
   ) async {
     final companyCode = await storage.read(key: 'company_Code');
     final token = await storage.read(key: 'access_Token');
@@ -131,6 +132,7 @@ class _PickupdetailsState extends State<Pickupdetails> {
           paidAmount: 0.0,
           balance: totalAmount,
           clothData: _orderItemsList,
+          vatValue: vatAmount
         ),
       );
     }
@@ -143,6 +145,7 @@ class _PickupdetailsState extends State<Pickupdetails> {
     double totalamt,
     double blnc,
     int totalDiscount,
+    double vatAmount
   ) async {
     final companyCode = await storage.read(key: 'company_Code');
     final token = await storage.read(key: 'access_Token');
@@ -163,6 +166,7 @@ class _PickupdetailsState extends State<Pickupdetails> {
           subTotal: subtotal.toString(),
           totalAmount: totalamt.toString(),
           userName: pickupOrderItems.customerName ?? '',
+          vatValue: vatAmount
         ),
       );
     }
@@ -1025,6 +1029,8 @@ class _PickupdetailsState extends State<Pickupdetails> {
                                 double subtotal = 0.0;
                                 double totalamt = 0.0;
                                 double totalDiscount = 0.0;
+                                double vatAmount = 0.0;
+
                                 for (var item in _orderItemsList) {
                                   final price =
                                       double.tryParse(
@@ -1038,6 +1044,10 @@ class _PickupdetailsState extends State<Pickupdetails> {
                                       0;
                                   subtotal += price * qty;
                                 }
+                                if (settingsData.vat == "Enable") {
+                                  vatAmount =  subtotal * ((settingsData.vatAmount??0)/100);
+                                }
+                                
                                 final companyCode = await storage.read(
                                   key: 'company_Code',
                                 );
@@ -1078,12 +1088,7 @@ class _PickupdetailsState extends State<Pickupdetails> {
                                   totalamt =
                                       subtotal -
                                       totalDiscount.ceilToDouble() +
-                                      (double.tryParse(
-                                            settingsData.vatAmount
-                                                    ?.toString() ??
-                                                '0',
-                                          ) ??
-                                          0.0) +
+                                      vatAmount +
                                       (double.tryParse(
                                             customerDetailsModel.openingBalance
                                                     ?.toString() ??
@@ -1101,6 +1106,7 @@ class _PickupdetailsState extends State<Pickupdetails> {
                                         0.0,
                                     totalamt,
                                     totalDiscount.ceil().toDouble(),
+                                    vatAmount
                                   );
                                 }
                                 //case 2 Adding items to existing ordered items
@@ -1109,19 +1115,19 @@ class _PickupdetailsState extends State<Pickupdetails> {
                                     totalDiscount =
                                         subtotal *
                                         ((pickupOrderItems.customerDiscount ??
-                                            0 )/ 100);
+                                            0 )/ 100);       
                                     totalamt =
                                         subtotal -
                                         totalDiscount.ceilToDouble() -
                                         (double.tryParse(pickupOrderItems.paidAmount?.toString() ?? '0') ?? 0.0) +
-                                        (pickupOrderItems.vat ?? 0.0) +
+                                        vatAmount +
                                         (pickupOrderItems.openingBalance ??
                                             0.0);
                                   } else {
                                     totalamt =
                                         subtotal -
-                                        (double.tryParse(pickupOrderItems.discount?.toString() ?? '0') ?? 0.0) -
-                                        (pickupOrderItems.vat ?? 0.0) +
+                                        (double.tryParse(pickupOrderItems.discount?.toString() ?? '0') ?? 0.0) +
+                                        vatAmount +
                                         (pickupOrderItems.openingBalance ??
                                             0.0);
                                   }
@@ -1142,6 +1148,7 @@ class _PickupdetailsState extends State<Pickupdetails> {
                                       totalamt,
                                       blnc,
                                       totalDiscount != 0.0 ? totalDiscount.ceil() : (double.tryParse(pickupOrderItems.discount?.toString() ?? '0') ?? 0.0).ceil(),
+                                      vatAmount
                                     );
                                   } else {
                                     // no new items → directly call FetchStatusPickupEvent

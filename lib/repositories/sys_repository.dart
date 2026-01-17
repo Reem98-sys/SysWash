@@ -261,6 +261,7 @@ class SysRepository {
     double paidAmount,
     double balance,
     List<Map<String, dynamic>> clothData,
+    double vatValue
   ) async {
     String url =
         "https://be.syswash.net/api/syswash/pickuporder?code=${companyCode}";
@@ -276,6 +277,7 @@ class SysRepository {
       'deliveryType': "PICKUP & DELIVERY",
       'accountType': "MobileApp",
       'clothData': clothData,
+      'vatValue':vatValue
     };
     Response response = await apiClient.invokeAPI(
       url,
@@ -321,6 +323,7 @@ class SysRepository {
     String subTotal,
     String totalAmount,
     String userName,
+    double vatValue
   ) async {
     String url =
         "https://be.syswash.net/api/syswash/order/${pickupOrderId}?code=${companyCode}";
@@ -336,6 +339,7 @@ class SysRepository {
       'subTotal': subTotal,
       'totalAmount': totalAmount,
       'userName': userName,
+      'vatValue':vatValue
     };
     Response response = await apiClient.invokeAPI(
       url,
