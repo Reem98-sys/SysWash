@@ -6,6 +6,7 @@ import 'package:syswash/bloc/bloc/devicetoken_bloc.dart';
 import 'package:syswash/bloc/bloc/login_bloc.dart';
 import 'package:syswash/model/loginModel.dart';
 import 'package:syswash/screens/bottomnav.dart';
+import 'package:syswash/screens/bottomnavAdmin.dart';
 import 'package:syswash/screens/forgotpassword.dart';
 import 'package:syswash/screens/home.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -30,7 +31,8 @@ class _LoginState extends State<Login> {
     String companyCode,
     String token,
     String username,
-    String refreshtoken
+    String refreshtoken,
+    String userType
   ) async {
     try{
     await storage.write(key: 'login_id', value: userId);
@@ -40,6 +42,7 @@ class _LoginState extends State<Login> {
     await storage.write(key: 'email', value: emailController.text);
     // await storage.write(key: 'password', value: passwordController.text);
     await storage.write(key: 'refresh_token', value: refreshtoken);
+    await storage.write(key: 'user_Type', value: userType);
     } catch (e) {
       await storage.deleteAll();
     }
@@ -398,7 +401,8 @@ class _LoginState extends State<Login> {
                         companyCode.text.trim(),
                         loginModel.access.toString(),
                         loginModel.username.toString(),
-                        loginModel.refresh.toString()
+                        loginModel.refresh.toString(),
+                        loginModel.userType.toString()
                       );
                       //  Initialize and sync device token
                       initializeDeviceTokenUpdates(
@@ -407,10 +411,19 @@ class _LoginState extends State<Login> {
                         companyCode.text.trim(),
                         loginModel.access.toString(),
                       );
-                      Navigator.pushReplacement(
+                      if (loginModel.userType == 'Driver') {
+                        Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(builder: (context) => Bottomnav()),
                       );
+                      }
+                      else {
+                        Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => Bottomnavadmin()),
+                      );
+                      }
+                      
                     // }
                   }
                 },

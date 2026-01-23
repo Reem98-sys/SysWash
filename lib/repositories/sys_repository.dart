@@ -1,6 +1,8 @@
 import 'dart:convert';
 
+import 'package:syswash/model/closingReport.dart';
 import 'package:syswash/model/clothDetailsModel.dart';
+import 'package:syswash/model/companydetailsModel.dart';
 import 'package:syswash/model/customerDetailsModel.dart';
 import 'package:syswash/model/customerListModel.dart';
 import 'package:syswash/model/customer_list_response.dart';
@@ -10,8 +12,10 @@ import 'package:syswash/model/pickupListModel.dart';
 import 'package:syswash/model/pickupOrderItemsModel.dart';
 import 'package:syswash/model/pickup_list_response.dart';
 import 'package:syswash/model/profileModel.dart';
+import 'package:syswash/model/salesgraph.dart';
 import 'package:syswash/model/serviceDetails.dart';
 import 'package:syswash/model/settingsModel.dart';
+import 'package:syswash/model/totalCountModel.dart';
 import 'package:syswash/model/totalOrder.dart';
 
 import 'api_client.dart';
@@ -40,6 +44,8 @@ class SysRepository {
     }
     return LoginModel.fromJson(jsonDecode(response.body));
   }
+
+  // API FOR DRIVERS
 
   Future<TotalOrderModel> totalOrder(
     String userId,
@@ -603,4 +609,94 @@ class SysRepository {
       
     
   }
+
+  // API FOR ADMIN
+  Future<double?> admintotalsale(
+    String token,
+    String companyCode
+  ) async {
+    String url =
+        "https://be.syswash.net/api/syswash/totalsales?code=${companyCode}";
+    body = {};
+    Response response = await apiClient.invokeAPI(
+      url,
+      "GET",
+      jsonEncode(body),
+      token: token,
+    );
+    final data = jsonDecode(response.body);
+    return data['total_sales'];
+  }
+
+  
+  Future<TotalCount> admintotalcount(
+    String token,
+    String companyCode
+  ) async {
+    String url =
+        "https://be.syswash.net/api/syswash/dashboard?code=${companyCode}";
+    body = {};
+    Response response = await apiClient.invokeAPI(
+      url,
+      "GET",
+      jsonEncode(body),
+      token: token,
+    );
+    
+    return TotalCount.fromJson(jsonDecode(response.body));
+  }
+
+  Future<ClosingReport> adminclosingreport(
+    String token,
+    String companyCode,
+    String startDate,
+    String endDate,
+  ) async {
+    String url =
+        "https://be.syswash.net/api/syswash/closingReport?startDate=$startDate&endDate=$endDate&user=null&code=${companyCode}";
+    body = {};
+    Response response = await apiClient.invokeAPI(
+      url,
+      "GET",
+      jsonEncode(body),
+      token: token,
+    );
+    
+    return ClosingReport.fromJson(jsonDecode(response.body));
+  }
+
+  Future<CompanyDetails> admincompany(
+    String token,
+    String companyCode
+  ) async {
+    String url =
+        "https://be.syswash.net/api/syswash/company/1?code=${companyCode}";
+    body = {};
+    Response response = await apiClient.invokeAPI(
+      url,
+      "GET",
+      jsonEncode(body),
+      token: token,
+    );
+    
+    return CompanyDetails.fromJson(jsonDecode(response.body));
+  }
+
+  Future<List<SalesGraph>> adminsalesgraph(
+    String token,
+    String companyCode,
+  ) async {
+    String url =
+        "https://be.syswash.net/api/syswash/salesgraph?database=null&code=${companyCode}";
+    body = {};
+    Response response = await apiClient.invokeAPI(
+      url,
+      "GET",
+      jsonEncode(body),
+      token: token,
+    );
+    final List data = jsonDecode(response.body);
+    return data.map((e) => SalesGraph.fromJson(e)).toList();
+  }
+
 }

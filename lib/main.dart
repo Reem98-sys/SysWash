@@ -6,6 +6,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:overlay_support/overlay_support.dart';
+import 'package:syswash/bloc/bloc/adminclosereport_bloc.dart';
+import 'package:syswash/bloc/bloc/admingraph_bloc.dart';
+import 'package:syswash/bloc/bloc/adminhome_bloc.dart';
 
 import 'package:syswash/bloc/bloc/clothdetails_bloc.dart';
 import 'package:syswash/bloc/bloc/customerlist_bloc.dart';
@@ -58,6 +61,9 @@ void main() async {
           BlocProvider(create: (context) => ProfileBloc()),
           BlocProvider(create: (context) => DevicetokenBloc()),
           BlocProvider(create: (context) => ForgotpassBloc()),
+          BlocProvider(create: (context) => AdminhomeBloc()),
+          BlocProvider(create: (context) => AdminclosereportBloc()),
+          BlocProvider(create: (context) => AdmingraphBloc()),
         ],
         child: const MyApp(),
       ),

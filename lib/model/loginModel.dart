@@ -3,10 +3,11 @@ class LoginModel {
     String? email;
     int? id;
     String? username;
+    String? userType;
     String? access;
     String? refresh;
 
-    LoginModel({this.email, this.id, this.username, this.access, this.refresh});
+    LoginModel({this.email, this.id, this.username, this.userType, this.access, this.refresh});
 
     LoginModel.fromJson(Map<String, dynamic> json) {
         if(json["email"] is String) {
@@ -17,6 +18,9 @@ class LoginModel {
         }
         if(json["username"] is String) {
             username = json["username"];
+        }
+        if(json["userType"] is String) {
+            userType = json["userType"];
         }
         if(json["access"] is String) {
             access = json["access"];
@@ -35,6 +39,7 @@ class LoginModel {
         _data["email"] = email;
         _data["id"] = id;
         _data["username"] = username;
+        _data["userType"] = userType;
         _data["access"] = access;
         _data["refresh"] = refresh;
         return _data;
@@ -44,12 +49,14 @@ class LoginModel {
         String? email,
         int? id,
         String? username,
+        String? userType,
         String? access,
         String? refresh,
     }) => LoginModel(
         email: email ?? this.email,
         id: id ?? this.id,
         username: username ?? this.username,
+        userType: userType ?? this.userType,
         access: access ?? this.access,
         refresh: refresh ?? this.refresh,
     );

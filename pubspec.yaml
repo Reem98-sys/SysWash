@@ -49,6 +49,7 @@ dependencies:
   cloud_firestore: ^6.1.0
   overlay_support: ^2.1.0
   flutter_local_notifications: ^17.0.0
+  fl_chart: ^0.63.0
   
 
 dev_dependencies:
