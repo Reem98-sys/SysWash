@@ -8,6 +8,7 @@ import 'package:syswash/model/customerListModel.dart';
 import 'package:syswash/model/customer_list_response.dart';
 import 'package:syswash/model/deliveryListModel.dart';
 import 'package:syswash/model/delivery_list_response.dart';
+import 'package:syswash/model/orderReport.dart';
 import 'package:syswash/model/pickupListModel.dart';
 import 'package:syswash/model/pickupOrderItemsModel.dart';
 import 'package:syswash/model/pickup_list_response.dart';
@@ -699,4 +700,19 @@ class SysRepository {
     return data.map((e) => SalesGraph.fromJson(e)).toList();
   }
 
+  Future<OrderReport> adminorderreport(
+    String token,
+    String companyCode,
+  ) async {
+    String url =
+        "https://be.syswash.net/api/syswash/orderReport?startDate=null&endDate=2026-01-23&deliveryDate=null&invoice=null&customer=null&status=null&account=null&currentStatus=null&emp=null&driver=null&code=$companyCode&page=1&phonenumber=null&payment=null&search=undefined&cuscodesearch=undefined";
+    body = {};
+    Response response = await apiClient.invokeAPI(
+      url,
+      "GET",
+      jsonEncode(body),
+      token: token,
+    );
+    return OrderReport.fromJson(jsonDecode(response.body));
+  }
 }

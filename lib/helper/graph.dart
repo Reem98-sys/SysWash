@@ -54,18 +54,12 @@ class MonthlySalesChart extends StatelessWidget {
           ),
           borderData: FlBorderData(
             show: true,
-  border: Border(
-    left: BorderSide(
-      color: Colors.grey.shade400,
-      width: 1,
-    ),
-    bottom: BorderSide(
-      color: Colors.grey.shade400,
-      width: 1,
-    ),
-    right: BorderSide.none,
-    top: BorderSide.none,
-  ),
+            border: Border(
+              left: BorderSide(color: Colors.grey.shade400, width: 1),
+              bottom: BorderSide(color: Colors.grey.shade400, width: 1),
+              right: BorderSide.none,
+              top: BorderSide.none,
+            ),
           ),
 
           titlesData: FlTitlesData(
