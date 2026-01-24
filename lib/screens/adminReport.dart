@@ -4,6 +4,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:syswash/bloc/bloc/adminhome_bloc.dart';
+import 'package:syswash/bloc/bloc/report_bloc.dart';
+import 'package:syswash/screens/adminCashLegder.dart';
+import 'package:syswash/screens/adminSalesReport.dart';
 import 'package:syswash/screens/adminreportdetail.dart';
 
 class Adminreport extends StatefulWidget {
@@ -15,20 +18,20 @@ class Adminreport extends StatefulWidget {
 
 class _AdminreportState extends State<Adminreport> {
   final List<Map<String, String>> data = [
-    {"icon": "assets/Report.svg", "title": "Order Report"},
-    {"icon": "assets/saleperson.svg", "title": "Sales Report"},
-    {"icon": "assets/cash.svg", "title": "Cash Ledger"},
-    {"icon": "assets/expense.svg", "title": "Expense Report"},
-    {"icon": "assets/Report.svg", "title": "Transaction Report"},
-    {"icon": "assets/Report.svg", "title": "Debtors Report"},
-    {"icon": "assets/customer.svg", "title": "Customer Report"},
-    {"icon": "assets/customer.svg", "title": "Employee Report"},
-    {"icon": "assets/customer.svg", "title": "Driver Report"},
-    {"icon": "assets/Report.svg", "title": "Item Wise Report"},
-    {"icon": "assets/Report.svg", "title": "Closing Report"},
-    {"icon": "assets/Report.svg", "title": "Plant Report"},
-    {"icon": "assets/Report.svg", "title": "Edit History Report"},
-    {"icon": "assets/Report.svg", "title": "Service Report"},
+    {"icon": "assets/Report.svg", "title": "Order Report", "type":"order"},
+    {"icon": "assets/saleperson.svg", "title": "Sales Report","type":"sales"},
+    {"icon": "assets/cash.svg", "title": "Cash Ledger","type":"cash"},
+    {"icon": "assets/expense.svg", "title": "Expense Report","type":"expense"},
+    {"icon": "assets/Report.svg", "title": "Transaction Report","type":"transcation"},
+    {"icon": "assets/Report.svg", "title": "Debtors Report","type":"debtors"},
+    {"icon": "assets/customer.svg", "title": "Customer Report","type":"customer"},
+    {"icon": "assets/customer.svg", "title": "Employee Report","type":"employee"},
+    {"icon": "assets/customer.svg", "title": "Driver Report","type":"driver"},
+    {"icon": "assets/Report.svg", "title": "Item Wise Report","type":"itemwise"},
+    {"icon": "assets/Report.svg", "title": "Closing Report","type":"closing"},
+    {"icon": "assets/Report.svg", "title": "Plant Report","type":"plant"},
+    {"icon": "assets/Report.svg", "title": "Edit History Report","type":"edit"},
+    {"icon": "assets/Report.svg", "title": "Service Report","type":"service"},
   ];
   final storage = const FlutterSecureStorage();
   String? username;
@@ -43,6 +46,9 @@ class _AdminreportState extends State<Adminreport> {
     final companyCode = await storage.read(key: 'company_Code');
     final token = await storage.read(key: 'access_Token');
     final storedUsername = await storage.read(key: 'user_name');
+    String format(DateTime d) =>
+        "${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}";
+    final dateNow = DateTime.now();
     if (mounted) {
       setState(() {
         username = storedUsername ?? 'User';
@@ -54,6 +60,9 @@ class _AdminreportState extends State<Adminreport> {
     if (userId != null && companyCode != null && token != null) {
       context.read<AdminhomeBloc>().add(
         FetchcompanyEvent(token: token, companyCode: companyCode),
+      );
+      context.read<ReportBloc>().add(
+        FetchCashLedgerEvent(token: token, companyCode: companyCode,datenow:format(dateNow) ),
       );
     } else {
       debugPrint('Missing userId or companyCode in storage');
@@ -140,7 +149,17 @@ class _AdminreportState extends State<Adminreport> {
                   itemBuilder: (context, index) {
                     return GestureDetector(
                       onTap: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => Adminreportdetail()));
+                        switch (data[index]['type']) {
+                          case "order":
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => Adminreportdetail()));
+                            break;
+                          case "sales":
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => Adminsalesreport()));
+                            break;
+                          case "cash":
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => Admincashlegder()));
+                            break;    
+                        }
                       },
                       child: Container(
                         // width: 148.w,

@@ -20,6 +20,7 @@ import 'package:syswash/bloc/bloc/login_bloc.dart';
 import 'package:syswash/bloc/bloc/pickupcustdetails_bloc.dart';
 import 'package:syswash/bloc/bloc/pickuplist_bloc.dart';
 import 'package:syswash/bloc/bloc/profile_bloc.dart';
+import 'package:syswash/bloc/bloc/report_bloc.dart';
 import 'package:syswash/bloc/bloc/servicedetails_bloc.dart';
 import 'package:syswash/bloc/bloc/settings_bloc.dart';
 import 'package:syswash/bloc/bloc/uploadpickup_bloc.dart';
@@ -64,6 +65,7 @@ void main() async {
           BlocProvider(create: (context) => AdminhomeBloc()),
           BlocProvider(create: (context) => AdminclosereportBloc()),
           BlocProvider(create: (context) => AdmingraphBloc()),
+          BlocProvider(create: (context) => ReportBloc()),
         ],
         child: const MyApp(),
       ),

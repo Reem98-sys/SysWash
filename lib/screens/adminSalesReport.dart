@@ -4,18 +4,18 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:syswash/bloc/bloc/adminhome_bloc.dart';
 import 'package:syswash/bloc/bloc/report_bloc.dart';
-import 'package:syswash/model/orderReport.dart';
+import 'package:syswash/model/salesReport.dart';
 
-class Adminreportdetail extends StatefulWidget {
-  const Adminreportdetail({super.key});
+class Adminsalesreport extends StatefulWidget {
+  const Adminsalesreport({super.key});
 
   @override
-  State<Adminreportdetail> createState() => _AdminreportdetailState();
+  State<Adminsalesreport> createState() => _AdminsalesreportState();
 }
 
-class _AdminreportdetailState extends State<Adminreportdetail> {
+class _AdminsalesreportState extends State<Adminsalesreport> {
   final storage = const FlutterSecureStorage();
-  late OrderReport orderReport;
+  late List<SalesReport> salesReport;
   double totalAmount = 0.0;
   double totalDiscount = 0.0;
   double totalPaid = 0.0;
@@ -54,61 +54,59 @@ class _AdminreportdetailState extends State<Adminreportdetail> {
         FetchcompanyEvent(token: token, companyCode: companyCode),
       );
       context.read<ReportBloc>().add(
-        FetchReportEvent(token: token, companyCode: companyCode, datenow: format(dateNow)),
+        FetchSalesReportEvent(token: token, companyCode: companyCode, datenow: format(dateNow)),
       );
     } else {
       debugPrint('Missing userId or companyCode in storage');
     }
   }
-
   double _toDouble(String? value) {
-    if (value == null || value.isEmpty) return 0.0;
-    return double.tryParse(value) ?? 0.0;
-  }
+  if (value == null || value.isEmpty) return 0.0;
+  return double.tryParse(value) ?? 0.0;
+}
 
-  void _calculateTotals(OrderReport report) {
-    totalAmount = 0;
-    totalDiscount = 0;
-    totalPaid = 0;
-    totalBalance = 0;
-    totalCommission = 0;
+  void _calculateTotals(List<SalesReport> report) {
+  totalAmount = 0;
+  totalDiscount = 0;
+  totalPaid = 0;
+  totalBalance = 0;
+  totalCommission = 0;
 
-    wml = 0;
-    qserve = 0;
-    aldobi = 0;
-    walkin = 0;
-    walkincash = 0;
+  wml = 0;
+  qserve = 0;
+  aldobi = 0;
+  walkin = 0;
+  walkincash = 0;
 
-    final list = report.results ?? [];
+  
 
-    for (final item in list) {
-      totalAmount += _toDouble(item.totalAmount);
-      totalDiscount += _toDouble(item.discount);
-      totalPaid += _toDouble(item.paidAmount);
-      totalBalance += _toDouble(item.balance);
-      totalCommission += (item.commission ?? 0).toDouble();
+  for (final item in report) {
+    totalAmount += _toDouble(item.totalAmount);
+    totalDiscount += _toDouble(item.discount);
+    totalPaid += _toDouble(item.paidAmount);
+    totalBalance += _toDouble(item.balance);
+    totalCommission += (item.commission ?? 0).toDouble();
 
-      /// Account-wise totals (using PAID amount)
-      switch (item.accountType?.toUpperCase()) {
-        case 'WML':
-          wml += _toDouble(item.paidAmount);
-          break;
-        case 'QSERVE':
-          qserve += _toDouble(item.paidAmount);
-          break;
-        case 'ALDOBI':
-          aldobi += _toDouble(item.paidAmount);
-          break;
-        case 'CR.(WALKIN)':
-          walkin += _toDouble(item.paidAmount);
-          break;
-        case 'WALK IN CASH':
-          walkincash += _toDouble(item.paidAmount);
-          break;
-      }
+    /// Account-wise totals (using PAID amount)
+    switch (item.accountType?.toUpperCase()) {
+      case 'WML':
+        wml += _toDouble(item.paidAmount);
+        break;
+      case 'QSERVE':
+        qserve += _toDouble(item.paidAmount);
+        break;
+      case 'ALDOBI':
+        aldobi += _toDouble(item.paidAmount);
+        break;
+      case 'CR.(WALKIN)':
+        walkin += _toDouble(item.paidAmount);
+        break;
+      case 'WALK IN CASH':
+        walkincash += _toDouble(item.paidAmount);
+        break;
     }
   }
-
+}
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -166,9 +164,9 @@ class _AdminreportdetailState extends State<Adminreportdetail> {
               if (state is ReportError) {
                 return Center(child: Text('Failed to load data'));
               }
-              if (state is ReportLoaded) {
-                orderReport = state.orderReport;
-                _calculateTotals(orderReport);
+              if (state is SalesReportLoaded) {
+                salesReport = state.salesReport;
+                _calculateTotals(salesReport);
                 return Column(
                   children: [
                     Container(
@@ -178,7 +176,7 @@ class _AdminreportdetailState extends State<Adminreportdetail> {
                           Row(
                             children: [
                               Text(
-                                'Order Report',
+                                'Sales Report',
                                 style: TextStyle(
                                   color: const Color(0xFF150A33),
                                   fontSize: 16.sp,
@@ -356,7 +354,6 @@ class _AdminreportdetailState extends State<Adminreportdetail> {
     );
   }
 }
-
 Widget _tableText(String data) {
   return Padding(
     padding: const EdgeInsets.fromLTRB(15, 10, 15, 10),

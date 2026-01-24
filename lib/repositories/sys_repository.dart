@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:syswash/model/cashLedger.dart';
 import 'package:syswash/model/closingReport.dart';
 import 'package:syswash/model/clothDetailsModel.dart';
 import 'package:syswash/model/companydetailsModel.dart';
@@ -8,11 +9,13 @@ import 'package:syswash/model/customerListModel.dart';
 import 'package:syswash/model/customer_list_response.dart';
 import 'package:syswash/model/deliveryListModel.dart';
 import 'package:syswash/model/delivery_list_response.dart';
+import 'package:syswash/model/expenseReport.dart';
 import 'package:syswash/model/orderReport.dart';
 import 'package:syswash/model/pickupListModel.dart';
 import 'package:syswash/model/pickupOrderItemsModel.dart';
 import 'package:syswash/model/pickup_list_response.dart';
 import 'package:syswash/model/profileModel.dart';
+import 'package:syswash/model/salesReport.dart';
 import 'package:syswash/model/salesgraph.dart';
 import 'package:syswash/model/serviceDetails.dart';
 import 'package:syswash/model/settingsModel.dart';
@@ -703,9 +706,10 @@ class SysRepository {
   Future<OrderReport> adminorderreport(
     String token,
     String companyCode,
+    String datenow
   ) async {
     String url =
-        "https://be.syswash.net/api/syswash/orderReport?startDate=null&endDate=2026-01-23&deliveryDate=null&invoice=null&customer=null&status=null&account=null&currentStatus=null&emp=null&driver=null&code=$companyCode&page=1&phonenumber=null&payment=null&search=undefined&cuscodesearch=undefined";
+        "https://be.syswash.net/api/syswash/orderReport?startDate=null&endDate=$datenow&deliveryDate=null&invoice=null&customer=null&status=null&account=null&currentStatus=null&emp=null&driver=null&code=$companyCode&page=1&phonenumber=null&payment=null&search=undefined&cuscodesearch=undefined";
     body = {};
     Response response = await apiClient.invokeAPI(
       url,
@@ -714,5 +718,56 @@ class SysRepository {
       token: token,
     );
     return OrderReport.fromJson(jsonDecode(response.body));
+  }
+  Future<List<SalesReport>> adminsalesreport(
+    String token,
+    String companyCode,
+    String datenow
+  ) async {
+    String url =
+        "https://be.syswash.net/api/syswash/salesReport?startDate=$datenow&endDate=$datenow&invoice=null&customer=null&account=null&code=$companyCode";
+    body = {};
+    Response response = await apiClient.invokeAPI(
+      url,
+      "GET",
+      jsonEncode(body),
+      token: token,
+    );
+    final List data = jsonDecode(response.body);
+    return data.map((e) => SalesReport.fromJson(e)).toList();
+  }
+  Future<List<CashLedger>> Admincashlegder (
+    String token,
+    String companyCode,
+    String datenow
+  ) async {
+    String url =
+        "https://be.syswash.net/api/syswash/cashLedgerReportNew?startDate=$datenow&endDate=$datenow&invoice=null&mode=null&code=$companyCode";
+    body = {};
+    Response response = await apiClient.invokeAPI(
+      url,
+      "GET",
+      jsonEncode(body),
+      token: token,
+    );
+    final List data = jsonDecode(response.body);
+    return data.map((e) => CashLedger.fromJson(e)).toList();
+  }
+  Future<List<ExpenseReport>> Adminexpense (
+    String token,
+    String companyCode,
+    String datenow
+  ) async {
+    String url =
+        "https://be.syswash.net/api/syswash/expenseReport?startDate=$datenow&endDate=$datenow&main=null&sub=null&paymentMode=null&code=$companyCode";
+    body = {};
+    Response response = await apiClient.invokeAPI(
+      url,
+      "GET",
+      jsonEncode(body),
+      token: token,
+    );
+    final List data = jsonDecode(response.body);
+    return data.map((e) => ExpenseReport.fromJson(e)).toList();
   }
 }
