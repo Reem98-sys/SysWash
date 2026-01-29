@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:syswash/screens/adminHome.dart';
 import 'package:syswash/screens/adminReport.dart';
+import 'package:syswash/screens/adminprofile.dart';
 
 class Bottomnavadmin extends StatefulWidget {
   final int currentIndex;
@@ -18,7 +19,7 @@ class _BottomnavadminState extends State<Bottomnavadmin> {
   final List<Widget> _screens = [
     const Adminhome(),
     const Adminreport(),
-    const Adminhome(),
+    const Adminprofile(),
   ];
 
   final List<Map<String, dynamic>> _items = [

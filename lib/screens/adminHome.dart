@@ -105,6 +105,7 @@ class _AdminhomeState extends State<Adminhome> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.white,
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -401,25 +402,19 @@ class _AdminhomeState extends State<Adminhome> {
                             padding: const EdgeInsets.all(15.0),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
+                              children: [                                
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Container(
-                                      width: 40.w,
-                                      height: 40.h,
-                                      decoration: ShapeDecoration(
-                                        color: const Color(0xFFF5F5F5),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(48),
-                                        ),
-                                      ),
-                                      child: SvgPicture.asset(
-                                        'assets/saleperson.svg',
-                                        fit: BoxFit.scaleDown,
+                                    Text(
+                                      closingReport.totalGrossSale.toString(),
+                                      style: TextStyle(
+                                        color: const Color(0xFF150A33),
+                                        fontSize: 18.sp,
+                                        fontFamily: 'DM Sans',
+                                        fontWeight: FontWeight.w800,
                                       ),
                                     ),
-          
                                     SizedBox(
                                       width: 81.w,
                                       height: 36.h,
@@ -497,15 +492,6 @@ class _AdminhomeState extends State<Adminhome> {
                                       ),
                                     ),
                                   ],
-                                ),
-                                Text(
-                                  closingReport.totalGrossSale.toString(),
-                                  style: TextStyle(
-                                    color: const Color(0xFF150A33),
-                                    fontSize: 18.sp,
-                                    fontFamily: 'DM Sans',
-                                    fontWeight: FontWeight.w800,
-                                  ),
                                 ),
                                 Text(
                                   'Total Sale',
@@ -589,7 +575,7 @@ class _AdminhomeState extends State<Adminhome> {
                                     Column(
                                       children: [
                                         Text(
-                                          'Pending Amount',
+                                          'Pending',
                                           style: TextStyle(
                                             color: const Color(0xFF514A6B),
                                             fontSize: 12.sp,
@@ -599,6 +585,28 @@ class _AdminhomeState extends State<Adminhome> {
                                         ),
                                         Text(
                                           closingReport.debtamount.toString(),
+                                          style: TextStyle(
+                                            color: const Color(0xFFEA0000),
+                                            fontSize: 16.sp,
+                                            fontFamily: 'DM Sans',
+                                            fontWeight: FontWeight.w700,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    Column(
+                                      children: [
+                                        Text(
+                                          'Outstanding',
+                                          style: TextStyle(
+                                            color: const Color(0xFF514A6B),
+                                            fontSize: 12.sp,
+                                            fontFamily: 'DM Sans',
+                                            fontWeight: FontWeight.w400,
+                                          ),
+                                        ),
+                                        Text(
+                                          closingReport.outstandingamount.toString(),
                                           style: TextStyle(
                                             color: const Color(0xFFEA0000),
                                             fontSize: 16.sp,

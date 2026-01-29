@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:syswash/model/accounttype.dart';
+import 'package:syswash/model/adminProfle.dart';
 import 'package:syswash/model/cashLedger.dart';
 import 'package:syswash/model/closingReport.dart';
 import 'package:syswash/model/clothDetailsModel.dart';
@@ -21,6 +23,7 @@ import 'package:syswash/model/serviceDetails.dart';
 import 'package:syswash/model/settingsModel.dart';
 import 'package:syswash/model/totalCountModel.dart';
 import 'package:syswash/model/totalOrder.dart';
+import 'package:syswash/model/userType.dart';
 
 import 'api_client.dart';
 import 'package:http/http.dart';
@@ -769,5 +772,110 @@ class SysRepository {
     );
     final List data = jsonDecode(response.body);
     return data.map((e) => ExpenseReport.fromJson(e)).toList();
+  }
+
+  Future<List<AccountType>> adminaccounttype(
+    String token,
+    String companyCode
+  ) async {
+    String url =
+        "https://be.syswash.net/api/syswash/accountdetails?code=$companyCode";
+    body = {};
+    Response response = await apiClient.invokeAPI(
+      url,
+      "GET",
+      jsonEncode(body),
+      token: token,
+    );
+    final List data = jsonDecode(response.body);
+    return data.map((e) => AccountType.fromJson(e)).toList();
+  }
+
+  Future<AdminProfile> adminprofile(
+    String token,
+    String companyCode,
+    String userId
+  ) async {
+    String url =
+        "https://be.syswash.net/api/syswash/user/$userId?code=$companyCode";
+    body = {};
+    Response response = await apiClient.invokeAPI(
+      url,
+      "GET",
+      jsonEncode(body),
+      token: token,
+    );
+    return AdminProfile.fromJson(jsonDecode(response.body));
+  }
+  Future<UserType> adminusertype(
+    String token,
+    String companyCode
+  ) async {
+    String url =
+        "https://be.syswash.net/api/syswash/usertypes/Admin?code=$companyCode";
+    body = {};
+    Response response = await apiClient.invokeAPI(
+      url,
+      "GET",
+      jsonEncode(body),
+      token: token,
+    );
+    return UserType.fromJson(jsonDecode(response.body));
+  }
+
+  Future<String> admineditprofile(
+    String userID,
+    String token,
+    String companyCode,
+    String userName,
+    String email
+  ) async {
+   
+    String url =
+        "https://be.syswash.net/api/syswash/user/$userID?code=$companyCode";
+    body = {
+      "userName": userName,
+      "email": email
+    };
+    Response response = await apiClient.invokeAPI(
+      url,
+      "PUT",
+      jsonEncode(body),
+      token: token,
+    );
+    if (response.statusCode == 200) {
+      return 'Profile updated successfully';
+    } else {
+      return 'Unable to update';
+    }
+  }
+
+  Future<String> adminchangepassword(
+    String token,
+    String companyCode,
+    String newConfPass,
+    String newPass,
+    String oldPass
+  ) async {
+   
+    String url =
+        "https://be.syswash.net/api/syswash/changepass?code=$companyCode";
+    body = {
+      "newConfPass": newConfPass,
+      "newPass": newPass,
+      "oldPass": oldPass,
+    };
+    Response response = await apiClient.invokeAPI(
+      url,
+      "PUT",
+      jsonEncode(body),
+      token: token,
+    );
+    final decoded = jsonDecode(response.body);
+    if (decoded["Success"] != null && decoded["Success"].toString().isNotEmpty) {
+      return decoded["Success"].toString();
+    } else {
+      return decoded["error"]?.toString() ?? "Something went wrong";
+    }
   }
 }

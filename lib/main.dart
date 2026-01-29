@@ -9,6 +9,7 @@ import 'package:overlay_support/overlay_support.dart';
 import 'package:syswash/bloc/bloc/adminclosereport_bloc.dart';
 import 'package:syswash/bloc/bloc/admingraph_bloc.dart';
 import 'package:syswash/bloc/bloc/adminhome_bloc.dart';
+import 'package:syswash/bloc/bloc/adminprofile_bloc.dart';
 
 import 'package:syswash/bloc/bloc/clothdetails_bloc.dart';
 import 'package:syswash/bloc/bloc/customerlist_bloc.dart';
@@ -66,6 +67,7 @@ void main() async {
           BlocProvider(create: (context) => AdminclosereportBloc()),
           BlocProvider(create: (context) => AdmingraphBloc()),
           BlocProvider(create: (context) => ReportBloc()),
+          BlocProvider(create: (context) => AdminprofileBloc()),
         ],
         child: const MyApp(),
       ),
