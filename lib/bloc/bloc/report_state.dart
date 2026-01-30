@@ -5,13 +5,19 @@ sealed class ReportState {}
 
 final class ReportInitial extends ReportState {}
 class ReportLoading extends ReportState {}
+class UsertypeLoaded extends ReportState {
+  final UserType userType;
+  UsertypeLoaded({required this.userType});
+}
 class ReportLoaded extends ReportState {
   final OrderReport orderReport;
-  ReportLoaded({required this.orderReport});
+  final List<AccountType> accountType;
+  ReportLoaded({required this.orderReport,required this.accountType});
 }
 class SalesReportLoaded extends ReportState {
   final List<SalesReport> salesReport;
-  SalesReportLoaded({required this.salesReport});
+  final List<AccountType> accountType;
+  SalesReportLoaded({required this.salesReport,required this.accountType});
 }
 class CashLedgerReportLoaded extends ReportState {
   final List<CashLedger> cashLedger;
@@ -19,6 +25,7 @@ class CashLedgerReportLoaded extends ReportState {
 }
 class ExpenseReportLoaded extends ReportState {
   final List<ExpenseReport> expenseReport;
-  ExpenseReportLoaded({required this.expenseReport});
+  final List<ExpCategory> expCategory;
+  ExpenseReportLoaded({required this.expenseReport,required this.expCategory});
 }
 class ReportError extends ReportState {}

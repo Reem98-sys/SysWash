@@ -11,6 +11,7 @@ import 'package:syswash/model/customerListModel.dart';
 import 'package:syswash/model/customer_list_response.dart';
 import 'package:syswash/model/deliveryListModel.dart';
 import 'package:syswash/model/delivery_list_response.dart';
+import 'package:syswash/model/expCategory.dart';
 import 'package:syswash/model/expenseReport.dart';
 import 'package:syswash/model/orderReport.dart';
 import 'package:syswash/model/pickupListModel.dart';
@@ -756,13 +757,14 @@ class SysRepository {
     final List data = jsonDecode(response.body);
     return data.map((e) => CashLedger.fromJson(e)).toList();
   }
-  Future<List<ExpenseReport>> Adminexpense (
+  Future<List<ExpenseReport>> adminexpense (
     String token,
     String companyCode,
-    String datenow
+    String startDate,
+    String endDate
   ) async {
     String url =
-        "https://be.syswash.net/api/syswash/expenseReport?startDate=$datenow&endDate=$datenow&main=null&sub=null&paymentMode=null&code=$companyCode";
+        "https://be.syswash.net/api/syswash/expenseReport?startDate=$startDate&endDate=$endDate&main=null&sub=null&paymentMode=null&code=$companyCode";
     body = {};
     Response response = await apiClient.invokeAPI(
       url,
@@ -875,7 +877,24 @@ class SysRepository {
     if (decoded["Success"] != null && decoded["Success"].toString().isNotEmpty) {
       return decoded["Success"].toString();
     } else {
-      return decoded["error"]?.toString() ?? "Something went wrong";
+      throw decoded["error"]?.toString() ?? "Something went wrong";
     }
+  }
+
+  Future<List<ExpCategory>> adminexpCategory(
+    String token,
+    String companyCode
+  ) async {
+    String url =
+        "https://be.syswash.net/api/syswash/expcategory?code=$companyCode";
+    body = {};
+    Response response = await apiClient.invokeAPI(
+      url,
+      "GET",
+      jsonEncode(body),
+      token: token,
+    );
+    final List data = jsonDecode(response.body);
+    return data.map((e) => ExpCategory.fromJson(e)).toList();
   }
 }
