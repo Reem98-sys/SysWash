@@ -28,4 +28,13 @@ class ExpenseReportLoaded extends ReportState {
   final List<ExpCategory> expCategory;
   ExpenseReportLoaded({required this.expenseReport,required this.expCategory});
 }
+class TransactionReportLoaded extends ReportState {
+  final List<TransactionModel> transactionModel;
+  TransactionReportLoaded({required this.transactionModel});
+}
+class OutstandingReportLoaded extends ReportState {
+  final List<OutstandingModel> outstandingModel;
+  final List<AccountType> accountType;
+  OutstandingReportLoaded({required this.outstandingModel,required this.accountType});
+}
 class ReportError extends ReportState {}

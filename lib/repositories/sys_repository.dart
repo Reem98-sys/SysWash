@@ -14,6 +14,7 @@ import 'package:syswash/model/delivery_list_response.dart';
 import 'package:syswash/model/expCategory.dart';
 import 'package:syswash/model/expenseReport.dart';
 import 'package:syswash/model/orderReport.dart';
+import 'package:syswash/model/outstandingModel.dart';
 import 'package:syswash/model/pickupListModel.dart';
 import 'package:syswash/model/pickupOrderItemsModel.dart';
 import 'package:syswash/model/pickup_list_response.dart';
@@ -24,6 +25,7 @@ import 'package:syswash/model/serviceDetails.dart';
 import 'package:syswash/model/settingsModel.dart';
 import 'package:syswash/model/totalCountModel.dart';
 import 'package:syswash/model/totalOrder.dart';
+import 'package:syswash/model/transactionModel.dart';
 import 'package:syswash/model/userType.dart';
 
 import 'api_client.dart';
@@ -896,5 +898,45 @@ class SysRepository {
     );
     final List data = jsonDecode(response.body);
     return data.map((e) => ExpCategory.fromJson(e)).toList();
+  }
+
+  Future<List<TransactionModel>> admintransactionreport(
+    String token,
+    String companyCode,
+    String startDate,
+    String endDate
+  ) async {
+    String url =
+        "https://be.syswash.net/api/syswash/transactionReport?startDate=$startDate&endDate=$endDate&mode=null&transaction=null&code=$companyCode";
+    body = {};
+    Response response = await apiClient.invokeAPI(
+      url,
+      "GET",
+      jsonEncode(body),
+      token: token,
+    );
+    final List data = jsonDecode(response.body);
+    return data.map((e) => TransactionModel.fromJson(e)).toList();
+  }
+
+  Future<List<OutstandingModel>> adminoutstandingreport(
+    String token,
+    String companyCode,
+    String startDate,
+    String endDate
+  ) async {
+    var startDates = startDate!=''?startDate:null;
+    var endDates = endDate!=''?endDate:null;
+    String url =
+        "https://be.syswash.net/api/syswash/debtorsReport?dateStart=$startDates&dateEnd=$endDates&customer=undefined&account=undefined&area=undefined&code=$companyCode";
+    body = {};
+    Response response = await apiClient.invokeAPI(
+      url,
+      "GET",
+      jsonEncode(body),
+      token: token,
+    );
+    final List data = jsonDecode(response.body);
+    return data.map((e) => OutstandingModel.fromJson(e)).toList();
   }
 }

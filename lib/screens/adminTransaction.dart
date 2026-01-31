@@ -5,33 +5,28 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:syswash/bloc/bloc/adminhome_bloc.dart';
 import 'package:syswash/bloc/bloc/report_bloc.dart';
 import 'package:syswash/helper/date_range_popup.dart';
-import 'package:syswash/model/expCategory.dart';
-import 'package:syswash/model/expenseReport.dart';
+import 'package:syswash/model/transactionModel.dart';
 
-class Adminexpense extends StatefulWidget {
-  const Adminexpense({super.key});
+class Admintransaction extends StatefulWidget {
+  const Admintransaction({super.key});
 
   @override
-  State<Adminexpense> createState() => _AdminexpenseState();
+  State<Admintransaction> createState() => _AdmintransactionState();
 }
 
-class _AdminexpenseState extends State<Adminexpense> {
+class _AdmintransactionState extends State<Admintransaction> {
   final storage = const FlutterSecureStorage();
-  String? username;
-  DateTimeRange? selectedRange;
+  late List<TransactionModel> transactionModel;
   final TextEditingController startDateController = TextEditingController();
   final TextEditingController endDateController = TextEditingController();
-  late List<ExpenseReport> expenseReport;
-  Map<String, double> mainCategory = {};
+  double totalAmount = 0.0;
+  double totalBalance = 0.0;
+  double totalExpense = 0.0;
+  String? username;
   @override
   void initState() {
     super.initState();
     _loadAndFetchData();
-  }
-
-  String _apiDateFromUI(String uiDate) {
-    final parts = uiDate.split('-'); // dd-MM-yyyy
-    return "${parts[2]}-${parts[1]}-${parts[0]}";
   }
 
   void _openDatePopup() {
@@ -52,7 +47,7 @@ class _AdminexpenseState extends State<Adminexpense> {
           );
   
           context.read<ReportBloc>().add(
-            FetchExpenseReportEvent(
+            FetchTransactionReportEvent(
               token: token,
               companyCode: companyCode,
               startDate: _apiDateFromUI(startDateController.text),
@@ -62,6 +57,10 @@ class _AdminexpenseState extends State<Adminexpense> {
         }
       },
     );
+  }
+  String _apiDateFromUI(String uiDate) {
+    final parts = uiDate.split('-'); // dd-MM-yyyy
+    return "${parts[2]}-${parts[1]}-${parts[0]}";
   }
 
   Future<void> _loadAndFetchData() async {
@@ -85,11 +84,11 @@ class _AdminexpenseState extends State<Adminexpense> {
         FetchcompanyEvent(token: token, companyCode: companyCode),
       );
       context.read<ReportBloc>().add(
-        FetchExpenseReportEvent(
+        FetchTransactionReportEvent(
           token: token,
           companyCode: companyCode,
           startDate: format(dateNow),
-          endDate: format(dateNow),
+          endDate: format(dateNow)
         ),
       );
     } else {
@@ -97,28 +96,21 @@ class _AdminexpenseState extends State<Adminexpense> {
     }
   }
 
-  // double _toDouble(String? value) {
-  //   if (value == null || value.isEmpty) return 0.0;
-  //   return double.tryParse(value) ?? 0.0;
-  // }
+  double _toDouble(String? value) {
+    if (value == null || value.isEmpty) return 0.0;
+    return double.tryParse(value) ?? 0.0;
+  }
 
-  void _calculateTotals(
-    List<ExpenseReport> report,
-    List<ExpCategory> expCategory,
-  ) {
-    mainCategory.clear();
+  void _calculateTotals(List<TransactionModel> report) {
+    totalAmount = 0;
+    totalBalance = 0;
+    totalExpense = 0;
 
-    for (final acc in expCategory) {
-      if (acc.mainCategory != null && acc.trash != true) {
-        mainCategory[acc.mainCategory!] = 0.0;
-      }
-    }
-    for (final item in report ?? []) {
-      final expCategory = item.mainCategory;
-      if (expCategory != null && mainCategory.containsKey(expCategory)) {
-        mainCategory[expCategory] =
-            mainCategory[expCategory]! + item.amount;
-      }
+    for (final item in report) {
+      totalAmount += item.credit!.toDouble();
+      totalBalance += 
+      totalExpense += item.debit!.toDouble();
+
     }
   }
 
@@ -126,6 +118,9 @@ class _AdminexpenseState extends State<Adminexpense> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: GestureDetector(
+          onTap: () => Navigator.pop(context),
+          child: Icon(Icons.arrow_back_ios_new_outlined)),
         backgroundColor: Colors.white,
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -180,71 +175,94 @@ class _AdminexpenseState extends State<Adminexpense> {
               if (state is ReportError) {
                 return Center(child: Text('Failed to load data'));
               }
-              if (state is ExpenseReportLoaded) {
-                expenseReport = state.expenseReport;
-                _calculateTotals(state.expenseReport, state.expCategory);
-                return Container(
-                  width: 362.w,
-                  child: Column(
-                    children: [
-                      SizedBox(height: 30.h),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              if (state is TransactionReportLoaded) {
+                transactionModel = state.transactionModel;
+                _calculateTotals(transactionModel);
+                return Column(
+                  children: [
+                    Container(
+                      width: 362.w,
+                      child: Column(
                         children: [
-                          Text(
-                            'Expense Report',
-                            style: TextStyle(
-                              color: const Color(0xFF150A33),
-                              fontSize: 16.sp,
-                              fontFamily: 'DM Sans',
-                              fontWeight: FontWeight.w700,
-                            ),
+                          SizedBox(height: 30.h),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Transaction Report',
+                                style: TextStyle(
+                                  color: const Color(0xFF150A33),
+                                  fontSize: 16.sp,
+                                  fontFamily: 'DM Sans',
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.filter_alt_outlined),
+                                onPressed: _openDatePopup,
+                              ),
+                            ],
                           ),
-                          IconButton(
-                            icon: const Icon(Icons.filter_alt_outlined),
-                            onPressed: _openDatePopup,
+                          SizedBox(height: 10.h),
+                          Container(
+                            width: 362.w,
+                            height: 230.h,
+                            decoration: ShapeDecoration(
+                              color: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                side: BorderSide(
+                                  width: 1,
+                                  color: const Color(0xFFF0F0F0),
+                                ),
+                                borderRadius: BorderRadius.circular(15),
+                              ),
+                            ),
+                            child: Center(
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 25,
+                                ),
+                                child: Table(
+                                  border: TableBorder.all(
+                                    color: const Color(0xFFE7E7E7),
+                                    width: 1,
+                                  ),
+                                  children: [
+                                    TableRow(
+                                      children: [
+                                        _tableText('Total Amount Received'),
+                                        _tableValue(
+                                          totalAmount.toStringAsFixed(2),
+                                        ),
+                                      ],
+                                    ),
+                                    TableRow(
+                                      children: [
+                                        _tableText('Total Expense'),
+                                        _tableValue(
+                                          totalExpense.toStringAsFixed(2),
+                                        ),
+                                      ],
+                                    ),
+                                    TableRow(
+                                      children: [
+                                        _tableText('Total Balance'),
+                                        _tableValue(
+                                          '',
+                                        ),
+                                      ],
+                                    ),
+                                    
+                                  ],
+                                ),
+                              ),
+                            ),
                           ),
                         ],
                       ),
-                      SizedBox(height: 10.h),
-                      Container(
-                        width: 362.w,
-                        height: 230.h,
-                        decoration: ShapeDecoration(
-                          color: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            side: BorderSide(
-                              width: 1,
-                              color: const Color(0xFFF0F0F0),
-                            ),
-                            borderRadius: BorderRadius.circular(15),
-                          ),
-                        ),
-                        child: Center(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 25),
-                            child: Table(
-                              border: TableBorder.all(
-                                color: const Color(0xFFE7E7E7),
-                                width: 1,
-                              ),
-                              children:
-                                  mainCategory.entries.map((entry) {
-                                    return TableRow(
-                                      children: [
-                                        _tableText(entry.key),
-                                        _tableValue(
-                                          entry.value.toStringAsFixed(2),
-                                        ),
-                                      ],
-                                    );
-                                  }).toList(),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                    
+                  ],
                 );
               } else {
                 return SizedBox();

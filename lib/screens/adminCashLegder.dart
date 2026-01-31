@@ -69,6 +69,7 @@ class _AdmincashlegderState extends State<Admincashlegder> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.white,
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

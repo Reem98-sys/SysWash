@@ -5,7 +5,9 @@ import 'package:syswash/model/cashLedger.dart';
 import 'package:syswash/model/expCategory.dart';
 import 'package:syswash/model/expenseReport.dart';
 import 'package:syswash/model/orderReport.dart';
+import 'package:syswash/model/outstandingModel.dart';
 import 'package:syswash/model/salesReport.dart';
+import 'package:syswash/model/transactionModel.dart';
 import 'package:syswash/model/userType.dart';
 import 'package:syswash/repositories/sys_repository.dart';
 
@@ -21,6 +23,8 @@ class ReportBloc extends Bloc<ReportEvent, ReportState> {
   late List<SalesReport> salesReport;
   late List<CashLedger> cashLedger;
   late List<ExpenseReport> expenseReport;
+  late List<TransactionModel> transactionModel;
+  late List<OutstandingModel> outstandingModel;
   ReportBloc() : super(ReportInitial()) {
     on<FetchReportEvent>((event, emit) async {
       emit(ReportLoading());
@@ -74,6 +78,29 @@ class ReportBloc extends Bloc<ReportEvent, ReportState> {
       try {
         userType = await sysRepository.adminusertype(event.token, event.companyCode);
         emit(UsertypeLoaded(userType: userType));
+      } catch (e) {
+        print(e);
+        emit(ReportError());
+      }
+    });
+
+    on<FetchTransactionReportEvent>((event, emit) async {
+      emit(ReportLoading());
+      try {
+        transactionModel = await sysRepository.admintransactionreport(event.token, event.companyCode,event.startDate,event.endDate);
+        emit(TransactionReportLoaded(transactionModel: transactionModel));
+      } catch (e) {
+        print(e);
+        emit(ReportError());
+      }
+    });
+
+    on<FetchOutstandingReportEvent>((event, emit) async {
+      emit(ReportLoading());
+      try {
+        accountType = await sysRepository.adminaccounttype(event.token, event.companyCode);
+        outstandingModel = await sysRepository.adminoutstandingreport(event.token, event.companyCode,event.startDate,event.endDate);
+        emit(OutstandingReportLoaded(outstandingModel: outstandingModel,accountType: accountType));
       } catch (e) {
         print(e);
         emit(ReportError());

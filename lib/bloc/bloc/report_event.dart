@@ -37,3 +37,19 @@ class FetchExpenseReportEvent extends ReportEvent {
   final String endDate;
   FetchExpenseReportEvent({required this.token,required this.companyCode,required this.startDate,required this.endDate});
 }
+
+class FetchTransactionReportEvent extends ReportEvent {
+  final String token;
+  final String companyCode;
+  final String startDate;
+  final String endDate;
+  FetchTransactionReportEvent({required this.token,required this.companyCode,required this.startDate,required this.endDate});
+}
+
+class FetchOutstandingReportEvent extends ReportEvent {
+  final String token;
+  final String companyCode;
+  final String startDate;
+  final String endDate;
+  FetchOutstandingReportEvent({required this.token,required this.companyCode,required this.startDate,required this.endDate});
+}

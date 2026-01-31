@@ -7,7 +7,9 @@ import 'package:syswash/bloc/bloc/adminhome_bloc.dart';
 import 'package:syswash/bloc/bloc/report_bloc.dart';
 import 'package:syswash/screens/adminCashLegder.dart';
 import 'package:syswash/screens/adminExpense.dart';
+import 'package:syswash/screens/adminOutstanding.dart';
 import 'package:syswash/screens/adminSalesReport.dart';
+import 'package:syswash/screens/adminTransaction.dart';
 import 'package:syswash/screens/adminreportdetail.dart';
 
 class Adminreport extends StatefulWidget {
@@ -68,7 +70,7 @@ class _AdminreportState extends State<Adminreport> {
     "sales": "salesReport",
     "cash": "cashLedgerReport",
     "expense": "expenseReport",
-    "transaction": "transactionReport",
+    "transcation": "transactionReport",
     "debtors": "deptorsReport",
     "customer": "customerReport",
     "employee": "employeeReport",
@@ -242,6 +244,12 @@ class _AdminreportState extends State<Adminreport> {
                                     ),
                                   );
                                   break;
+                                case "transcation":
+                                  Navigator.push(context, MaterialPageRoute(builder: (context) => Admintransaction()));
+                                  break; 
+                                case "debtors":
+                                  Navigator.push(context, MaterialPageRoute(builder: (context) => Adminoutstanding()));
+                                  break;   
                               }
                             },
                             child: Container(

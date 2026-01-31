@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:syswash/bloc/bloc/adminhome_bloc.dart';
 import 'package:syswash/bloc/bloc/report_bloc.dart';
+import 'package:syswash/model/accounttype.dart';
 import 'package:syswash/model/orderReport.dart';
 
 class Adminreportdetail extends StatefulWidget {
@@ -16,16 +17,13 @@ class Adminreportdetail extends StatefulWidget {
 class _AdminreportdetailState extends State<Adminreportdetail> {
   final storage = const FlutterSecureStorage();
   late OrderReport orderReport;
+  late List<AccountType> accountType;
   double totalAmount = 0.0;
   double totalDiscount = 0.0;
   double totalPaid = 0.0;
   double totalBalance = 0.0;
   double totalCommission = 0.0;
-  double wml = 0.0;
-  double qserve = 0.0;
-  double aldobi = 0.0;
-  double walkin = 0.0;
-  double walkincash = 0.0;
+  Map<String, double> accountWiseTotals = {};
   String? username;
   @override
   void initState() {
@@ -54,7 +52,11 @@ class _AdminreportdetailState extends State<Adminreportdetail> {
         FetchcompanyEvent(token: token, companyCode: companyCode),
       );
       context.read<ReportBloc>().add(
-        FetchReportEvent(token: token, companyCode: companyCode, datenow: format(dateNow)),
+        FetchReportEvent(
+          token: token,
+          companyCode: companyCode,
+          datenow: format(dateNow),
+        ),
       );
     } else {
       debugPrint('Missing userId or companyCode in storage');
@@ -66,45 +68,34 @@ class _AdminreportdetailState extends State<Adminreportdetail> {
     return double.tryParse(value) ?? 0.0;
   }
 
-  void _calculateTotals(OrderReport report) {
+  void _calculateTotals(OrderReport report, List<AccountType> accounttype) {
     totalAmount = 0;
     totalDiscount = 0;
     totalPaid = 0;
     totalBalance = 0;
     totalCommission = 0;
 
-    wml = 0;
-    qserve = 0;
-    aldobi = 0;
-    walkin = 0;
-    walkincash = 0;
+    accountWiseTotals.clear();
 
-    final list = report.results ?? [];
-
-    for (final item in list) {
-      totalAmount += _toDouble(item.totalAmount);
+    /// Initialize all account types
+    for (final acc in accounttype) {
+      if (acc.acTypeName != null && acc.trash != true) {
+        accountWiseTotals[acc.acTypeName!] = 0.0;
+      }
+    }
+    for (final item in report.results ?? []) {
+      print(_toDouble(item.totalAmount));
+      totalAmount += _toDouble(item.subTotal);
       totalDiscount += _toDouble(item.discount);
       totalPaid += _toDouble(item.paidAmount);
       totalBalance += _toDouble(item.balance);
       totalCommission += (item.commission ?? 0).toDouble();
 
-      /// Account-wise totals (using PAID amount)
-      switch (item.accountType?.toUpperCase()) {
-        case 'WML':
-          wml += _toDouble(item.paidAmount);
-          break;
-        case 'QSERVE':
-          qserve += _toDouble(item.paidAmount);
-          break;
-        case 'ALDOBI':
-          aldobi += _toDouble(item.paidAmount);
-          break;
-        case 'CR.(WALKIN)':
-          walkin += _toDouble(item.paidAmount);
-          break;
-        case 'WALK IN CASH':
-          walkincash += _toDouble(item.paidAmount);
-          break;
+      /// Account-wise paid total
+      final accName = item.accountType;
+      if (accName != null && accountWiseTotals.containsKey(accName)) {
+        accountWiseTotals[accName] =
+            accountWiseTotals[accName]! + _toDouble(item.subTotal);
       }
     }
   }
@@ -113,6 +104,10 @@ class _AdminreportdetailState extends State<Adminreportdetail> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: GestureDetector(
+          onTap: () => Navigator.pop(context),
+          child: Icon(Icons.arrow_back_ios_new_outlined)),
+        backgroundColor: Colors.white,
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -168,7 +163,8 @@ class _AdminreportdetailState extends State<Adminreportdetail> {
               }
               if (state is ReportLoaded) {
                 orderReport = state.orderReport;
-                _calculateTotals(orderReport);
+                accountType = state.accountType;
+                _calculateTotals(orderReport, accountType);
                 return Column(
                   children: [
                     Container(
@@ -282,7 +278,7 @@ class _AdminreportdetailState extends State<Adminreportdetail> {
                           SizedBox(height: 10.h),
                           Container(
                             width: 362.w,
-                            height: 230.h,
+                            // height: 230.h,
                             decoration: ShapeDecoration(
                               color: Colors.white,
                               shape: RoundedRectangleBorder(
@@ -303,40 +299,17 @@ class _AdminreportdetailState extends State<Adminreportdetail> {
                                     color: const Color(0xFFE7E7E7),
                                     width: 1,
                                   ),
-                                  children: [
-                                    TableRow(
-                                      children: [
-                                        _tableText('WML'),
-                                        _tableValue(wml.toStringAsFixed(2)),
-                                      ],
-                                    ),
-                                    TableRow(
-                                      children: [
-                                        _tableText('QSERVE'),
-                                        _tableValue(qserve.toStringAsFixed(2)),
-                                      ],
-                                    ),
-                                    TableRow(
-                                      children: [
-                                        _tableText('ALDOBI'),
-                                        _tableValue(aldobi.toStringAsFixed(2)),
-                                      ],
-                                    ),
-                                    TableRow(
-                                      children: [
-                                        _tableText('CR.(WALKIN)'),
-                                        _tableValue(walkin.toStringAsFixed(2)),
-                                      ],
-                                    ),
-                                    TableRow(
-                                      children: [
-                                        _tableText('WALK IN CASH'),
-                                        _tableValue(
-                                          walkincash.toStringAsFixed(2),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
+                                  children:
+                                      accountWiseTotals.entries.map((entry) {
+                                        return TableRow(
+                                          children: [
+                                            _tableText(entry.key),
+                                            _tableValue(
+                                              entry.value.toStringAsFixed(2),
+                                            ),
+                                          ],
+                                        );
+                                      }).toList(),
                                 ),
                               ),
                             ),

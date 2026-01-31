@@ -81,7 +81,7 @@ class _AdminsalesreportState extends State<Adminsalesreport> {
   
 
   for (final item in report) {
-    totalAmount += _toDouble(item.totalAmount);
+    totalAmount += _toDouble(item.subTotal);
     totalDiscount += _toDouble(item.discount);
     totalPaid += _toDouble(item.paidAmount);
     totalBalance += _toDouble(item.balance);
@@ -111,6 +111,7 @@ class _AdminsalesreportState extends State<Adminsalesreport> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.white,
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
