@@ -37,4 +37,12 @@ class OutstandingReportLoaded extends ReportState {
   final List<AccountType> accountType;
   OutstandingReportLoaded({required this.outstandingModel,required this.accountType});
 }
+class EmployeeReportLoaded extends ReportState {
+  final EmployeeReport employeeReport;
+  EmployeeReportLoaded({required this.employeeReport});
+}
+class DriverReportLoaded extends ReportState {
+  final DriverReport driverReport;
+  DriverReportLoaded({required this.driverReport});
+}
 class ReportError extends ReportState {}

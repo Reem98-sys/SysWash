@@ -10,6 +10,8 @@ import 'package:syswash/screens/adminExpense.dart';
 import 'package:syswash/screens/adminOutstanding.dart';
 import 'package:syswash/screens/adminSalesReport.dart';
 import 'package:syswash/screens/adminTransaction.dart';
+import 'package:syswash/screens/admindriverreport.dart';
+import 'package:syswash/screens/adminemployeereport.dart';
 import 'package:syswash/screens/adminreportdetail.dart';
 
 class Adminreport extends StatefulWidget {
@@ -250,6 +252,12 @@ class _AdminreportState extends State<Adminreport> {
                                 case "debtors":
                                   Navigator.push(context, MaterialPageRoute(builder: (context) => Adminoutstanding()));
                                   break;   
+                                case "employee":
+                                  Navigator.push(context, MaterialPageRoute(builder: (context) => Adminemployeereport()));
+                                  break; 
+                                case "driver":
+                                  Navigator.push(context, MaterialPageRoute(builder: (context) => Admindriverreport()));
+                                  break;    
                               }
                             },
                             child: Container(

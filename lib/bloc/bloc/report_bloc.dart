@@ -2,6 +2,8 @@ import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
 import 'package:syswash/model/accounttype.dart';
 import 'package:syswash/model/cashLedger.dart';
+import 'package:syswash/model/driverReport.dart';
+import 'package:syswash/model/employeeReport.dart';
 import 'package:syswash/model/expCategory.dart';
 import 'package:syswash/model/expenseReport.dart';
 import 'package:syswash/model/orderReport.dart';
@@ -25,6 +27,8 @@ class ReportBloc extends Bloc<ReportEvent, ReportState> {
   late List<ExpenseReport> expenseReport;
   late List<TransactionModel> transactionModel;
   late List<OutstandingModel> outstandingModel;
+  late EmployeeReport employeeReport;
+  late DriverReport driverReport;
   ReportBloc() : super(ReportInitial()) {
     on<FetchReportEvent>((event, emit) async {
       emit(ReportLoading());
@@ -101,6 +105,28 @@ class ReportBloc extends Bloc<ReportEvent, ReportState> {
         accountType = await sysRepository.adminaccounttype(event.token, event.companyCode);
         outstandingModel = await sysRepository.adminoutstandingreport(event.token, event.companyCode,event.startDate,event.endDate);
         emit(OutstandingReportLoaded(outstandingModel: outstandingModel,accountType: accountType));
+      } catch (e) {
+        print(e);
+        emit(ReportError());
+      }
+    });
+
+    on<FetchEmployeeReportEvent>((event, emit) async {
+      emit(ReportLoading());
+      try {
+        employeeReport = await sysRepository.adminemployeereport(event.token, event.companyCode);
+        emit(EmployeeReportLoaded(employeeReport: employeeReport));
+      } catch (e) {
+        print(e);
+        emit(ReportError());
+      }
+    });
+
+    on<FetchDriverReportEvent>((event, emit) async {
+      emit(ReportLoading());
+      try {
+        driverReport = await sysRepository.admindriverreport(event.token, event.companyCode,event.startDate,event.endDate);
+        emit(DriverReportLoaded(driverReport: driverReport));
       } catch (e) {
         print(e);
         emit(ReportError());

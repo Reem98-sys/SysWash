@@ -53,3 +53,17 @@ class FetchOutstandingReportEvent extends ReportEvent {
   final String endDate;
   FetchOutstandingReportEvent({required this.token,required this.companyCode,required this.startDate,required this.endDate});
 }
+
+class FetchEmployeeReportEvent extends ReportEvent {
+  final String token;
+  final String companyCode;
+  FetchEmployeeReportEvent({required this.token,required this.companyCode});
+}
+
+class FetchDriverReportEvent extends ReportEvent {
+  final String token;
+  final String companyCode;
+  final String startDate;
+  final String endDate;
+  FetchDriverReportEvent({required this.token,required this.companyCode,required this.startDate,required this.endDate});
+}

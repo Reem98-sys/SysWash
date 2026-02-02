@@ -4,63 +4,27 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:syswash/bloc/bloc/adminhome_bloc.dart';
 import 'package:syswash/bloc/bloc/report_bloc.dart';
-import 'package:syswash/helper/date_range_popup.dart';
-import 'package:syswash/model/transactionModel.dart';
+import 'package:syswash/model/employeeReport.dart';
 
-class Admintransaction extends StatefulWidget {
-  const Admintransaction({super.key});
+class Adminemployeereport extends StatefulWidget {
+  const Adminemployeereport({super.key});
 
   @override
-  State<Admintransaction> createState() => _AdmintransactionState();
+  State<Adminemployeereport> createState() => _AdminemployeereportState();
 }
 
-class _AdmintransactionState extends State<Admintransaction> {
+class _AdminemployeereportState extends State<Adminemployeereport> {
   final storage = const FlutterSecureStorage();
-  late List<TransactionModel> transactionModel;
-  final TextEditingController startDateController = TextEditingController();
-  final TextEditingController endDateController = TextEditingController();
-  double totalAmount = 0.0;
-  double totalBalance = 0.0;
-  double totalExpense = 0.0;
+  late EmployeeReport employeeReport;
   String? username;
+  var totalOrders = 0.0;
+  var totalQuantity = 0.0;
+  var pendingOrders = 0.0;
+  var pendingQuantity = 0.0;
   @override
   void initState() {
     super.initState();
     _loadAndFetchData();
-  }
-
-  void _openDatePopup() {
-    showDateRangePopup(
-      context: context,
-      startDateController: startDateController,
-      endDateController: endDateController,
-      onSave: () async {
-        final companyCode = await storage.read(key: 'company_Code');
-        final token = await storage.read(key: 'access_Token');
-  
-        if (companyCode != null && token != null) {
-          context.read<AdminhomeBloc>().add(
-            FetchcompanyEvent(
-              token: token,
-              companyCode: companyCode,
-            ),
-          );
-  
-          context.read<ReportBloc>().add(
-            FetchTransactionReportEvent(
-              token: token,
-              companyCode: companyCode,
-              startDate: _apiDateFromUI(startDateController.text),
-              endDate: _apiDateFromUI(endDateController.text),
-            ),
-          );
-        }
-      },
-    );
-  }
-  String _apiDateFromUI(String uiDate) {
-    final parts = uiDate.split('-'); // dd-MM-yyyy
-    return "${parts[2]}-${parts[1]}-${parts[0]}";
   }
 
   Future<void> _loadAndFetchData() async {
@@ -84,11 +48,9 @@ class _AdmintransactionState extends State<Admintransaction> {
         FetchcompanyEvent(token: token, companyCode: companyCode),
       );
       context.read<ReportBloc>().add(
-        FetchTransactionReportEvent(
+        FetchEmployeeReportEvent(
           token: token,
           companyCode: companyCode,
-          startDate: format(dateNow),
-          endDate: format(dateNow)
         ),
       );
     } else {
@@ -96,20 +58,17 @@ class _AdmintransactionState extends State<Admintransaction> {
     }
   }
 
-  double _toDouble(String? value) {
-    if (value == null || value.isEmpty) return 0.0;
-    return double.tryParse(value) ?? 0.0;
-  }
+  void _calculateTotals(EmployeeReport report) {
+    totalOrders = 0;
+    totalQuantity = 0;
+    pendingOrders = 0;
+    pendingQuantity = 0;
 
-  void _calculateTotals(List<TransactionModel> report) {
-    totalAmount = 0;
-    totalBalance = 0;
-    totalExpense = 0;
-
-    for (final item in report) {
-      totalAmount += item.credit!.toDouble();
-      totalBalance += 
-      totalExpense += item.debit!.toDouble();
+    for (final item in report.employeeReport ?? []) {
+      totalOrders += item.totalOrder;
+      totalQuantity += item.totalQuantity;
+      pendingOrders += item.pendingOrder;
+      pendingQuantity += item.pendingQuantity;
 
     }
   }
@@ -175,31 +134,25 @@ class _AdmintransactionState extends State<Admintransaction> {
               if (state is ReportError) {
                 return Center(child: Text('Failed to load data'));
               }
-              if (state is TransactionReportLoaded) {
-                transactionModel = state.transactionModel;
-                _calculateTotals(transactionModel);
+              if (state is EmployeeReportLoaded) {
+                employeeReport = state.employeeReport;
+                _calculateTotals(employeeReport);
                 return Column(
                   children: [
                     Container(
                       width: 362.w,
                       child: Column(
                         children: [
-                          SizedBox(height: 30.h),
                           Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                'Transaction Report',
+                                'Employee Report',
                                 style: TextStyle(
                                   color: const Color(0xFF150A33),
                                   fontSize: 16.sp,
                                   fontFamily: 'DM Sans',
                                   fontWeight: FontWeight.w700,
                                 ),
-                              ),
-                              IconButton(
-                                icon: const Icon(Icons.filter_alt_outlined),
-                                onPressed: _openDatePopup,
                               ),
                             ],
                           ),
@@ -230,29 +183,36 @@ class _AdmintransactionState extends State<Admintransaction> {
                                   children: [
                                     TableRow(
                                       children: [
-                                        _tableText('Total Amount Received'),
+                                        _tableText('Total Orders'),
                                         _tableValue(
-                                          totalAmount.toStringAsFixed(2),
+                                          totalOrders.toStringAsFixed(2),
                                         ),
                                       ],
                                     ),
                                     TableRow(
                                       children: [
-                                        _tableText('Total Expense'),
+                                        _tableText('Total Quantity'),
                                         _tableValue(
-                                          totalExpense.toStringAsFixed(2),
+                                          totalQuantity.toStringAsFixed(2),
                                         ),
                                       ],
                                     ),
                                     TableRow(
                                       children: [
-                                        _tableText('Total Balance'),
+                                        _tableText('Pending Orders'),
                                         _tableValue(
-                                          (totalAmount-totalExpense).toStringAsFixed(2)
+                                          pendingOrders.toStringAsFixed(2),
                                         ),
                                       ],
                                     ),
-                                    
+                                    TableRow(
+                                      children: [
+                                        _tableText('Pending Quantity'),
+                                        _tableValue(
+                                          pendingQuantity.toStringAsFixed(2),
+                                        ),
+                                      ],
+                                    ),
                                   ],
                                 ),
                               ),
@@ -261,7 +221,9 @@ class _AdmintransactionState extends State<Admintransaction> {
                         ],
                       ),
                     ),
+                    SizedBox(height: 21.h),
                     
+                          
                   ],
                 );
               } else {

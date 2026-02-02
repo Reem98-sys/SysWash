@@ -11,6 +11,8 @@ import 'package:syswash/model/customerListModel.dart';
 import 'package:syswash/model/customer_list_response.dart';
 import 'package:syswash/model/deliveryListModel.dart';
 import 'package:syswash/model/delivery_list_response.dart';
+import 'package:syswash/model/driverReport.dart';
+import 'package:syswash/model/employeeReport.dart';
 import 'package:syswash/model/expCategory.dart';
 import 'package:syswash/model/expenseReport.dart';
 import 'package:syswash/model/orderReport.dart';
@@ -938,5 +940,38 @@ class SysRepository {
     );
     final List data = jsonDecode(response.body);
     return data.map((e) => OutstandingModel.fromJson(e)).toList();
+  }
+
+  Future<EmployeeReport> adminemployeereport(
+    String token,
+    String companyCode
+  ) async {
+    String url =
+        "https://be.syswash.net/api/syswash/employeeReport?EmployeeName=undefined&EmployeeAddress=undefined&code=$companyCode";
+    body = {};
+    Response response = await apiClient.invokeAPI(
+      url,
+      "GET",
+      jsonEncode(body),
+      token: token,
+    );
+    return EmployeeReport.fromJson(jsonDecode(response.body));
+  }
+  Future<DriverReport> admindriverreport(
+    String token,
+    String companyCode,
+    String startDate,
+    String endDate
+  ) async {
+    String url =
+        "https://be.syswash.net/api/syswash/driverReport?dateStart=$startDate&dateEnd=$endDate&DriverName=undefined&address=undefined&code=$companyCode";
+    body = {};
+    Response response = await apiClient.invokeAPI(
+      url,
+      "GET",
+      jsonEncode(body),
+      token: token,
+    );
+    return DriverReport.fromJson(jsonDecode(response.body));
   }
 }
