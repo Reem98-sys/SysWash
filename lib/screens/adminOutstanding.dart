@@ -7,6 +7,7 @@ import 'package:syswash/bloc/bloc/report_bloc.dart';
 import 'package:syswash/helper/date_range_popup.dart';
 import 'package:syswash/model/accounttype.dart';
 import 'package:syswash/model/outstandingModel.dart';
+import 'package:syswash/screens/bottomnavAdmin.dart';
 
 class Adminoutstanding extends StatefulWidget {
   const Adminoutstanding({super.key});
@@ -121,7 +122,8 @@ class _AdminoutstandingState extends State<Adminoutstanding> {
       appBar: AppBar(
         leading: GestureDetector(
           onTap: () => Navigator.pop(context),
-          child: Icon(Icons.arrow_back_ios_new_outlined)),
+          child: Icon(Icons.arrow_back_ios_new_outlined),
+        ),
         backgroundColor: Colors.white,
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

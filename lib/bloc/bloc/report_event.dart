@@ -3,11 +3,7 @@ part of 'report_bloc.dart';
 @immutable
 sealed class ReportEvent {}
 
-class FetchUserTypeEvent extends ReportEvent {
-  final String token;
-  final String companyCode;
-  FetchUserTypeEvent({required this.token,required this.companyCode});
-}
+
 
 class FetchReportEvent extends ReportEvent {
   final String token;
@@ -66,4 +62,12 @@ class FetchDriverReportEvent extends ReportEvent {
   final String startDate;
   final String endDate;
   FetchDriverReportEvent({required this.token,required this.companyCode,required this.startDate,required this.endDate});
+}
+
+class FetchItemWiseReportEvent extends ReportEvent {
+  final String token;
+  final String companyCode;
+  final String startDate;
+  final String endDate;
+  FetchItemWiseReportEvent({required this.token,required this.companyCode,required this.startDate,required this.endDate});
 }

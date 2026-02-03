@@ -6,6 +6,7 @@ import 'package:syswash/bloc/bloc/adminhome_bloc.dart';
 import 'package:syswash/bloc/bloc/report_bloc.dart';
 import 'package:syswash/model/accounttype.dart';
 import 'package:syswash/model/orderReport.dart';
+import 'package:syswash/screens/bottomnavAdmin.dart';
 
 class Adminreportdetail extends StatefulWidget {
   const Adminreportdetail({super.key});
@@ -84,7 +85,6 @@ class _AdminreportdetailState extends State<Adminreportdetail> {
       }
     }
     for (final item in report.results ?? []) {
-      print(_toDouble(item.totalAmount));
       totalAmount += _toDouble(item.subTotal);
       totalDiscount += _toDouble(item.discount);
       totalPaid += _toDouble(item.paidAmount);
@@ -106,7 +106,8 @@ class _AdminreportdetailState extends State<Adminreportdetail> {
       appBar: AppBar(
         leading: GestureDetector(
           onTap: () => Navigator.pop(context),
-          child: Icon(Icons.arrow_back_ios_new_outlined)),
+          child: Icon(Icons.arrow_back_ios_new_outlined),
+        ),
         backgroundColor: Colors.white,
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -211,7 +212,7 @@ class _AdminreportdetailState extends State<Adminreportdetail> {
                                   children: [
                                     TableRow(
                                       children: [
-                                        _tableText('Total Amount'),
+                                        _tableText('Total Bill Amount'),
                                         _tableValue(
                                           totalAmount.toStringAsFixed(2),
                                         ),
@@ -227,7 +228,15 @@ class _AdminreportdetailState extends State<Adminreportdetail> {
                                     ),
                                     TableRow(
                                       children: [
-                                        _tableText('Total Paid'),
+                                        _tableText('Total Commission'),
+                                        _tableValue(
+                                          totalCommission.toStringAsFixed(2),
+                                        ),
+                                      ],
+                                    ),
+                                    TableRow(
+                                      children: [
+                                        _tableText('Total Paid Amount'),
                                         _tableValue(
                                           totalPaid.toStringAsFixed(2),
                                         ),
@@ -238,14 +247,6 @@ class _AdminreportdetailState extends State<Adminreportdetail> {
                                         _tableText('Total Balance'),
                                         _tableValue(
                                           totalBalance.toStringAsFixed(2),
-                                        ),
-                                      ],
-                                    ),
-                                    TableRow(
-                                      children: [
-                                        _tableText('Total Commission'),
-                                        _tableValue(
-                                          totalCommission.toStringAsFixed(2),
                                         ),
                                       ],
                                     ),
@@ -265,7 +266,7 @@ class _AdminreportdetailState extends State<Adminreportdetail> {
                           Row(
                             children: [
                               Text(
-                                'Account Wise',
+                                'Account Wise Sales',
                                 style: TextStyle(
                                   color: const Color(0xFF150A33),
                                   fontSize: 16.sp,
@@ -300,16 +301,29 @@ class _AdminreportdetailState extends State<Adminreportdetail> {
                                     width: 1,
                                   ),
                                   children:
-                                      accountWiseTotals.entries.map((entry) {
-                                        return TableRow(
-                                          children: [
-                                            _tableText(entry.key),
-                                            _tableValue(
-                                              entry.value.toStringAsFixed(2),
+                                      accountWiseTotals.isEmpty
+                                          ? [
+                                            TableRow(
+                                              children: [
+                                                _tableText('No Data'),
+                                                _tableValue('0.00'),
+                                              ],
                                             ),
-                                          ],
-                                        );
-                                      }).toList(),
+                                          ]
+                                          : accountWiseTotals.entries.map((
+                                            entry,
+                                          ) {
+                                            return TableRow(
+                                              children: [
+                                                _tableText(entry.key),
+                                                _tableValue(
+                                                  entry.value.toStringAsFixed(
+                                                    2,
+                                                  ),
+                                                ),
+                                              ],
+                                            );
+                                          }).toList(),
                                 ),
                               ),
                             ),

@@ -5,6 +5,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:syswash/bloc/bloc/adminhome_bloc.dart';
 import 'package:syswash/bloc/bloc/report_bloc.dart';
 import 'package:syswash/model/employeeReport.dart';
+import 'package:syswash/screens/bottomnavAdmin.dart';
 
 class Adminemployeereport extends StatefulWidget {
   const Adminemployeereport({super.key});
@@ -79,7 +80,8 @@ class _AdminemployeereportState extends State<Adminemployeereport> {
       appBar: AppBar(
         leading: GestureDetector(
           onTap: () => Navigator.pop(context),
-          child: Icon(Icons.arrow_back_ios_new_outlined)),
+          child: Icon(Icons.arrow_back_ios_new_outlined),
+        ),
         backgroundColor: Colors.white,
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

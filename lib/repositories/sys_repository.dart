@@ -15,6 +15,7 @@ import 'package:syswash/model/driverReport.dart';
 import 'package:syswash/model/employeeReport.dart';
 import 'package:syswash/model/expCategory.dart';
 import 'package:syswash/model/expenseReport.dart';
+import 'package:syswash/model/itemwise.dart';
 import 'package:syswash/model/orderReport.dart';
 import 'package:syswash/model/outstandingModel.dart';
 import 'package:syswash/model/pickupListModel.dart';
@@ -973,5 +974,24 @@ class SysRepository {
       token: token,
     );
     return DriverReport.fromJson(jsonDecode(response.body));
+  }
+
+  Future<List<ItemWise>> adminitemwisereport(
+    String token,
+    String companyCode,
+    String startDate,
+    String endDate
+  ) async {
+    String url =
+        "https://be.syswash.net/api/syswash/itemWiseReport?startDate=$startDate&endDate=$endDate&itemName=null&code=$companyCode";
+    body = {};
+    Response response = await apiClient.invokeAPI(
+      url,
+      "GET",
+      jsonEncode(body),
+      token: token,
+    );
+    final List data = jsonDecode(response.body);
+    return data.map((e) => ItemWise.fromJson(e)).toList();
   }
 }

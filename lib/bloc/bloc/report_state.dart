@@ -5,10 +5,6 @@ sealed class ReportState {}
 
 final class ReportInitial extends ReportState {}
 class ReportLoading extends ReportState {}
-class UsertypeLoaded extends ReportState {
-  final UserType userType;
-  UsertypeLoaded({required this.userType});
-}
 class ReportLoaded extends ReportState {
   final OrderReport orderReport;
   final List<AccountType> accountType;
@@ -44,5 +40,9 @@ class EmployeeReportLoaded extends ReportState {
 class DriverReportLoaded extends ReportState {
   final DriverReport driverReport;
   DriverReportLoaded({required this.driverReport});
+}
+class ItemWiseLoaded extends ReportState {
+  final List<ItemWise> itemWise;
+  ItemWiseLoaded({required this.itemWise});
 }
 class ReportError extends ReportState {}

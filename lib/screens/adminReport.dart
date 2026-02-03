@@ -4,7 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:syswash/bloc/bloc/adminhome_bloc.dart';
-import 'package:syswash/bloc/bloc/report_bloc.dart';
+import 'package:syswash/bloc/bloc/reportlist_bloc.dart';
 import 'package:syswash/screens/adminCashLegder.dart';
 import 'package:syswash/screens/adminExpense.dart';
 import 'package:syswash/screens/adminOutstanding.dart';
@@ -12,6 +12,7 @@ import 'package:syswash/screens/adminSalesReport.dart';
 import 'package:syswash/screens/adminTransaction.dart';
 import 'package:syswash/screens/admindriverreport.dart';
 import 'package:syswash/screens/adminemployeereport.dart';
+import 'package:syswash/screens/adminitemwise.dart';
 import 'package:syswash/screens/adminreportdetail.dart';
 
 class Adminreport extends StatefulWidget {
@@ -91,7 +92,6 @@ class _AdminreportState extends State<Adminreport> {
     super.initState();
     _loadAndFetchData();
   }
-
   Future<void> _loadAndFetchData() async {
     final userId = await storage.read(key: 'login_id');
     final companyCode = await storage.read(key: 'company_Code');
@@ -112,7 +112,7 @@ class _AdminreportState extends State<Adminreport> {
       context.read<AdminhomeBloc>().add(
         FetchcompanyEvent(token: token, companyCode: companyCode),
       );
-      context.read<ReportBloc>().add(
+      context.read<ReportlistBloc>().add(
         FetchUserTypeEvent(token: token, companyCode: companyCode),
       );
     } else {
@@ -188,8 +188,14 @@ class _AdminreportState extends State<Adminreport> {
               ),
               SizedBox(height: 22.h),
               Expanded(
-                child: BlocBuilder<ReportBloc, ReportState>(
+                child: BlocBuilder<ReportlistBloc, ReportlistState>(
                   builder: (context, state) {
+                    if (state is ReportListLoading) {
+                      return Center(child: CircularProgressIndicator());
+                    }
+                    if (state is ReportListError) {
+                      return Center(child: Text('Failed to load data'));
+                    }
                     if (state is UsertypeLoaded) {
                       final userType = state.userType;
 
@@ -209,16 +215,17 @@ class _AdminreportState extends State<Adminreport> {
                           mainAxisSpacing: 12,
                           childAspectRatio: 168 / 130,
                         ),
-                        itemCount: data.length,
+                        itemCount: filteredMenu.length,
                         itemBuilder: (context, index) {
+                          final item = filteredMenu[index];
                           return GestureDetector(
                             onTap: () {
-                              switch (data[index]['type']) {
+                              switch (item['type']) {
                                 case "order":
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) => Adminreportdetail(),
+                                      builder: (_) => Adminreportdetail(),
                                     ),
                                   );
                                   break;
@@ -226,7 +233,7 @@ class _AdminreportState extends State<Adminreport> {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) => Adminsalesreport(),
+                                      builder: (_) => Adminsalesreport(),
                                     ),
                                   );
                                   break;
@@ -234,7 +241,7 @@ class _AdminreportState extends State<Adminreport> {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) => Admincashlegder(),
+                                      builder: (_) => Admincashlegder(),
                                     ),
                                   );
                                   break;
@@ -242,22 +249,50 @@ class _AdminreportState extends State<Adminreport> {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) => Adminexpense(),
+                                      builder: (_) => Adminexpense(),
                                     ),
                                   );
                                   break;
                                 case "transcation":
-                                  Navigator.push(context, MaterialPageRoute(builder: (context) => Admintransaction()));
-                                  break; 
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => Admintransaction(),
+                                    ),
+                                  );
+                                  break;
                                 case "debtors":
-                                  Navigator.push(context, MaterialPageRoute(builder: (context) => Adminoutstanding()));
-                                  break;   
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => Adminoutstanding(),
+                                    ),
+                                  );
+                                  break;
                                 case "employee":
-                                  Navigator.push(context, MaterialPageRoute(builder: (context) => Adminemployeereport()));
-                                  break; 
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => Adminemployeereport(),
+                                    ),
+                                  );
+                                  break;
                                 case "driver":
-                                  Navigator.push(context, MaterialPageRoute(builder: (context) => Admindriverreport()));
-                                  break;    
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => Admindriverreport(),
+                                    ),
+                                  );
+                                  break;
+                                case "itemwise":
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => Adminitemwise(),
+                                    ),
+                                  );
+                                  break;
                               }
                             },
                             child: Container(
@@ -290,7 +325,7 @@ class _AdminreportState extends State<Adminreport> {
                                     ),
                                     child: Center(
                                       child: SvgPicture.asset(
-                                        data[index]['icon']!,
+                                        item['icon']!,
                                         width: 18.w,
                                         height: 18.h,
                                       ),
@@ -298,7 +333,7 @@ class _AdminreportState extends State<Adminreport> {
                                   ),
                                   SizedBox(height: 16.h),
                                   Text(
-                                    data[index]['title']!,
+                                    item['title']!,
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
                                       color: const Color(0xFF150B3D),

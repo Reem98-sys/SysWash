@@ -6,6 +6,7 @@ import 'package:syswash/bloc/bloc/adminhome_bloc.dart';
 import 'package:syswash/bloc/bloc/report_bloc.dart';
 import 'package:syswash/helper/date_range_popup.dart';
 import 'package:syswash/model/transactionModel.dart';
+import 'package:syswash/screens/bottomnavAdmin.dart';
 
 class Admintransaction extends StatefulWidget {
   const Admintransaction({super.key});
@@ -120,7 +121,8 @@ class _AdmintransactionState extends State<Admintransaction> {
       appBar: AppBar(
         leading: GestureDetector(
           onTap: () => Navigator.pop(context),
-          child: Icon(Icons.arrow_back_ios_new_outlined)),
+          child: Icon(Icons.arrow_back_ios_new_outlined),
+        ),
         backgroundColor: Colors.white,
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -246,7 +248,7 @@ class _AdmintransactionState extends State<Admintransaction> {
                                     ),
                                     TableRow(
                                       children: [
-                                        _tableText('Total Balance'),
+                                        _tableText('Balance'),
                                         _tableValue(
                                           (totalAmount-totalExpense).toStringAsFixed(2)
                                         ),

@@ -6,6 +6,7 @@ import 'package:syswash/bloc/bloc/adminprofile_bloc.dart';
 import 'package:syswash/helper/date_helper.dart';
 import 'package:syswash/screens/adminEditProfile.dart';
 import 'package:syswash/screens/admin_pass_dialog.dart';
+import 'package:syswash/screens/bottomnavAdmin.dart';
 import 'package:syswash/screens/login.dart';
 
 class Adminprofile extends StatefulWidget {
@@ -76,6 +77,10 @@ class _AdminprofileState extends State<Adminprofile> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: GestureDetector(
+          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => Bottomnavadmin(currentIndex: 1,))),
+          child: Icon(Icons.arrow_back_ios_new_outlined),
+        ),
         title: Center(
           child: Text(
             'Profile',

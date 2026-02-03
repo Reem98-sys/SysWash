@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:syswash/bloc/bloc/adminhome_bloc.dart';
 import 'package:syswash/bloc/bloc/report_bloc.dart';
+import 'package:syswash/screens/bottomnavAdmin.dart';
 
 class Admincustomerreport extends StatefulWidget {
   const Admincustomerreport({super.key});
@@ -19,7 +20,8 @@ class _AdmincustomerreportState extends State<Admincustomerreport> {
       appBar: AppBar(
         leading: GestureDetector(
           onTap: () => Navigator.pop(context),
-          child: Icon(Icons.arrow_back_ios_new_outlined)),
+          child: Icon(Icons.arrow_back_ios_new_outlined),
+        ),
         backgroundColor: Colors.white,
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

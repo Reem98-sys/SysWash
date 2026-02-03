@@ -4,7 +4,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:syswash/bloc/bloc/adminhome_bloc.dart';
 import 'package:syswash/bloc/bloc/report_bloc.dart';
+import 'package:syswash/model/accounttype.dart';
 import 'package:syswash/model/salesReport.dart';
+import 'package:syswash/screens/bottomnavAdmin.dart';
 
 class Adminsalesreport extends StatefulWidget {
   const Adminsalesreport({super.key});
@@ -21,11 +23,8 @@ class _AdminsalesreportState extends State<Adminsalesreport> {
   double totalPaid = 0.0;
   double totalBalance = 0.0;
   double totalCommission = 0.0;
-  double wml = 0.0;
-  double qserve = 0.0;
-  double aldobi = 0.0;
-  double walkin = 0.0;
-  double walkincash = 0.0;
+  Map<String, double> accountWiseTotals = {};
+  late List<AccountType> accountType;
   String? username;
   @override
   void initState() {
@@ -65,20 +64,20 @@ class _AdminsalesreportState extends State<Adminsalesreport> {
   return double.tryParse(value) ?? 0.0;
 }
 
-  void _calculateTotals(List<SalesReport> report) {
+  void _calculateTotals(List<SalesReport> report, List<AccountType> accounttype) {
   totalAmount = 0;
   totalDiscount = 0;
   totalPaid = 0;
   totalBalance = 0;
   totalCommission = 0;
 
-  wml = 0;
-  qserve = 0;
-  aldobi = 0;
-  walkin = 0;
-  walkincash = 0;
+  accountWiseTotals.clear();
 
-  
+  for (final acc in accounttype) {
+      if (acc.acTypeName != null && acc.trash != true) {
+        accountWiseTotals[acc.acTypeName!] = 0.0;
+      }
+    }
 
   for (final item in report) {
     totalAmount += _toDouble(item.subTotal);
@@ -88,29 +87,21 @@ class _AdminsalesreportState extends State<Adminsalesreport> {
     totalCommission += (item.commission ?? 0).toDouble();
 
     /// Account-wise totals (using PAID amount)
-    switch (item.accountType?.toUpperCase()) {
-      case 'WML':
-        wml += _toDouble(item.paidAmount);
-        break;
-      case 'QSERVE':
-        qserve += _toDouble(item.paidAmount);
-        break;
-      case 'ALDOBI':
-        aldobi += _toDouble(item.paidAmount);
-        break;
-      case 'CR.(WALKIN)':
-        walkin += _toDouble(item.paidAmount);
-        break;
-      case 'WALK IN CASH':
-        walkincash += _toDouble(item.paidAmount);
-        break;
-    }
+    final accName = item.accountType;
+      if (accName != null && accountWiseTotals.containsKey(accName)) {
+        accountWiseTotals[accName] =
+            accountWiseTotals[accName]! + _toDouble(item.subTotal);
+      }
   }
 }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: GestureDetector(
+          onTap: () => Navigator.pop(context),
+          child: Icon(Icons.arrow_back_ios_new_outlined),
+        ),
         backgroundColor: Colors.white,
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -167,7 +158,8 @@ class _AdminsalesreportState extends State<Adminsalesreport> {
               }
               if (state is SalesReportLoaded) {
                 salesReport = state.salesReport;
-                _calculateTotals(salesReport);
+                accountType = state.accountType;
+                _calculateTotals(salesReport,accountType);
                 return Column(
                   children: [
                     Container(
@@ -214,7 +206,7 @@ class _AdminsalesreportState extends State<Adminsalesreport> {
                                   children: [
                                     TableRow(
                                       children: [
-                                        _tableText('Total Amount'),
+                                        _tableText('Total Bill Amount'),
                                         _tableValue(
                                           totalAmount.toStringAsFixed(2),
                                         ),
@@ -225,6 +217,14 @@ class _AdminsalesreportState extends State<Adminsalesreport> {
                                         _tableText('Total Discount'),
                                         _tableValue(
                                           totalDiscount.toStringAsFixed(2),
+                                        ),
+                                      ],
+                                    ),
+                                    TableRow(
+                                      children: [
+                                        _tableText('Total Commission'),
+                                        _tableValue(
+                                          totalCommission.toStringAsFixed(2),
                                         ),
                                       ],
                                     ),
@@ -244,14 +244,7 @@ class _AdminsalesreportState extends State<Adminsalesreport> {
                                         ),
                                       ],
                                     ),
-                                    TableRow(
-                                      children: [
-                                        _tableText('Total Commission'),
-                                        _tableValue(
-                                          totalCommission.toStringAsFixed(2),
-                                        ),
-                                      ],
-                                    ),
+                                    
                                   ],
                                 ),
                               ),
@@ -268,7 +261,7 @@ class _AdminsalesreportState extends State<Adminsalesreport> {
                           Row(
                             children: [
                               Text(
-                                'Account Wise',
+                                'Account Wise Sales',
                                 style: TextStyle(
                                   color: const Color(0xFF150A33),
                                   fontSize: 16.sp,
@@ -302,40 +295,31 @@ class _AdminsalesreportState extends State<Adminsalesreport> {
                                     color: const Color(0xFFE7E7E7),
                                     width: 1,
                                   ),
-                                  children: [
-                                    TableRow(
-                                      children: [
-                                        _tableText('WML'),
-                                        _tableValue(wml.toStringAsFixed(2)),
-                                      ],
-                                    ),
-                                    TableRow(
-                                      children: [
-                                        _tableText('QSERVE'),
-                                        _tableValue(qserve.toStringAsFixed(2)),
-                                      ],
-                                    ),
-                                    TableRow(
-                                      children: [
-                                        _tableText('ALDOBI'),
-                                        _tableValue(aldobi.toStringAsFixed(2)),
-                                      ],
-                                    ),
-                                    TableRow(
-                                      children: [
-                                        _tableText('CR.(WALKIN)'),
-                                        _tableValue(walkin.toStringAsFixed(2)),
-                                      ],
-                                    ),
-                                    TableRow(
-                                      children: [
-                                        _tableText('WALK IN CASH'),
-                                        _tableValue(
-                                          walkincash.toStringAsFixed(2),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
+                                  children: 
+                                    accountWiseTotals.isEmpty
+                                          ? [
+                                            TableRow(
+                                              children: [
+                                                _tableText('No Data'),
+                                                _tableValue('0.00'),
+                                              ],
+                                            ),
+                                          ]
+                                          : accountWiseTotals.entries.map((
+                                            entry,
+                                          ) {
+                                            return TableRow(
+                                              children: [
+                                                _tableText(entry.key),
+                                                _tableValue(
+                                                  entry.value.toStringAsFixed(
+                                                    2,
+                                                  ),
+                                                ),
+                                              ],
+                                            );
+                                          }).toList(),
+                                  
                                 ),
                               ),
                             ),

@@ -5,6 +5,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:syswash/bloc/bloc/adminhome_bloc.dart';
 import 'package:syswash/bloc/bloc/report_bloc.dart';
 import 'package:syswash/model/cashLedger.dart';
+import 'package:syswash/screens/bottomnavAdmin.dart';
 
 class Admincashlegder extends StatefulWidget {
   const Admincashlegder({super.key});
@@ -58,7 +59,11 @@ class _AdmincashlegderState extends State<Admincashlegder> {
         FetchcompanyEvent(token: token, companyCode: companyCode),
       );
       context.read<ReportBloc>().add(
-        FetchCashLedgerEvent(token: token, companyCode: companyCode, datenow:  format(dateNow)),
+        FetchCashLedgerEvent(
+          token: token,
+          companyCode: companyCode,
+          datenow: format(dateNow),
+        ),
       );
     } else {
       debugPrint('Missing userId or companyCode in storage');
@@ -69,6 +74,10 @@ class _AdmincashlegderState extends State<Admincashlegder> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: GestureDetector(
+          onTap: () => Navigator.pop(context),
+          child: Icon(Icons.arrow_back_ios_new_outlined),
+        ),
         backgroundColor: Colors.white,
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -125,94 +134,152 @@ class _AdmincashlegderState extends State<Admincashlegder> {
               }
               if (state is CashLedgerReportLoaded) {
                 cashLedger = state.cashLedger;
-                return Container(
-                  width: 362.w,
-                  child: Column(
-                    children: [
-                      Row(
+                return Column(
+                  children: [
+                    Container(
+                      width: 362.w,
+                      child: Column(
                         children: [
-                          Text(
-                            'Cash Ledger Report',
-                            style: TextStyle(
-                              color: const Color(0xFF150A33),
-                              fontSize: 16.sp,
-                              fontFamily: 'DM Sans',
-                              fontWeight: FontWeight.w700,
+                          Row(
+                            children: [
+                              Text(
+                                'Cash Ledger Report',
+                                style: TextStyle(
+                                  color: const Color(0xFF150A33),
+                                  fontSize: 16.sp,
+                                  fontFamily: 'DM Sans',
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 10.h),
+                          Container(
+                            width: 362.w,
+                            // height: 230.h,
+                            decoration: ShapeDecoration(
+                              color: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                side: BorderSide(
+                                  width: 1,
+                                  color: const Color(0xFFF0F0F0),
+                                ),
+                                borderRadius: BorderRadius.circular(15),
+                              ),
+                            ),
+                            child: Center(
+                              child: Padding(
+                                padding: const EdgeInsets.all(20),
+                                child: Table(
+                                  border: TableBorder.all(
+                                    color: const Color(0xFFE7E7E7),
+                                    width: 1,
+                                  ),
+                                  children: [
+                                    TableRow(
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsets.fromLTRB(
+                                            15,
+                                            10,
+                                            15,
+                                            10,
+                                          ),
+                                          child: Text(
+                                            'Total Amount',
+                                            style: TextStyle(
+                                              color: const Color(0xFF150A33),
+                                              fontSize: 14.sp,
+                                              fontFamily: 'DM Sans',
+                                              fontWeight: FontWeight.w700,
+                                            ),
+                                          ),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.fromLTRB(
+                                            15,
+                                            10,
+                                            15,
+                                            10,
+                                          ),
+                                          child: Align(
+                                            alignment: Alignment.centerRight,
+                                            child: Text(
+                                              totalAmount.toString(),
+                                              style: TextStyle(
+                                                color: const Color(0xFF150A33),
+                                                fontSize: 14.sp,
+                                                fontFamily: 'DM Sans',
+                                                fontWeight: FontWeight.w700,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
                             ),
                           ),
                         ],
                       ),
-                      SizedBox(height: 10.h),
-                      Container(
-                        width: 362.w,
-                        // height: 230.h,
-                        decoration: ShapeDecoration(
-                          color: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            side: BorderSide(
-                              width: 1,
-                              color: const Color(0xFFF0F0F0),
-                            ),
-                            borderRadius: BorderRadius.circular(15),
-                          ),
+                    ),
+                    SizedBox(height: 20.h),
+
+                    Container(
+                      width: 362.w,
+                      decoration: ShapeDecoration(
+                        color: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          side: BorderSide(color: Color(0xFFF0F0F0)),
+                          borderRadius: BorderRadius.circular(15),
                         ),
-                        child: Center(
-                          child: Padding(
-                            padding: const EdgeInsets.all(20),
-                            child: Table(
-                              border: TableBorder.all(
-                                color: const Color(0xFFE7E7E7),
-                                width: 1,
-                              ),
-                              children: [
-                                TableRow(
-                                  children: [
-                                    Padding(
-                                      padding: const EdgeInsets.fromLTRB(
-                                        15,
-                                        10,
-                                        15,
-                                        10,
-                                      ),
-                                      child: Text(
-                                        'Total Amount',
-                                        style: TextStyle(
-                                          color: const Color(0xFF150A33),
-                                          fontSize: 14.sp,
-                                          fontFamily: 'DM Sans',
-                                          fontWeight: FontWeight.w700,
-                                        ),
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.fromLTRB(
-                                        15,
-                                        10,
-                                        15,
-                                        10,
-                                      ),
-                                      child: Align(
-                                        alignment: Alignment.centerRight,
-                                        child: Text(
-                                          totalAmount.toString(),
-                                          style: TextStyle(
-                                            color: const Color(0xFF150A33),
-                                            fontSize: 14.sp,
-                                            fontFamily: 'DM Sans',
-                                            fontWeight: FontWeight.w700,
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(10),
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: DataTable(
+                            headingRowColor: MaterialStateProperty.all(
+                              const Color(0xFFF5F5F5),
+                            ),
+                            columns: const [
+                              DataColumn(label: Text('Order')),
+                              DataColumn(label: Text('Date')),
+                              DataColumn(label: Text('Customer')),
+                              DataColumn(label: Text('Mode')),
+                              DataColumn(label: Text('Receiver')),
+                              DataColumn(label: Text('Amount')),
+                            ],
+                            rows:
+                                cashLedger.map((item) {
+                                  return DataRow(
+                                    cells: [
+                                      DataCell(Text(item.order.toString())),
+                                      DataCell(Text(item.paymentDate ?? '')),
+                                      DataCell(Text(item.customerName ?? '')),
+                                      DataCell(Text(item.paymentMode ?? '')),
+                                      DataCell(Text(item.billReceiver ?? '')),
+                                      DataCell(
+                                        Align(
+                                          alignment: Alignment.centerRight,
+                                          child: Text(
+                                            item.paidAmount?.toStringAsFixed(
+                                                  2,
+                                                ) ??
+                                                '0.00',
                                           ),
                                         ),
                                       ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
+                                    ],
+                                  );
+                                }).toList(),
                           ),
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 );
               } else {
                 return SizedBox();

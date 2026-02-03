@@ -6,6 +6,7 @@ import 'package:syswash/model/driverReport.dart';
 import 'package:syswash/model/employeeReport.dart';
 import 'package:syswash/model/expCategory.dart';
 import 'package:syswash/model/expenseReport.dart';
+import 'package:syswash/model/itemwise.dart';
 import 'package:syswash/model/orderReport.dart';
 import 'package:syswash/model/outstandingModel.dart';
 import 'package:syswash/model/salesReport.dart';
@@ -18,7 +19,6 @@ part 'report_state.dart';
 
 class ReportBloc extends Bloc<ReportEvent, ReportState> {
   SysRepository sysRepository = SysRepository();
-  late UserType userType;
   late List<ExpCategory> expCategory;
   late OrderReport orderReport;
   late List<AccountType> accountType;
@@ -29,6 +29,7 @@ class ReportBloc extends Bloc<ReportEvent, ReportState> {
   late List<OutstandingModel> outstandingModel;
   late EmployeeReport employeeReport;
   late DriverReport driverReport;
+  late List<ItemWise> itemWise;
   ReportBloc() : super(ReportInitial()) {
     on<FetchReportEvent>((event, emit) async {
       emit(ReportLoading());
@@ -77,16 +78,7 @@ class ReportBloc extends Bloc<ReportEvent, ReportState> {
       }
     });
 
-    on<FetchUserTypeEvent>((event, emit) async {
-      emit(ReportLoading());
-      try {
-        userType = await sysRepository.adminusertype(event.token, event.companyCode);
-        emit(UsertypeLoaded(userType: userType));
-      } catch (e) {
-        print(e);
-        emit(ReportError());
-      }
-    });
+    
 
     on<FetchTransactionReportEvent>((event, emit) async {
       emit(ReportLoading());
@@ -127,6 +119,17 @@ class ReportBloc extends Bloc<ReportEvent, ReportState> {
       try {
         driverReport = await sysRepository.admindriverreport(event.token, event.companyCode,event.startDate,event.endDate);
         emit(DriverReportLoaded(driverReport: driverReport));
+      } catch (e) {
+        print(e);
+        emit(ReportError());
+      }
+    });
+
+    on<FetchItemWiseReportEvent>((event, emit) async {
+      emit(ReportLoading());
+      try {
+        itemWise = await sysRepository.adminitemwisereport(event.token, event.companyCode,event.startDate,event.endDate);
+        emit(ItemWiseLoaded(itemWise: itemWise));
       } catch (e) {
         print(e);
         emit(ReportError());
