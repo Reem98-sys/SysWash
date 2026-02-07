@@ -10,7 +10,9 @@ import 'package:syswash/screens/adminExpense.dart';
 import 'package:syswash/screens/adminOutstanding.dart';
 import 'package:syswash/screens/adminSalesReport.dart';
 import 'package:syswash/screens/adminTransaction.dart';
+import 'package:syswash/screens/adminclosingreport.dart';
 import 'package:syswash/screens/admindriverreport.dart';
+import 'package:syswash/screens/adminedithistory.dart';
 import 'package:syswash/screens/adminemployeereport.dart';
 import 'package:syswash/screens/adminitemwise.dart';
 import 'package:syswash/screens/adminreportdetail.dart';
@@ -42,30 +44,12 @@ class _AdminreportState extends State<Adminreport> {
       "title": "Outstanding Report",
       "type": "debtors",
     },
-    {
-      "icon": "assets/customer.svg",
-      "title": "Customer Report",
-      "type": "customer",
-    },
-    {
-      "icon": "assets/customer.svg",
-      "title": "Employee Report",
-      "type": "employee",
-    },
-    {"icon": "assets/customer.svg", "title": "Driver Report", "type": "driver"},
-    {
-      "icon": "assets/Report.svg",
-      "title": "Item Wise Report",
-      "type": "itemwise",
-    },
     {"icon": "assets/Report.svg", "title": "Closing Report", "type": "closing"},
-    {"icon": "assets/Report.svg", "title": "Plant Report", "type": "plant"},
     {
       "icon": "assets/Report.svg",
       "title": "Edit History Report",
       "type": "edit",
     },
-    {"icon": "assets/Report.svg", "title": "Service Report", "type": "service"},
   ];
 
   final Map<String, String> reportPermissionMap = {
@@ -75,14 +59,8 @@ class _AdminreportState extends State<Adminreport> {
     "expense": "expenseReport",
     "transcation": "transactionReport",
     "debtors": "deptorsReport",
-    "customer": "customerReport",
-    "employee": "employeeReport",
-    "driver": "driverReport",
-    "itemwise": "itemWisReport",
     "closing": "closingReport",
-    "plant": "plantWiseReport",
     "edit": "editHistory",
-    "service": "serviceWiseReport",
   };
 
   final storage = const FlutterSecureStorage();
@@ -269,30 +247,22 @@ class _AdminreportState extends State<Adminreport> {
                                     ),
                                   );
                                   break;
-                                case "employee":
+                                case "closing":
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (_) => Adminemployeereport(),
+                                      builder: (_) => Adminclosingreport(),
                                     ),
                                   );
-                                  break;
-                                case "driver":
+                                  break; 
+                                case "edit":
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (_) => Admindriverreport(),
+                                      builder: (_) => Adminedithistory(),
                                     ),
                                   );
-                                  break;
-                                case "itemwise":
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (_) => Adminitemwise(),
-                                    ),
-                                  );
-                                  break;
+                                  break;    
                               }
                             },
                             child: Container(

@@ -1,6 +1,8 @@
 import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
 import 'package:syswash/model/accounttype.dart';
+import 'package:syswash/model/adminclosingreport.dart';
+import 'package:syswash/model/adminedithistory.dart';
 import 'package:syswash/model/cashLedger.dart';
 import 'package:syswash/model/driverReport.dart';
 import 'package:syswash/model/employeeReport.dart';
@@ -10,9 +12,12 @@ import 'package:syswash/model/itemwise.dart';
 import 'package:syswash/model/orderReport.dart';
 import 'package:syswash/model/outstandingModel.dart';
 import 'package:syswash/model/salesReport.dart';
+import 'package:syswash/model/serviceDetails.dart';
+import 'package:syswash/model/totalCountModel.dart';
 import 'package:syswash/model/transactionModel.dart';
 import 'package:syswash/model/userType.dart';
 import 'package:syswash/repositories/sys_repository.dart';
+import 'package:syswash/screens/adminedithistory.dart';
 
 part 'report_event.dart';
 part 'report_state.dart';
@@ -20,7 +25,7 @@ part 'report_state.dart';
 class ReportBloc extends Bloc<ReportEvent, ReportState> {
   SysRepository sysRepository = SysRepository();
   late List<ExpCategory> expCategory;
-  late OrderReport orderReport;
+  late List<OrderReport> orderReport;
   late List<AccountType> accountType;
   late List<SalesReport> salesReport;
   late List<CashLedger> cashLedger;
@@ -30,12 +35,15 @@ class ReportBloc extends Bloc<ReportEvent, ReportState> {
   late EmployeeReport employeeReport;
   late DriverReport driverReport;
   late List<ItemWise> itemWise;
+  late AdminClosingReport adminClosingReport;
+  late List<ServiceDetailsModel> servicedetail;
+  late List<AdminEditHistory> editHistory;
   ReportBloc() : super(ReportInitial()) {
     on<FetchReportEvent>((event, emit) async {
       emit(ReportLoading());
       try {
         accountType = await sysRepository.adminaccounttype(event.token, event.companyCode);
-        orderReport = await sysRepository.adminorderreport(event.token, event.companyCode,event.datenow);
+        orderReport = await sysRepository.adminorderreport(event.token, event.companyCode,event.startDate,event.endDate);
         emit(ReportLoaded(orderReport: orderReport, accountType: accountType));
       } catch (e) {
         print(e);
@@ -47,7 +55,7 @@ class ReportBloc extends Bloc<ReportEvent, ReportState> {
       emit(ReportLoading());
       try {
         accountType = await sysRepository.adminaccounttype(event.token, event.companyCode);
-        salesReport = await sysRepository.adminsalesreport(event.token, event.companyCode,event.datenow);
+        salesReport = await sysRepository.adminsalesreport(event.token, event.companyCode,event.startDate,event.endDate);
         emit(SalesReportLoaded(salesReport: salesReport, accountType: accountType));
       } catch (e) {
         print(e);
@@ -58,7 +66,7 @@ class ReportBloc extends Bloc<ReportEvent, ReportState> {
     on<FetchCashLedgerEvent>((event, emit) async {
       emit(ReportLoading());
       try {
-        cashLedger = await sysRepository.Admincashlegder(event.token, event.companyCode,event.datenow);
+        cashLedger = await sysRepository.admincashlegder(event.token, event.companyCode,event.startDate,event.endDate);
         emit(CashLedgerReportLoaded(cashLedger: cashLedger));
       } catch (e) {
         print(e);
@@ -130,6 +138,29 @@ class ReportBloc extends Bloc<ReportEvent, ReportState> {
       try {
         itemWise = await sysRepository.adminitemwisereport(event.token, event.companyCode,event.startDate,event.endDate);
         emit(ItemWiseLoaded(itemWise: itemWise));
+      } catch (e) {
+        print(e);
+        emit(ReportError());
+      }
+    });
+
+    on<FetchCloseEvent>((event, emit) async {
+      emit(ReportLoading());
+      try {
+        adminClosingReport = await sysRepository.closingreport(event.token, event.companyCode,event.startDate,event.endDate);
+        servicedetail = await sysRepository.servicedetail(event.companyCode,event.token);
+        emit(ClosingReportLoaded(adminClosingReport: adminClosingReport,servicedetail: servicedetail));
+      } catch (e) {
+        print(e);
+        emit(ReportError());
+      }
+    });
+
+    on<FetchEditHistoryEvent>((event, emit) async {
+      emit(ReportLoading());
+      try {
+        editHistory = await sysRepository.adminedithistory(event.token, event.companyCode,event.startDate,event.endDate);
+        emit(EditHistoryLoaded(admineditHistory: editHistory));
       } catch (e) {
         print(e);
         emit(ReportError());

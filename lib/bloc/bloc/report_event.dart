@@ -8,22 +8,25 @@ sealed class ReportEvent {}
 class FetchReportEvent extends ReportEvent {
   final String token;
   final String companyCode;
-  final String datenow;
-  FetchReportEvent({required this.token,required this.companyCode,required this.datenow});
+  final String startDate;
+  final String endDate;
+  FetchReportEvent({required this.token,required this.companyCode,required this.startDate,required this.endDate});
 }
 
 class FetchSalesReportEvent extends ReportEvent {
   final String token;
   final String companyCode;
-  final String datenow;
-  FetchSalesReportEvent({required this.token,required this.companyCode,required this.datenow});
+  final String startDate;
+  final String endDate;
+  FetchSalesReportEvent({required this.token,required this.companyCode,required this.startDate,required this.endDate});
 }
 
 class FetchCashLedgerEvent extends ReportEvent {
   final String token;
   final String companyCode;
-  final String datenow;
-  FetchCashLedgerEvent({required this.token,required this.companyCode,required this.datenow});
+  final String startDate;
+  final String endDate;
+  FetchCashLedgerEvent({required this.token,required this.companyCode,required this.startDate,required this.endDate});
 }
 
 class FetchExpenseReportEvent extends ReportEvent {
@@ -70,4 +73,20 @@ class FetchItemWiseReportEvent extends ReportEvent {
   final String startDate;
   final String endDate;
   FetchItemWiseReportEvent({required this.token,required this.companyCode,required this.startDate,required this.endDate});
+}
+
+class FetchCloseEvent extends ReportEvent {
+  final String token;
+  final String companyCode;
+  final String startDate;
+  final String endDate;
+  FetchCloseEvent({required this.token,required this.companyCode,required this.startDate,required this.endDate});
+}
+
+class FetchEditHistoryEvent extends ReportEvent {
+  final String token;
+  final String companyCode;
+  final String startDate;
+  final String endDate;
+  FetchEditHistoryEvent({required this.token,required this.companyCode,required this.startDate,required this.endDate});
 }

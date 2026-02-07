@@ -6,7 +6,7 @@ sealed class ReportState {}
 final class ReportInitial extends ReportState {}
 class ReportLoading extends ReportState {}
 class ReportLoaded extends ReportState {
-  final OrderReport orderReport;
+  final List<OrderReport> orderReport;
   final List<AccountType> accountType;
   ReportLoaded({required this.orderReport,required this.accountType});
 }
@@ -44,5 +44,14 @@ class DriverReportLoaded extends ReportState {
 class ItemWiseLoaded extends ReportState {
   final List<ItemWise> itemWise;
   ItemWiseLoaded({required this.itemWise});
+}
+class ClosingReportLoaded extends ReportState {
+  final AdminClosingReport adminClosingReport;
+  final List<ServiceDetailsModel> servicedetail;
+  ClosingReportLoaded({required this.adminClosingReport,required this.servicedetail});
+}
+class EditHistoryLoaded extends ReportState {
+  final List<AdminEditHistory> admineditHistory;
+  EditHistoryLoaded({required this.admineditHistory});
 }
 class ReportError extends ReportState {}

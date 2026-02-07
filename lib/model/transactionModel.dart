@@ -4,8 +4,8 @@ class TransactionModel {
     String? trType;
     String? transactionDetails;
     String? mode;
-    int? debit;
-    int? credit;
+    num? debit;
+    num? credit;
 
     TransactionModel({this.date, this.trType, this.transactionDetails, this.mode, this.debit, this.credit});
 
@@ -23,10 +23,10 @@ class TransactionModel {
             mode = json["Mode"];
         }
         if(json["Debit"] is num) {
-            debit = (json["Debit"] as num).toInt();
+            debit = json["Debit"];
         }
         if(json["Credit"] is num) {
-            credit = (json["Credit"] as num).toInt();
+            credit = json["Credit"];
         }
     }
 
@@ -50,8 +50,8 @@ class TransactionModel {
         String? trType,
         String? transactionDetails,
         String? mode,
-        int? debit,
-        int? credit,
+        num? debit,
+        num? credit,
     }) => TransactionModel(
         date: date ?? this.date,
         trType: trType ?? this.trType,

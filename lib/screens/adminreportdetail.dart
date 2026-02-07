@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:syswash/bloc/bloc/adminhome_bloc.dart';
 import 'package:syswash/bloc/bloc/report_bloc.dart';
+import 'package:syswash/helper/date_range_popup.dart';
 import 'package:syswash/model/accounttype.dart';
 import 'package:syswash/model/orderReport.dart';
 import 'package:syswash/screens/bottomnavAdmin.dart';
@@ -17,8 +18,10 @@ class Adminreportdetail extends StatefulWidget {
 
 class _AdminreportdetailState extends State<Adminreportdetail> {
   final storage = const FlutterSecureStorage();
-  late OrderReport orderReport;
+  late List<OrderReport> orderReport;
   late List<AccountType> accountType;
+  final TextEditingController startDateController = TextEditingController();
+  final TextEditingController endDateController = TextEditingController();
   double totalAmount = 0.0;
   double totalDiscount = 0.0;
   double totalPaid = 0.0;
@@ -30,6 +33,41 @@ class _AdminreportdetailState extends State<Adminreportdetail> {
   void initState() {
     super.initState();
     _loadAndFetchData();
+  }
+
+  void _openDatePopup() {
+    showDateRangePopup(
+      context: context,
+      startDateController: startDateController,
+      endDateController: endDateController,
+      onSave: () async {
+        final companyCode = await storage.read(key: 'company_Code');
+        final token = await storage.read(key: 'access_Token');
+  
+        if (companyCode != null && token != null) {
+          context.read<AdminhomeBloc>().add(
+            FetchcompanyEvent(
+              token: token,
+              companyCode: companyCode,
+            ),
+          );
+  
+          context.read<ReportBloc>().add(
+            FetchReportEvent(
+              token: token,
+              companyCode: companyCode,
+              startDate: _apiDateFromUI(startDateController.text),
+              endDate: _apiDateFromUI(endDateController.text),
+            ),
+          );
+        }
+      },
+    );
+  }
+
+  String _apiDateFromUI(String uiDate) {
+    final parts = uiDate.split('-'); // dd-MM-yyyy
+    return "${parts[2]}-${parts[1]}-${parts[0]}";
   }
 
   Future<void> _loadAndFetchData() async {
@@ -56,7 +94,8 @@ class _AdminreportdetailState extends State<Adminreportdetail> {
         FetchReportEvent(
           token: token,
           companyCode: companyCode,
-          datenow: format(dateNow),
+          startDate: format(dateNow),
+          endDate: format(dateNow)
         ),
       );
     } else {
@@ -69,7 +108,7 @@ class _AdminreportdetailState extends State<Adminreportdetail> {
     return double.tryParse(value) ?? 0.0;
   }
 
-  void _calculateTotals(OrderReport report, List<AccountType> accounttype) {
+  void _calculateTotals(List<OrderReport> report, List<AccountType> accounttype) {
     totalAmount = 0;
     totalDiscount = 0;
     totalPaid = 0;
@@ -84,7 +123,7 @@ class _AdminreportdetailState extends State<Adminreportdetail> {
         accountWiseTotals[acc.acTypeName!] = 0.0;
       }
     }
-    for (final item in report.results ?? []) {
+    for (final item in report ?? []) {
       totalAmount += _toDouble(item.subTotal);
       totalDiscount += _toDouble(item.discount);
       totalPaid += _toDouble(item.paidAmount);
@@ -95,7 +134,7 @@ class _AdminreportdetailState extends State<Adminreportdetail> {
       final accName = item.accountType;
       if (accName != null && accountWiseTotals.containsKey(accName)) {
         accountWiseTotals[accName] =
-            accountWiseTotals[accName]! + _toDouble(item.subTotal);
+            accountWiseTotals[accName]! + _toDouble(item.totalAmount);
       }
     }
   }
@@ -172,7 +211,9 @@ class _AdminreportdetailState extends State<Adminreportdetail> {
                       width: 362.w,
                       child: Column(
                         children: [
+                          SizedBox(height: 30.h),
                           Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
                                 'Order Report',
@@ -182,6 +223,10 @@ class _AdminreportdetailState extends State<Adminreportdetail> {
                                   fontFamily: 'DM Sans',
                                   fontWeight: FontWeight.w700,
                                 ),
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.filter_alt_outlined),
+                                onPressed: _openDatePopup,
                               ),
                             ],
                           ),
@@ -294,6 +339,7 @@ class _AdminreportdetailState extends State<Adminreportdetail> {
                               child: Padding(
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 25,
+                                  vertical: 18
                                 ),
                                 child: Table(
                                   border: TableBorder.all(

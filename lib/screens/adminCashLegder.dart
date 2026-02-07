@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:syswash/bloc/bloc/adminhome_bloc.dart';
 import 'package:syswash/bloc/bloc/report_bloc.dart';
+import 'package:syswash/helper/date_range_popup.dart';
 import 'package:syswash/model/cashLedger.dart';
 import 'package:syswash/screens/bottomnavAdmin.dart';
 
@@ -16,6 +17,8 @@ class Admincashlegder extends StatefulWidget {
 
 class _AdmincashlegderState extends State<Admincashlegder> {
   final storage = const FlutterSecureStorage();
+  final TextEditingController startDateController = TextEditingController();
+  final TextEditingController endDateController = TextEditingController();
   late List<CashLedger> cashLedger;
   String? username;
   double totalAmount = 0.0;
@@ -23,6 +26,47 @@ class _AdmincashlegderState extends State<Admincashlegder> {
   void initState() {
     super.initState();
     _loadAndFetchData();
+  }
+
+  String formatApiDateToUi(String apiDate) {
+    if (apiDate.isEmpty) return '';
+
+    final parts = apiDate.split('-'); // yyyy-MM-dd
+    if (parts.length != 3) return apiDate;
+
+    return '${parts[2]}-${parts[1]}-${parts[0]}';
+  }
+
+  String _apiDateFromUI(String uiDate) {
+    final parts = uiDate.split('-'); // dd-MM-yyyy
+    return "${parts[2]}-${parts[1]}-${parts[0]}";
+  }
+
+  void _openDatePopup() {
+    showDateRangePopup(
+      context: context,
+      startDateController: startDateController,
+      endDateController: endDateController,
+      onSave: () async {
+        final companyCode = await storage.read(key: 'company_Code');
+        final token = await storage.read(key: 'access_Token');
+
+        if (companyCode != null && token != null) {
+          context.read<AdminhomeBloc>().add(
+            FetchcompanyEvent(token: token, companyCode: companyCode),
+          );
+
+          context.read<ReportBloc>().add(
+            FetchCashLedgerEvent(
+              token: token,
+              companyCode: companyCode,
+              startDate: _apiDateFromUI(startDateController.text),
+              endDate: _apiDateFromUI(endDateController.text),
+            ),
+          );
+        }
+      },
+    );
   }
 
   double _toDouble(String? value) {
@@ -62,7 +106,8 @@ class _AdmincashlegderState extends State<Admincashlegder> {
         FetchCashLedgerEvent(
           token: token,
           companyCode: companyCode,
-          datenow: format(dateNow),
+          startDate: format(dateNow),
+          endDate: format(dateNow),
         ),
       );
     } else {
@@ -134,13 +179,18 @@ class _AdmincashlegderState extends State<Admincashlegder> {
               }
               if (state is CashLedgerReportLoaded) {
                 cashLedger = state.cashLedger;
+                for (final item in cashLedger ?? []) {
+                  totalAmount += item.paidAmount;
+                }
                 return Column(
                   children: [
                     Container(
                       width: 362.w,
                       child: Column(
                         children: [
+                          SizedBox(height: 30.h),
                           Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
                                 'Cash Ledger Report',
@@ -150,6 +200,10 @@ class _AdmincashlegderState extends State<Admincashlegder> {
                                   fontFamily: 'DM Sans',
                                   fontWeight: FontWeight.w700,
                                 ),
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.filter_alt_outlined),
+                                onPressed: _openDatePopup,
                               ),
                             ],
                           ),
@@ -257,7 +311,7 @@ class _AdmincashlegderState extends State<Admincashlegder> {
                                   return DataRow(
                                     cells: [
                                       DataCell(Text(item.order.toString())),
-                                      DataCell(Text(item.paymentDate ?? '')),
+                                      DataCell(Text(formatApiDateToUi(item.paymentDate.toString()) ?? '')),
                                       DataCell(Text(item.customerName ?? '')),
                                       DataCell(Text(item.paymentMode ?? '')),
                                       DataCell(Text(item.billReceiver ?? '')),
@@ -265,10 +319,7 @@ class _AdmincashlegderState extends State<Admincashlegder> {
                                         Align(
                                           alignment: Alignment.centerRight,
                                           child: Text(
-                                            item.paidAmount?.toStringAsFixed(
-                                                  2,
-                                                ) ??
-                                                '0.00',
+                                            item.paidAmount.toString(),
                                           ),
                                         ),
                                       ),

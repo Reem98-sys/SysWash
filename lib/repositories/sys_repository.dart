@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'package:syswash/model/accounttype.dart';
 import 'package:syswash/model/adminProfle.dart';
+import 'package:syswash/model/adminclosingreport.dart';
+import 'package:syswash/model/adminedithistory.dart';
 import 'package:syswash/model/cashLedger.dart';
 import 'package:syswash/model/closingReport.dart';
 import 'package:syswash/model/clothDetailsModel.dart';
@@ -712,13 +714,14 @@ class SysRepository {
     return data.map((e) => SalesGraph.fromJson(e)).toList();
   }
 
-  Future<OrderReport> adminorderreport(
+  Future<List<OrderReport>> adminorderreport(
     String token,
     String companyCode,
-    String datenow
+    String startDate,
+    String endDate
   ) async {
     String url =
-        "https://be.syswash.net/api/syswash/orderReport?startDate=null&endDate=$datenow&deliveryDate=null&invoice=null&customer=null&status=null&account=null&currentStatus=null&emp=null&driver=null&code=$companyCode&page=1&phonenumber=null&payment=null&search=undefined&cuscodesearch=undefined";
+        "https://be.syswash.net/api/syswash/apporderReport?startDate=$startDate&endDate=$endDate&code=$companyCode";
     body = {};
     Response response = await apiClient.invokeAPI(
       url,
@@ -726,15 +729,17 @@ class SysRepository {
       jsonEncode(body),
       token: token,
     );
-    return OrderReport.fromJson(jsonDecode(response.body));
+    final List data = jsonDecode(response.body);
+    return data.map((e) => OrderReport.fromJson(e)).toList();
   }
   Future<List<SalesReport>> adminsalesreport(
     String token,
     String companyCode,
-    String datenow
+    String startDate,
+    String endDate
   ) async {
     String url =
-        "https://be.syswash.net/api/syswash/salesReport?startDate=$datenow&endDate=$datenow&invoice=null&customer=null&account=null&code=$companyCode";
+        "https://be.syswash.net/api/syswash/salesReport?startDate=$startDate&endDate=$endDate&invoice=null&customer=null&account=null&code=$companyCode";
     body = {};
     Response response = await apiClient.invokeAPI(
       url,
@@ -745,13 +750,14 @@ class SysRepository {
     final List data = jsonDecode(response.body);
     return data.map((e) => SalesReport.fromJson(e)).toList();
   }
-  Future<List<CashLedger>> Admincashlegder (
+  Future<List<CashLedger>> admincashlegder (
     String token,
     String companyCode,
-    String datenow
+    String startDate,
+    String endDate
   ) async {
     String url =
-        "https://be.syswash.net/api/syswash/cashLedgerReportNew?startDate=$datenow&endDate=$datenow&invoice=null&mode=null&code=$companyCode";
+        "https://be.syswash.net/api/syswash/cashLedgerReportNew?startDate=$startDate&endDate=$endDate&invoice=null&mode=null&code=$companyCode";
     body = {};
     Response response = await apiClient.invokeAPI(
       url,
@@ -993,5 +999,42 @@ class SysRepository {
     );
     final List data = jsonDecode(response.body);
     return data.map((e) => ItemWise.fromJson(e)).toList();
+  }
+
+  Future<AdminClosingReport> closingreport(
+    String token,
+    String companyCode,
+    String startDate,
+    String endDate
+  ) async {
+    String url =
+        "https://be.syswash.net/api/syswash/closingReport?startDate=$startDate&endDate=$endDate&user=null&code=$companyCode";
+    body = {};
+    Response response = await apiClient.invokeAPI(
+      url,
+      "GET",
+      jsonEncode(body),
+      token: token,
+    );
+    return AdminClosingReport.fromJson(jsonDecode(response.body));
+  }
+
+  Future<List<AdminEditHistory>> adminedithistory(
+    String token,
+    String companyCode,
+    String startDate,
+    String endDate
+  ) async {
+    String url =
+        "https://be.syswash.net/api/syswash/EdithistoryReport?database=null&startDate=$startDate&endDate=$endDate&code=$companyCode";
+    body = {};
+    Response response = await apiClient.invokeAPI(
+      url,
+      "GET",
+      jsonEncode(body),
+      token: token,
+    );
+    final List data = jsonDecode(response.body);
+    return data.map((e) => AdminEditHistory.fromJson(e)).toList();
   }
 }

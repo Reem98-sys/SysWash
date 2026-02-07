@@ -97,20 +97,14 @@ class _AdmintransactionState extends State<Admintransaction> {
     }
   }
 
-  double _toDouble(String? value) {
-    if (value == null || value.isEmpty) return 0.0;
-    return double.tryParse(value) ?? 0.0;
-  }
 
   void _calculateTotals(List<TransactionModel> report) {
-    totalAmount = 0;
-    totalBalance = 0;
-    totalExpense = 0;
+    totalAmount = 0.0;
+    totalExpense = 0.0;
 
     for (final item in report) {
-      totalAmount += item.credit!.toDouble();
-      totalBalance += 
-      totalExpense += item.debit!.toDouble();
+      totalAmount += item.credit!;
+      totalExpense += item.debit!;
 
     }
   }
@@ -208,7 +202,7 @@ class _AdmintransactionState extends State<Admintransaction> {
                           SizedBox(height: 10.h),
                           Container(
                             width: 362.w,
-                            height: 230.h,
+                            // height: 230.h,
                             decoration: ShapeDecoration(
                               color: Colors.white,
                               shape: RoundedRectangleBorder(
@@ -223,6 +217,7 @@ class _AdmintransactionState extends State<Admintransaction> {
                               child: Padding(
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 25,
+                                  vertical: 20,
                                 ),
                                 child: Table(
                                   border: TableBorder.all(

@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:syswash/bloc/bloc/adminhome_bloc.dart';
 import 'package:syswash/bloc/bloc/report_bloc.dart';
+import 'package:syswash/helper/date_range_popup.dart';
 import 'package:syswash/model/accounttype.dart';
 import 'package:syswash/model/salesReport.dart';
 import 'package:syswash/screens/bottomnavAdmin.dart';
@@ -25,11 +26,48 @@ class _AdminsalesreportState extends State<Adminsalesreport> {
   double totalCommission = 0.0;
   Map<String, double> accountWiseTotals = {};
   late List<AccountType> accountType;
+  final TextEditingController startDateController = TextEditingController();
+  final TextEditingController endDateController = TextEditingController();
   String? username;
   @override
   void initState() {
     super.initState();
     _loadAndFetchData();
+  }
+
+  void _openDatePopup() {
+    showDateRangePopup(
+      context: context,
+      startDateController: startDateController,
+      endDateController: endDateController,
+      onSave: () async {
+        final companyCode = await storage.read(key: 'company_Code');
+        final token = await storage.read(key: 'access_Token');
+  
+        if (companyCode != null && token != null) {
+          context.read<AdminhomeBloc>().add(
+            FetchcompanyEvent(
+              token: token,
+              companyCode: companyCode,
+            ),
+          );
+  
+          context.read<ReportBloc>().add(
+            FetchSalesReportEvent(
+              token: token,
+              companyCode: companyCode,
+              startDate: _apiDateFromUI(startDateController.text),
+              endDate: _apiDateFromUI(endDateController.text),
+            ),
+          );
+        }
+      },
+    );
+  }
+
+  String _apiDateFromUI(String uiDate) {
+    final parts = uiDate.split('-'); // dd-MM-yyyy
+    return "${parts[2]}-${parts[1]}-${parts[0]}";
   }
 
   Future<void> _loadAndFetchData() async {
@@ -53,7 +91,11 @@ class _AdminsalesreportState extends State<Adminsalesreport> {
         FetchcompanyEvent(token: token, companyCode: companyCode),
       );
       context.read<ReportBloc>().add(
-        FetchSalesReportEvent(token: token, companyCode: companyCode, datenow: format(dateNow)),
+        FetchSalesReportEvent(
+          token: token, 
+          companyCode: companyCode, 
+          startDate: format(dateNow),
+          endDate: format(dateNow)),
       );
     } else {
       debugPrint('Missing userId or companyCode in storage');
@@ -90,7 +132,7 @@ class _AdminsalesreportState extends State<Adminsalesreport> {
     final accName = item.accountType;
       if (accName != null && accountWiseTotals.containsKey(accName)) {
         accountWiseTotals[accName] =
-            accountWiseTotals[accName]! + _toDouble(item.subTotal);
+            accountWiseTotals[accName]! + _toDouble(item.totalAmount);
       }
   }
 }
@@ -166,7 +208,9 @@ class _AdminsalesreportState extends State<Adminsalesreport> {
                       width: 362.w,
                       child: Column(
                         children: [
+                          SizedBox(height: 30.h),
                           Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
                                 'Sales Report',
@@ -176,6 +220,10 @@ class _AdminsalesreportState extends State<Adminsalesreport> {
                                   fontFamily: 'DM Sans',
                                   fontWeight: FontWeight.w700,
                                 ),
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.filter_alt_outlined),
+                                onPressed: _openDatePopup,
                               ),
                             ],
                           ),
@@ -220,14 +268,14 @@ class _AdminsalesreportState extends State<Adminsalesreport> {
                                         ),
                                       ],
                                     ),
-                                    TableRow(
-                                      children: [
-                                        _tableText('Total Commission'),
-                                        _tableValue(
-                                          totalCommission.toStringAsFixed(2),
-                                        ),
-                                      ],
-                                    ),
+                                    // TableRow(
+                                    //   children: [
+                                    //     _tableText('Total Commission'),
+                                    //     _tableValue(
+                                    //       totalCommission.toStringAsFixed(2),
+                                    //     ),
+                                    //   ],
+                                    // ),
                                     TableRow(
                                       children: [
                                         _tableText('Total Paid'),

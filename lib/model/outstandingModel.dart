@@ -5,9 +5,9 @@ class OutstandingModel {
     String? customerName;
     int? customerPhno;
     String? area;
-    int? totalAmount;
-    int? paidamount;
-    int? balance;
+    num? totalAmount;
+    num? paidamount;
+    num? balance;
     String? accountType;
 
     OutstandingModel({this.customerId, this.customerCode, this.customerName, this.customerPhno, this.area, this.totalAmount, this.paidamount, this.balance, this.accountType});
@@ -29,13 +29,13 @@ class OutstandingModel {
             area = json["Area"];
         }
         if(json["TotalAmount"] is num) {
-            totalAmount = (json["TotalAmount"] as num).toInt();
+            totalAmount = json["TotalAmount"];
         }
         if(json["Paidamount"] is num) {
-            paidamount = (json["Paidamount"] as num).toInt();
+            paidamount = json["Paidamount"];
         }
         if(json["Balance"] is num) {
-            balance = (json["Balance"] as num).toInt();
+            balance = json["Balance"];
         }
         if(json["AccountType"] is String) {
             accountType = json["AccountType"];
@@ -66,9 +66,9 @@ class OutstandingModel {
         String? customerName,
         int? customerPhno,
         String? area,
-        int? totalAmount,
-        int? paidamount,
-        int? balance,
+        num? totalAmount,
+        num? paidamount,
+        num? balance,
         String? accountType,
     }) => OutstandingModel(
         customerId: customerId ?? this.customerId,

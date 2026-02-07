@@ -23,6 +23,7 @@ class _AdminoutstandingState extends State<Adminoutstanding> {
   final TextEditingController startDateController = TextEditingController();
   final TextEditingController endDateController = TextEditingController();
   Map<String, double> accountWiseTotals = {};
+  num totalOutstanding = 0.0;
   String? username;
   @override
   void initState() {
@@ -99,6 +100,7 @@ class _AdminoutstandingState extends State<Adminoutstanding> {
   }
 
   void _calculateTotals(List<OutstandingModel> report,List<AccountType> accounttype) {
+    totalOutstanding = 0;
     accountWiseTotals.clear();
 
     for (final acc in accounttype) {
@@ -107,6 +109,7 @@ class _AdminoutstandingState extends State<Adminoutstanding> {
       }
     }
     for (final item in report) {
+      totalOutstanding += item.balance!;
       final accName = item.accountType;
       if (accName != null && accountWiseTotals.containsKey(accName)) {
         accountWiseTotals[accName] =
@@ -225,14 +228,15 @@ class _AdminoutstandingState extends State<Adminoutstanding> {
                               child: Padding(
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 25,
+                                  vertical: 20,
                                 ),
                                 child: Table(
                                   border: TableBorder.all(
                                     color: const Color(0xFFE7E7E7),
                                     width: 1,
                                   ),
-                                  children: 
-                                  accountWiseTotals.entries.map((entry) {
+                                  children:[ 
+                                  ...accountWiseTotals.entries.map((entry) {
                                         return TableRow(
                                           children: [
                                             _tableText(entry.key),
@@ -242,6 +246,14 @@ class _AdminoutstandingState extends State<Adminoutstanding> {
                                           ],
                                         );
                                       }).toList(),
+                                  TableRow(
+                                      children: [
+                                        _tableText('Total Discount'),
+                                        _tableValue(
+                                          totalOutstanding.toStringAsFixed(2),
+                                        ),
+                                      ],
+                                    ), ]   
                                 ),
                               ),
                             ),

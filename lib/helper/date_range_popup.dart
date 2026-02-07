@@ -10,11 +10,21 @@ Future<void> showDateRangePopup({
   return showDialog(
     context: context,
     builder: (dialogContext) {
+      final now = DateTime.now();
+      final today =
+          "${now.day.toString().padLeft(2, '0')}-"
+          "${now.month.toString().padLeft(2, '0')}-"
+          "${now.year}";
+
+      if (startDateController.text.isEmpty) {
+        startDateController.text = today;
+      }
+      if (endDateController.text.isEmpty) {
+        endDateController.text = today;
+      }
       return Dialog(
         backgroundColor: Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
         child: Padding(
           padding: const EdgeInsets.all(20.0),

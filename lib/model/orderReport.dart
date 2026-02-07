@@ -1,59 +1,10 @@
 
 class OrderReport {
-    int? count;
-    String? next;
-    dynamic previous;
-    List<Results>? results;
-
-    OrderReport({this.count, this.next, this.previous, this.results});
-
-    OrderReport.fromJson(Map<String, dynamic> json) {
-        if(json["count"] is num) {
-            count = (json["count"] as num).toInt();
-        }
-        if(json["next"] is String) {
-            next = json["next"];
-        }
-        previous = json["previous"];
-        if(json["results"] is List) {
-            results = json["results"] == null ? null : (json["results"] as List).map((e) => Results.fromJson(e)).toList();
-        }
-    }
-
-    static List<OrderReport> fromList(List<Map<String, dynamic>> list) {
-        return list.map(OrderReport.fromJson).toList();
-    }
-
-    Map<String, dynamic> toJson() {
-        final Map<String, dynamic> _data = <String, dynamic>{};
-        _data["count"] = count;
-        _data["next"] = next;
-        _data["previous"] = previous;
-        if(results != null) {
-            _data["results"] = results?.map((e) => e.toJson()).toList();
-        }
-        return _data;
-    }
-
-    OrderReport copyWith({
-        int? count,
-        String? next,
-        dynamic previous,
-        List<Results>? results,
-    }) => OrderReport(
-        count: count ?? this.count,
-        next: next ?? this.next,
-        previous: previous ?? this.previous,
-        results: results ?? this.results,
-    );
-}
-
-class Results {
     int? orderId;
     String? refNo;
     String? remarks;
     List<dynamic>? payment;
-    List<dynamic>? editHistory;
+    List<EditHistory>? editHistory;
     List<dynamic>? deliveryassgn;
     int? dueDate;
     int? previousPaidAmount;
@@ -61,9 +12,8 @@ class Results {
     String? orderTime;
     String? deliveryDate;
     String? deliveryTime;
-    dynamic deliveredDateTime;
-    dynamic lastModifieddate;
-    dynamic lastModifiedTime;
+    String? lastModifieddate;
+    String? lastModifiedTime;
     String? customerId;
     String? customerCode;
     String? customerName;
@@ -76,12 +26,6 @@ class Results {
     String? villaAddress;
     int? customerDiscount;
     String? cusfragrance;
-    dynamic employeeId;
-    dynamic employeeName;
-    dynamic driverId;
-    dynamic driverName;
-    dynamic pickupDriverId;
-    dynamic pickupDriverName;
     int? quantity;
     String? subTotal;
     String? discount;
@@ -91,21 +35,16 @@ class Results {
     String? bill;
     String? deliveryType;
     String? accountType;
-    dynamic paymentMode;
     List<ClothData>? clothData;
-    dynamic clothWiseStatus;
     bool? folded;
     bool? hanger;
     bool? packing;
     String? status;
-    dynamic rackName;
-    dynamic rackFloor;
-    dynamic clothAndMechineId;
     int? tenderCurrency;
     int? commission;
-    dynamic tenderDate;
-    dynamic tenderTime;
-    dynamic billReceiver;
+    String? tenderDate;
+    String? tenderTime;
+    String? billReceiver;
     bool? pickupStatus;
     String? nasha;
     String? orderReceiver;
@@ -116,11 +55,23 @@ class Results {
     String? packingType;
     String? starch;
     String? paymentremarks;
+    String? vatsubTotal;
     bool? trash;
+    String? paymentMode;
+    List<ClothWiseStatus>? clothWiseStatus;
+    int? driverId;
+    String? driverName;
+    int? pickupDriverId;
+    String? pickupDriverName;
+    String? employeeId;
+    String? employeeName;
+    String? rackName;
+    String? rackFloor;
+    String? deliveredDateTime;
 
-    Results({this.orderId, this.refNo, this.remarks, this.payment, this.editHistory, this.deliveryassgn, this.dueDate, this.previousPaidAmount, this.orderDate, this.orderTime, this.deliveryDate, this.deliveryTime, this.deliveredDateTime, this.lastModifieddate, this.lastModifiedTime, this.customerId, this.customerCode, this.customerName, this.customerPhno, this.customerAddress, this.customerStreet, this.customerReffrNo, this.customerHotel, this.customerRoomNo, this.villaAddress, this.customerDiscount, this.cusfragrance, this.employeeId, this.employeeName, this.driverId, this.driverName, this.pickupDriverId, this.pickupDriverName, this.quantity, this.subTotal, this.discount, this.totalAmount, this.paidAmount, this.balance, this.bill, this.deliveryType, this.accountType, this.paymentMode, this.clothData, this.clothWiseStatus, this.folded, this.hanger, this.packing, this.status, this.rackName, this.rackFloor, this.clothAndMechineId, this.tenderCurrency, this.commission, this.tenderDate, this.tenderTime, this.billReceiver, this.pickupStatus, this.nasha, this.orderReceiver, this.wallet, this.vat, this.vatValue, this.openingBalance, this.packingType, this.starch, this.paymentremarks, this.trash});
+    OrderReport({this.orderId, this.refNo, this.remarks, this.payment, this.editHistory, this.deliveryassgn, this.dueDate, this.previousPaidAmount, this.orderDate, this.orderTime, this.deliveryDate, this.deliveryTime, this.lastModifieddate, this.lastModifiedTime, this.customerId, this.customerCode, this.customerName, this.customerPhno, this.customerAddress, this.customerStreet, this.customerReffrNo, this.customerHotel, this.customerRoomNo, this.villaAddress, this.customerDiscount, this.cusfragrance, this.quantity, this.subTotal, this.discount, this.totalAmount, this.paidAmount, this.balance, this.bill, this.deliveryType, this.accountType, this.clothData, this.folded, this.hanger, this.packing, this.status, this.tenderCurrency, this.commission, this.tenderDate, this.tenderTime, this.billReceiver, this.pickupStatus, this.nasha, this.orderReceiver, this.wallet, this.vat, this.vatValue, this.openingBalance, this.packingType, this.starch, this.paymentremarks, this.vatsubTotal, this.trash, this.paymentMode, this.clothWiseStatus, this.driverId, this.driverName, this.pickupDriverId, this.pickupDriverName, this.employeeId, this.employeeName, this.rackName, this.rackFloor, this.deliveredDateTime});
 
-    Results.fromJson(Map<String, dynamic> json) {
+    OrderReport.fromJson(Map<String, dynamic> json) {
         if(json["orderId"] is num) {
             orderId = (json["orderId"] as num).toInt();
         }
@@ -134,7 +85,7 @@ class Results {
             payment = json["payment"] ?? [];
         }
         if(json["edit_history"] is List) {
-            editHistory = json["edit_history"] ?? [];
+            editHistory = json["edit_history"] == null ? null : (json["edit_history"] as List).map((e) => EditHistory.fromJson(e)).toList();
         }
         if(json["deliveryassgn"] is List) {
             deliveryassgn = json["deliveryassgn"] ?? [];
@@ -157,9 +108,12 @@ class Results {
         if(json["deliveryTime"] is String) {
             deliveryTime = json["deliveryTime"];
         }
-        deliveredDateTime = json["deliveredDateTime"];
-        lastModifieddate = json["lastModifieddate"];
-        lastModifiedTime = json["lastModifiedTime"];
+        if(json["lastModifieddate"] is String) {
+            lastModifieddate = json["lastModifieddate"];
+        }
+        if(json["lastModifiedTime"] is String) {
+            lastModifiedTime = json["lastModifiedTime"];
+        }
         if(json["customerId"] is String) {
             customerId = json["customerId"];
         }
@@ -196,12 +150,6 @@ class Results {
         if(json["cusfragrance"] is String) {
             cusfragrance = json["cusfragrance"];
         }
-        employeeId = json["employeeId"];
-        employeeName = json["employeeName"];
-        driverId = json["driverId"];
-        driverName = json["driverName"];
-        pickupDriverId = json["pickupDriverId"];
-        pickupDriverName = json["pickupDriverName"];
         if(json["quantity"] is num) {
             quantity = (json["quantity"] as num).toInt();
         }
@@ -229,11 +177,9 @@ class Results {
         if(json["accountType"] is String) {
             accountType = json["accountType"];
         }
-        paymentMode = json["paymentMode"];
         if(json["clothData"] is List) {
             clothData = json["clothData"] == null ? null : (json["clothData"] as List).map((e) => ClothData.fromJson(e)).toList();
         }
-        clothWiseStatus = json["ClothWiseStatus"];
         if(json["folded"] is bool) {
             folded = json["folded"];
         }
@@ -246,18 +192,21 @@ class Results {
         if(json["status"] is String) {
             status = json["status"];
         }
-        rackName = json["rackName"];
-        rackFloor = json["rackFloor"];
-        clothAndMechineId = json["clothAndMechineId"];
         if(json["tenderCurrency"] is num) {
             tenderCurrency = (json["tenderCurrency"] as num).toInt();
         }
         if(json["commission"] is num) {
             commission = (json["commission"] as num).toInt();
         }
-        tenderDate = json["tenderDate"];
-        tenderTime = json["tenderTime"];
-        billReceiver = json["billReceiver"];
+        if(json["tenderDate"] is String) {
+            tenderDate = json["tenderDate"];
+        }
+        if(json["tenderTime"] is String) {
+            tenderTime = json["tenderTime"];
+        }
+        if(json["billReceiver"] is String) {
+            billReceiver = json["billReceiver"];
+        }
         if(json["pickupStatus"] is bool) {
             pickupStatus = json["pickupStatus"];
         }
@@ -288,13 +237,49 @@ class Results {
         if(json["paymentremarks"] is String) {
             paymentremarks = json["paymentremarks"];
         }
+        if(json["vatsubTotal"] is String) {
+            vatsubTotal = json["vatsubTotal"];
+        }
         if(json["trash"] is bool) {
             trash = json["trash"];
         }
+        if(json["paymentMode"] is String) {
+            paymentMode = json["paymentMode"];
+        }
+        if(json["ClothWiseStatus"] is List) {
+            clothWiseStatus = json["ClothWiseStatus"] == null ? null : (json["ClothWiseStatus"] as List).map((e) => ClothWiseStatus.fromJson(e)).toList();
+        }
+        if(json["driverId"] is num) {
+            driverId = (json["driverId"] as num).toInt();
+        }
+        if(json["driverName"] is String) {
+            driverName = json["driverName"];
+        }
+        if(json["pickupDriverId"] is num) {
+            pickupDriverId = (json["pickupDriverId"] as num).toInt();
+        }
+        if(json["pickupDriverName"] is String) {
+            pickupDriverName = json["pickupDriverName"];
+        }
+        if(json["employeeId"] is String) {
+            employeeId = json["employeeId"];
+        }
+        if(json["employeeName"] is String) {
+            employeeName = json["employeeName"];
+        }
+        if(json["rackName"] is String) {
+            rackName = json["rackName"];
+        }
+        if(json["rackFloor"] is String) {
+            rackFloor = json["rackFloor"];
+        }
+        if(json["deliveredDateTime"] is String) {
+            deliveredDateTime = json["deliveredDateTime"];
+        }
     }
 
-    static List<Results> fromList(List<Map<String, dynamic>> list) {
-        return list.map(Results.fromJson).toList();
+    static List<OrderReport> fromList(List<Map<String, dynamic>> list) {
+        return list.map(OrderReport.fromJson).toList();
     }
 
     Map<String, dynamic> toJson() {
@@ -306,7 +291,7 @@ class Results {
             _data["payment"] = payment;
         }
         if(editHistory != null) {
-            _data["edit_history"] = editHistory;
+            _data["edit_history"] = editHistory?.map((e) => e.toJson()).toList();
         }
         if(deliveryassgn != null) {
             _data["deliveryassgn"] = deliveryassgn;
@@ -317,7 +302,6 @@ class Results {
         _data["orderTime"] = orderTime;
         _data["deliveryDate"] = deliveryDate;
         _data["deliveryTime"] = deliveryTime;
-        _data["deliveredDateTime"] = deliveredDateTime;
         _data["lastModifieddate"] = lastModifieddate;
         _data["lastModifiedTime"] = lastModifiedTime;
         _data["customerId"] = customerId;
@@ -332,12 +316,6 @@ class Results {
         _data["villaAddress"] = villaAddress;
         _data["customerDiscount"] = customerDiscount;
         _data["cusfragrance"] = cusfragrance;
-        _data["employeeId"] = employeeId;
-        _data["employeeName"] = employeeName;
-        _data["driverId"] = driverId;
-        _data["driverName"] = driverName;
-        _data["pickupDriverId"] = pickupDriverId;
-        _data["pickupDriverName"] = pickupDriverName;
         _data["quantity"] = quantity;
         _data["subTotal"] = subTotal;
         _data["discount"] = discount;
@@ -347,18 +325,13 @@ class Results {
         _data["bill"] = bill;
         _data["deliveryType"] = deliveryType;
         _data["accountType"] = accountType;
-        _data["paymentMode"] = paymentMode;
         if(clothData != null) {
             _data["clothData"] = clothData?.map((e) => e.toJson()).toList();
         }
-        _data["ClothWiseStatus"] = clothWiseStatus;
         _data["folded"] = folded;
         _data["hanger"] = hanger;
         _data["packing"] = packing;
         _data["status"] = status;
-        _data["rackName"] = rackName;
-        _data["rackFloor"] = rackFloor;
-        _data["clothAndMechineId"] = clothAndMechineId;
         _data["tenderCurrency"] = tenderCurrency;
         _data["commission"] = commission;
         _data["tenderDate"] = tenderDate;
@@ -374,16 +347,30 @@ class Results {
         _data["packingType"] = packingType;
         _data["starch"] = starch;
         _data["paymentremarks"] = paymentremarks;
+        _data["vatsubTotal"] = vatsubTotal;
         _data["trash"] = trash;
+        _data["paymentMode"] = paymentMode;
+        if(clothWiseStatus != null) {
+            _data["ClothWiseStatus"] = clothWiseStatus?.map((e) => e.toJson()).toList();
+        }
+        _data["driverId"] = driverId;
+        _data["driverName"] = driverName;
+        _data["pickupDriverId"] = pickupDriverId;
+        _data["pickupDriverName"] = pickupDriverName;
+        _data["employeeId"] = employeeId;
+        _data["employeeName"] = employeeName;
+        _data["rackName"] = rackName;
+        _data["rackFloor"] = rackFloor;
+        _data["deliveredDateTime"] = deliveredDateTime;
         return _data;
     }
 
-    Results copyWith({
+    OrderReport copyWith({
         int? orderId,
         String? refNo,
         String? remarks,
         List<dynamic>? payment,
-        List<dynamic>? editHistory,
+        List<EditHistory>? editHistory,
         List<dynamic>? deliveryassgn,
         int? dueDate,
         int? previousPaidAmount,
@@ -391,9 +378,8 @@ class Results {
         String? orderTime,
         String? deliveryDate,
         String? deliveryTime,
-        dynamic deliveredDateTime,
-        dynamic lastModifieddate,
-        dynamic lastModifiedTime,
+        String? lastModifieddate,
+        String? lastModifiedTime,
         String? customerId,
         String? customerCode,
         String? customerName,
@@ -406,12 +392,6 @@ class Results {
         String? villaAddress,
         int? customerDiscount,
         String? cusfragrance,
-        dynamic employeeId,
-        dynamic employeeName,
-        dynamic driverId,
-        dynamic driverName,
-        dynamic pickupDriverId,
-        dynamic pickupDriverName,
         int? quantity,
         String? subTotal,
         String? discount,
@@ -421,21 +401,16 @@ class Results {
         String? bill,
         String? deliveryType,
         String? accountType,
-        dynamic paymentMode,
         List<ClothData>? clothData,
-        dynamic clothWiseStatus,
         bool? folded,
         bool? hanger,
         bool? packing,
         String? status,
-        dynamic rackName,
-        dynamic rackFloor,
-        dynamic clothAndMechineId,
         int? tenderCurrency,
         int? commission,
-        dynamic tenderDate,
-        dynamic tenderTime,
-        dynamic billReceiver,
+        String? tenderDate,
+        String? tenderTime,
+        String? billReceiver,
         bool? pickupStatus,
         String? nasha,
         String? orderReceiver,
@@ -446,8 +421,20 @@ class Results {
         String? packingType,
         String? starch,
         String? paymentremarks,
+        String? vatsubTotal,
         bool? trash,
-    }) => Results(
+        String? paymentMode,
+        List<ClothWiseStatus>? clothWiseStatus,
+        int? driverId,
+        String? driverName,
+        int? pickupDriverId,
+        String? pickupDriverName,
+        String? employeeId,
+        String? employeeName,
+        String? rackName,
+        String? rackFloor,
+        String? deliveredDateTime,
+    }) => OrderReport(
         orderId: orderId ?? this.orderId,
         refNo: refNo ?? this.refNo,
         remarks: remarks ?? this.remarks,
@@ -460,7 +447,6 @@ class Results {
         orderTime: orderTime ?? this.orderTime,
         deliveryDate: deliveryDate ?? this.deliveryDate,
         deliveryTime: deliveryTime ?? this.deliveryTime,
-        deliveredDateTime: deliveredDateTime ?? this.deliveredDateTime,
         lastModifieddate: lastModifieddate ?? this.lastModifieddate,
         lastModifiedTime: lastModifiedTime ?? this.lastModifiedTime,
         customerId: customerId ?? this.customerId,
@@ -475,12 +461,6 @@ class Results {
         villaAddress: villaAddress ?? this.villaAddress,
         customerDiscount: customerDiscount ?? this.customerDiscount,
         cusfragrance: cusfragrance ?? this.cusfragrance,
-        employeeId: employeeId ?? this.employeeId,
-        employeeName: employeeName ?? this.employeeName,
-        driverId: driverId ?? this.driverId,
-        driverName: driverName ?? this.driverName,
-        pickupDriverId: pickupDriverId ?? this.pickupDriverId,
-        pickupDriverName: pickupDriverName ?? this.pickupDriverName,
         quantity: quantity ?? this.quantity,
         subTotal: subTotal ?? this.subTotal,
         discount: discount ?? this.discount,
@@ -490,16 +470,11 @@ class Results {
         bill: bill ?? this.bill,
         deliveryType: deliveryType ?? this.deliveryType,
         accountType: accountType ?? this.accountType,
-        paymentMode: paymentMode ?? this.paymentMode,
         clothData: clothData ?? this.clothData,
-        clothWiseStatus: clothWiseStatus ?? this.clothWiseStatus,
         folded: folded ?? this.folded,
         hanger: hanger ?? this.hanger,
         packing: packing ?? this.packing,
         status: status ?? this.status,
-        rackName: rackName ?? this.rackName,
-        rackFloor: rackFloor ?? this.rackFloor,
-        clothAndMechineId: clothAndMechineId ?? this.clothAndMechineId,
         tenderCurrency: tenderCurrency ?? this.tenderCurrency,
         commission: commission ?? this.commission,
         tenderDate: tenderDate ?? this.tenderDate,
@@ -515,29 +490,93 @@ class Results {
         packingType: packingType ?? this.packingType,
         starch: starch ?? this.starch,
         paymentremarks: paymentremarks ?? this.paymentremarks,
+        vatsubTotal: vatsubTotal ?? this.vatsubTotal,
         trash: trash ?? this.trash,
+        paymentMode: paymentMode ?? this.paymentMode,
+        clothWiseStatus: clothWiseStatus ?? this.clothWiseStatus,
+        driverId: driverId ?? this.driverId,
+        driverName: driverName ?? this.driverName,
+        pickupDriverId: pickupDriverId ?? this.pickupDriverId,
+        pickupDriverName: pickupDriverName ?? this.pickupDriverName,
+        employeeId: employeeId ?? this.employeeId,
+        employeeName: employeeName ?? this.employeeName,
+        rackName: rackName ?? this.rackName,
+        rackFloor: rackFloor ?? this.rackFloor,
+        deliveredDateTime: deliveredDateTime ?? this.deliveredDateTime,
+    );
+}
+
+class ClothWiseStatus {
+    int? id;
+    String? bill;
+    String? date;
+    String? cloth;
+    int? deliveryQty;
+
+    ClothWiseStatus({this.id, this.bill, this.date, this.cloth, this.deliveryQty});
+
+    ClothWiseStatus.fromJson(Map<String, dynamic> json) {
+        if(json["id"] is num) {
+            id = (json["id"] as num).toInt();
+        }
+        if(json["bill"] is String) {
+            bill = json["bill"];
+        }
+        if(json["date"] is String) {
+            date = json["date"];
+        }
+        if(json["cloth"] is String) {
+            cloth = json["cloth"];
+        }
+        if(json["deliveryQty"] is num) {
+            deliveryQty = (json["deliveryQty"] as num).toInt();
+        }
+    }
+
+    static List<ClothWiseStatus> fromList(List<Map<String, dynamic>> list) {
+        return list.map(ClothWiseStatus.fromJson).toList();
+    }
+
+    Map<String, dynamic> toJson() {
+        final Map<String, dynamic> _data = <String, dynamic>{};
+        _data["id"] = id;
+        _data["bill"] = bill;
+        _data["date"] = date;
+        _data["cloth"] = cloth;
+        _data["deliveryQty"] = deliveryQty;
+        return _data;
+    }
+
+    ClothWiseStatus copyWith({
+        int? id,
+        String? bill,
+        String? date,
+        String? cloth,
+        int? deliveryQty,
+    }) => ClothWiseStatus(
+        id: id ?? this.id,
+        bill: bill ?? this.bill,
+        date: date ?? this.date,
+        cloth: cloth ?? this.cloth,
+        deliveryQty: deliveryQty ?? this.deliveryQty,
     );
 }
 
 class ClothData {
     int? qnty;
-    String? unit;
     String? billing;
     int? priceId;
     String? service;
     String? clothImg;
     String? clothName;
     String? arabicName;
-    String? clothPrice;
+    int? clothPrice;
 
-    ClothData({this.qnty, this.unit, this.billing, this.priceId, this.service, this.clothImg, this.clothName, this.arabicName, this.clothPrice});
+    ClothData({this.qnty, this.billing, this.priceId, this.service, this.clothImg, this.clothName, this.arabicName, this.clothPrice});
 
     ClothData.fromJson(Map<String, dynamic> json) {
         if(json["qnty"] is num) {
             qnty = (json["qnty"] as num).toInt();
-        }
-        if(json["unit"] is String) {
-            unit = json["unit"];
         }
         if(json["billing"] is String) {
             billing = json["billing"];
@@ -557,8 +596,8 @@ class ClothData {
         if(json["arabicName"] is String) {
             arabicName = json["arabicName"];
         }
-        if(json["clothPrice"] is String) {
-            clothPrice = json["clothPrice"];
+        if(json["clothPrice"] is num) {
+            clothPrice = (json["clothPrice"] as num).toInt();
         }
     }
 
@@ -569,7 +608,6 @@ class ClothData {
     Map<String, dynamic> toJson() {
         final Map<String, dynamic> _data = <String, dynamic>{};
         _data["qnty"] = qnty;
-        _data["unit"] = unit;
         _data["billing"] = billing;
         _data["priceId"] = priceId;
         _data["service"] = service;
@@ -582,17 +620,15 @@ class ClothData {
 
     ClothData copyWith({
         int? qnty,
-        String? unit,
         String? billing,
         int? priceId,
         String? service,
         String? clothImg,
         String? clothName,
         String? arabicName,
-        String? clothPrice,
+        int? clothPrice,
     }) => ClothData(
         qnty: qnty ?? this.qnty,
-        unit: unit ?? this.unit,
         billing: billing ?? this.billing,
         priceId: priceId ?? this.priceId,
         service: service ?? this.service,
@@ -600,5 +636,61 @@ class ClothData {
         clothName: clothName ?? this.clothName,
         arabicName: arabicName ?? this.arabicName,
         clothPrice: clothPrice ?? this.clothPrice,
+    );
+}
+
+class EditHistory {
+    int? id;
+    String? editedBy;
+    String? editedDate;
+    bool? trash;
+    int? order;
+
+    EditHistory({this.id, this.editedBy, this.editedDate, this.trash, this.order});
+
+    EditHistory.fromJson(Map<String, dynamic> json) {
+        if(json["id"] is num) {
+            id = (json["id"] as num).toInt();
+        }
+        if(json["edited_by"] is String) {
+            editedBy = json["edited_by"];
+        }
+        if(json["edited_date"] is String) {
+            editedDate = json["edited_date"];
+        }
+        if(json["trash"] is bool) {
+            trash = json["trash"];
+        }
+        if(json["order"] is num) {
+            order = (json["order"] as num).toInt();
+        }
+    }
+
+    static List<EditHistory> fromList(List<Map<String, dynamic>> list) {
+        return list.map(EditHistory.fromJson).toList();
+    }
+
+    Map<String, dynamic> toJson() {
+        final Map<String, dynamic> _data = <String, dynamic>{};
+        _data["id"] = id;
+        _data["edited_by"] = editedBy;
+        _data["edited_date"] = editedDate;
+        _data["trash"] = trash;
+        _data["order"] = order;
+        return _data;
+    }
+
+    EditHistory copyWith({
+        int? id,
+        String? editedBy,
+        String? editedDate,
+        bool? trash,
+        int? order,
+    }) => EditHistory(
+        id: id ?? this.id,
+        editedBy: editedBy ?? this.editedBy,
+        editedDate: editedDate ?? this.editedDate,
+        trash: trash ?? this.trash,
+        order: order ?? this.order,
     );
 }
