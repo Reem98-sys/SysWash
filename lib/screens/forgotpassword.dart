@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:syswash/bloc/bloc/forgotpass_bloc.dart';
@@ -65,7 +66,7 @@ class _ForgotpasswordState extends State<Forgotpassword> {
                         SizedBox(height: 10.h),
                         Container(
                           width: 317.w,
-                          height: 50.h,
+                          // height: 50.h,
                           padding: const EdgeInsets.symmetric(horizontal: 16),
                           decoration: BoxDecoration(
                             color: Colors.white,
@@ -80,10 +81,13 @@ class _ForgotpasswordState extends State<Forgotpassword> {
                           ),
                           child: TextField(
                             controller: codeController,
+                            textAlignVertical: TextAlignVertical.center,
+                            maxLength: 20,
                             decoration: InputDecoration(
-                              // contentPadding: EdgeInsets.all(10),
+                              contentPadding: EdgeInsets.symmetric(vertical: 15),
                               border: InputBorder.none,
                               hintText: 'Enter company code',
+                              counterText: '',
                             ),
                           ),
                         ),
@@ -130,7 +134,7 @@ class _ForgotpasswordState extends State<Forgotpassword> {
                         SizedBox(height: 10.h),
                         Container(
                           width: 317.w,
-                          height: 50.h,
+                          // height: 50.h,
                           padding: const EdgeInsets.symmetric(horizontal: 16),
                           decoration: BoxDecoration(
                             color: Colors.white,
@@ -145,10 +149,21 @@ class _ForgotpasswordState extends State<Forgotpassword> {
                           ),
                           child: TextField(
                             controller: emailController,
+                            keyboardType: TextInputType.emailAddress,
+                            maxLength: 35,
+                            inputFormatters: [
+                              LengthLimitingTextInputFormatter(35),
+                              FilteringTextInputFormatter.allow(
+                                RegExp(r'[a-zA-Z0-9@._%+-]'),
+                              ),
+                              FilteringTextInputFormatter.deny(RegExp(r'\s')),
+                            ],
+                            textAlignVertical: TextAlignVertical.center,
                             decoration: InputDecoration(
-                              // contentPadding: EdgeInsets.all(10),
+                              contentPadding: EdgeInsets.symmetric(vertical: 15),
                               border: InputBorder.none,
                               hintText: 'Enter Email',
+                              counterText: '',
                             ),
                           ),
                         ),

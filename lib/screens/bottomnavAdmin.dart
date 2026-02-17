@@ -24,7 +24,7 @@ class _BottomnavadminState extends State<Bottomnavadmin> {
 
   final List<Map<String, dynamic>> _items = [
     {'icon': 'assets/home.svg', 'label': 'Home'},
-    {'icon': 'assets/history.svg', 'label': 'Report'},
+    {'icon': 'assets/expense.svg', 'label': 'Report'},
     {'icon': 'assets/person.svg', 'label': 'Profile'},
   ];
 

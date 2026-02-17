@@ -1037,4 +1037,30 @@ class SysRepository {
     final List data = jsonDecode(response.body);
     return data.map((e) => AdminEditHistory.fromJson(e)).toList();
   }
+
+  Future<String> adminadddevicetoken(
+    String userID,
+    String companyCode,
+    String token,
+    String devicetoken,
+  ) async {
+   
+    String url =
+        "";
+    body = {
+      "driver_id": userID, 
+      "device_token": devicetoken
+      };
+    Response response = await apiClient.invokeAPI(
+      url,
+      "POST",
+      jsonEncode(body),
+      token: token,
+    );
+    if (response.statusCode == 200) {
+      return 'Device token registered successfully';
+    } else {
+      return '';
+    }
+  }
 }

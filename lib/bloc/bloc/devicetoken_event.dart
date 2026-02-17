@@ -14,3 +14,16 @@ class FetchDeviceTokenEvent extends DevicetokenEvent {
     required this.devicetoken
     });
 }
+
+class FetchAdminDeviceTokenEvent extends DevicetokenEvent {
+  final String userID;
+  final String companyCode;
+  final String token;
+  final String devicetoken;
+  FetchAdminDeviceTokenEvent({
+    required this.userID,
+    required this.companyCode,
+    required this.token,
+    required this.devicetoken
+    });
+}

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -26,6 +27,23 @@ class _LoginState extends State<Login> {
   bool _obscurePassword = true; // Track password visibility
   late LoginModel loginModel;
   final storage = FlutterSecureStorage();
+
+  bool isValidEmail(String email) {
+    return RegExp(
+      r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
+    ).hasMatch(email);
+  }
+
+  void showError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red,
+      ),
+    );
+  }
+
+
   Future<void> saveLoginId(
     String userId,
     String companyCode,
@@ -86,33 +104,62 @@ class _LoginState extends State<Login> {
     String userId,
     String companyCode,
     String token,
+    String userType
   ) async {
     final FirebaseMessaging messaging = FirebaseMessaging.instance;
 
     // 1️⃣ Get current device token
     String? deviceToken = await messaging.getToken();
-    if (deviceToken != null) {
-      BlocProvider.of<DevicetokenBloc>(context).add(
-        FetchDeviceTokenEvent(
-          userID: userId,
-          companyCode: companyCode,
-          token: token,
-          devicetoken: deviceToken,
-        ),
-      );
-    }
+    print('Device token = $deviceToken');
+    if (userType == 'Driver') {
+      if (deviceToken != null) {
+        BlocProvider.of<DevicetokenBloc>(context).add(
+          FetchDeviceTokenEvent(
+            userID: userId,
+            companyCode: companyCode,
+            token: token,
+            devicetoken: deviceToken,
+          ),
+        );
+      }
 
-    // 2️⃣ Listen for token refresh
-    messaging.onTokenRefresh.listen((newToken) {
-      BlocProvider.of<DevicetokenBloc>(context).add(
-        FetchDeviceTokenEvent(
-          userID: userId,
-          companyCode: companyCode,
-          token: token,
-          devicetoken: newToken,
-        ),
-      );
-    });
+      // 2️⃣ Listen for token refresh
+      messaging.onTokenRefresh.listen((newToken) {
+        BlocProvider.of<DevicetokenBloc>(context).add(
+          FetchDeviceTokenEvent(
+            userID: userId,
+            companyCode: companyCode,
+            token: token,
+            devicetoken: newToken,
+          ),
+        );
+      });
+    }
+    else {
+      // if (deviceToken != null) {
+      //   BlocProvider.of<DevicetokenBloc>(context).add(
+      //     FetchAdminDeviceTokenEvent(
+      //       userID: userId,
+      //       companyCode: companyCode,
+      //       token: token,
+      //       devicetoken: deviceToken,
+      //     ),
+      //   );
+      // }
+
+      // // 2️⃣ Listen for token refresh
+      // messaging.onTokenRefresh.listen((newToken) {
+      //   BlocProvider.of<DevicetokenBloc>(context).add(
+      //     FetchAdminDeviceTokenEvent(
+      //       userID: userId,
+      //       companyCode: companyCode,
+      //       token: token,
+      //       devicetoken: newToken,
+      //     ),
+      //   );
+      // });
+    }
+    
   }
 
   @override
@@ -180,7 +227,7 @@ class _LoginState extends State<Login> {
                     SizedBox(height: 10.h),
                     Container(
                       width: 317.w,
-                      height: 50.h,
+                      // height: 50.h,
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       decoration: BoxDecoration(
                         color: Colors.white,
@@ -195,10 +242,13 @@ class _LoginState extends State<Login> {
                       ),
                       child: TextField(
                         controller: companyCode,
+                        textAlignVertical: TextAlignVertical.center,
+                        maxLength: 20,
                         decoration: InputDecoration(
-                          // contentPadding: EdgeInsets.all(5),
+                          contentPadding: EdgeInsets.symmetric(vertical: 15),
                           border: InputBorder.none,
                           hintText: 'Enter company code',
+                          counterText: '', // hides character counter
                         ),
                       ),
                     ),
@@ -233,7 +283,7 @@ class _LoginState extends State<Login> {
                     SizedBox(height: 10.h),
                     Container(
                       width: 317.w,
-                      height: 50.h,
+                      // height: 50.h,
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       decoration: BoxDecoration(
                         color: Colors.white,
@@ -248,10 +298,21 @@ class _LoginState extends State<Login> {
                       ),
                       child: TextField(
                         controller: emailController,
+                        keyboardType: TextInputType.emailAddress,
+                        maxLength: 35,
+                        inputFormatters: [
+                          LengthLimitingTextInputFormatter(35),
+                          FilteringTextInputFormatter.allow(
+                            RegExp(r'[a-zA-Z0-9@._%+-]'),
+                          ),
+                          FilteringTextInputFormatter.deny(RegExp(r'\s')),
+                        ],
+                        textAlignVertical: TextAlignVertical.center,
                         decoration: InputDecoration(
-                          // contentPadding: EdgeInsets.all(10),
+                          contentPadding: EdgeInsets.symmetric(vertical: 15),
                           border: InputBorder.none,
                           hintText: 'Enter Email',
+                          counterText: '',
                         ),
                       ),
                     ),
@@ -284,7 +345,7 @@ class _LoginState extends State<Login> {
                     SizedBox(height: 10.h),
                     Container(
                       width: 317.w,
-                      height: 50.h,
+                      // height: 50.h,
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       decoration: BoxDecoration(
                         color: Colors.white,
@@ -299,11 +360,15 @@ class _LoginState extends State<Login> {
                       ),
                       child: TextField(
                         controller: passwordController,
+                        textAlignVertical: TextAlignVertical.center,
                         obscureText: _obscurePassword, //  Apply the boolean
+                        maxLength: 20,
                         decoration: InputDecoration(
                           contentPadding: EdgeInsets.symmetric(vertical: 15),
                           border: InputBorder.none,
                           hintText: 'Enter Password',
+                          counterText: '',
+                          isDense: true,
                           suffixIcon: IconButton(
                             onPressed: () {
                               setState(() {
@@ -410,6 +475,7 @@ class _LoginState extends State<Login> {
                         loginModel.id.toString(),
                         companyCode.text.trim(),
                         loginModel.access.toString(),
+                        loginModel.userType.toString()
                       );
                       if (loginModel.userType == 'Driver') {
                         Navigator.pushReplacement(
@@ -429,6 +495,24 @@ class _LoginState extends State<Login> {
                 },
                 child: GestureDetector(
                   onTap: () {
+                    final email = emailController.text.trim();
+                    
+                    if (companyCode.text.trim().isEmpty) {
+                      showError("Company code is required");
+                      return;
+                    } 
+
+                    if (email.isEmpty || !isValidEmail(email)) {
+                      showError("Please enter a valid email address");
+                      return; // STOP login
+                    }
+
+                    if (passwordController.text.trim().isEmpty) {
+                      showError("Password is required");
+                      return;
+                    }
+
+                    
                     BlocProvider.of<LoginBloc>(context).add(
                       FetchLoginEvent(
                         email: emailController.text.trim(),

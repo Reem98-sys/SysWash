@@ -22,5 +22,19 @@ class DevicetokenBloc extends Bloc<DevicetokenEvent, DevicetokenState> {
         emit(DeviceTokenError(message: e.toString()));
       }
     });
+    on<FetchAdminDeviceTokenEvent>((event, emit) async {
+      emit(DeviceTokenLoading());
+      try {
+        final result = await sysRepository.adminadddevicetoken(event.userID, event.companyCode, event.token, event.devicetoken);
+        if (result != '') {
+          emit(AdminDeviceTokenLoaded(message: result));
+        }
+        else {
+          emit(DeviceTokenError(message: 'Unable to register'));
+        }
+      } catch (e) {
+        emit(DeviceTokenError(message: e.toString()));
+      }
+    });
   }
 }

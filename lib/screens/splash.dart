@@ -53,32 +53,51 @@ class _SplashScreenState extends State<SplashScreen> {
 
     if (userId != null && companyCode != null && accessToken != null && userType != null) {
 
-      // ✅ Optional: re-sync device token (safe version)
-      try {
-        final String? deviceToken =
-            await FirebaseMessaging.instance.getToken().timeout(const Duration(seconds: 3));
-
-        if (deviceToken != null && mounted) {
-          context.read<DevicetokenBloc>().add(
-                FetchDeviceTokenEvent(
-                  userID: userId,
-                  companyCode: companyCode,
-                  token: accessToken,
-                  devicetoken: deviceToken,
-                ),
-              );
-        }
-      } catch (e) {
-        debugPrint('Device token error: $e');
-      }
-
       if (userType == 'Driver') {
+
+        // Optional: re-sync device token (safe version)
+        try {
+          final String? deviceToken =
+              await FirebaseMessaging.instance.getToken().timeout(const Duration(seconds: 3));
+
+          if (deviceToken != null && mounted) {
+            context.read<DevicetokenBloc>().add(
+                  FetchDeviceTokenEvent(
+                    userID: userId,
+                    companyCode: companyCode,
+                    token: accessToken,
+                    devicetoken: deviceToken,
+                  ),
+                );
+          }
+        } catch (e) {
+          debugPrint('Device token error: $e');
+        } 
+        
         //  Navigate to driver home
         Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (_) => const Bottomnav()),
       );
       }  
       else {
+        // try {
+        //   final String? deviceToken =
+        //       await FirebaseMessaging.instance.getToken().timeout(const Duration(seconds: 3));
+
+        //   if (deviceToken != null && mounted) {
+        //     context.read<DevicetokenBloc>().add(
+        //           FetchAdminDeviceTokenEvent(
+        //             userID: userId,
+        //             companyCode: companyCode,
+        //             token: accessToken,
+        //             devicetoken: deviceToken,
+        //           ),
+        //         );
+        //   }
+        // } catch (e) {
+        //   debugPrint('Device token error: $e');
+        // }
+        
         //  Navigate to admin home
         Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (_) => const Bottomnavadmin()),
