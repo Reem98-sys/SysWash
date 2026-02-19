@@ -22,5 +22,17 @@ class AdminclosereportBloc extends Bloc<AdminclosereportEvent, AdminclosereportS
         emit(AdminClosingReportError());
       }
     });
+    on<FetchClosingBranchReportEvent>((event, emit) async {
+      emit(AdminClosingReportLoading());
+      try {
+        closingReport = await sysRepository.adminclosingbranchreport(event.token,event.companyCode,event.startDate,event.endDate,event.branch);
+        emit(AdminClosingBranchReportLoaded(
+          closingReport: closingReport
+          ));
+      } catch (e) {
+        print(e);
+        emit(AdminClosingReportError());
+      }
+    });
   }
 }

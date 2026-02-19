@@ -168,6 +168,7 @@ class _HomeState extends State<Home> {
           
                       //  Order Summary Row
                       Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           BlocBuilder<HomeBloc, HomeState>(
                             builder: (context, state) {
@@ -267,7 +268,7 @@ class _HomeState extends State<Home> {
                             },
                           ),
           
-                          SizedBox(width: 35.w),
+                          // SizedBox(width: 35.w),
                           Column(
                             children: [
                               GestureDetector(
@@ -329,7 +330,7 @@ class _HomeState extends State<Home> {
                                     child: ChoiceChip(
                                       label: Padding(
                                         padding: EdgeInsets.symmetric(
-                                          horizontal: 8.w,
+                                          horizontal: 3.w,
                                         ),
                                         child: Text(
                                           filter,
@@ -623,30 +624,30 @@ class _HomeState extends State<Home> {
   //  Small reusable button widget
   Widget _orderButton(String text, Color color) {
     return Container(
-      width: 173.w,
+      width: 180.w,
       height: 49.h,
       decoration: BoxDecoration(
         color: color,
         borderRadius: BorderRadius.circular(6),
       ),
-      child: Row(
-        children: [
-          SizedBox(width: 15.w),
-          Text(
-            text,
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 14.sp,
-              fontFamily: 'DM Sans',
-              fontWeight: FontWeight.w700,
+      child: Padding(
+        padding: const EdgeInsets.all(10.0),
+        child: Row(
+          children: [
+            // SizedBox(width: 15.w),
+            Text(
+              text,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 14.sp,
+                fontFamily: 'DM Sans',
+                fontWeight: FontWeight.w700,
+              ),
             ),
-          ),
-          const Spacer(),
-          const Padding(
-            padding: EdgeInsets.all(5.0),
-            child: Icon(Icons.arrow_forward_rounded, color: Colors.white),
-          ),
-        ],
+            const Spacer(),
+            Icon(Icons.arrow_forward_rounded, color: Colors.white),
+          ],
+        ),
       ),
     );
   }

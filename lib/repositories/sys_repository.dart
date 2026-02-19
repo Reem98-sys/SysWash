@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:syswash/model/accounttype.dart';
+import 'package:syswash/model/adminBranch.dart';
 import 'package:syswash/model/adminProfle.dart';
 import 'package:syswash/model/adminclosingreport.dart';
 import 'package:syswash/model/adminedithistory.dart';
@@ -628,10 +629,11 @@ class SysRepository {
   // API FOR ADMIN
   Future<double?> admintotalsale(
     String token,
-    String companyCode
+    String companyCode,
+    var branch
   ) async {
     String url =
-        "https://be.syswash.net/api/syswash/totalsales?code=${companyCode}";
+        "https://be.syswash.net/api/syswash/totalsales?database=$branch&code=${companyCode}";
     body = {};
     Response response = await apiClient.invokeAPI(
       url,
@@ -680,6 +682,26 @@ class SysRepository {
     return ClosingReport.fromJson(jsonDecode(response.body));
   }
 
+  Future<ClosingReport> adminclosingbranchreport(
+    String token,
+    String companyCode,
+    String startDate,
+    String endDate,
+    String branch
+  ) async {
+    String url =
+        "https://be.syswash.net/api/syswash/branchclosingreport?database=$branch&startDate=$startDate&endDate=$endDate&user=null&code=$companyCode";
+    body = {};
+    Response response = await apiClient.invokeAPI(
+      url,
+      "GET",
+      jsonEncode(body),
+      token: token,
+    );
+    
+    return ClosingReport.fromJson(jsonDecode(response.body));
+  }
+
   Future<CompanyDetails> admincompany(
     String token,
     String companyCode
@@ -700,9 +722,10 @@ class SysRepository {
   Future<List<SalesGraph>> adminsalesgraph(
     String token,
     String companyCode,
+    var branch
   ) async {
     String url =
-        "https://be.syswash.net/api/syswash/salesgraph?database=null&code=${companyCode}";
+        "https://be.syswash.net/api/syswash/salesgraph?database=$branch&code=${companyCode}";
     body = {};
     Response response = await apiClient.invokeAPI(
       url,
@@ -1062,5 +1085,21 @@ class SysRepository {
     } else {
       return '';
     }
+  }
+
+  Future<AdminBranch> adminBranch(
+    String token,
+    String companyCode
+  ) async {
+    String url =
+        "https://be.syswash.net/api/syswash/branchadd?code=$companyCode";
+    body = {};
+    Response response = await apiClient.invokeAPI(
+      url,
+      "GET",
+      jsonEncode(body),
+      token: token,
+    );
+    return AdminBranch.fromJson(jsonDecode(response.body));
   }
 }

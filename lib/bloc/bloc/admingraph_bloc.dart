@@ -13,12 +13,13 @@ class AdmingraphBloc extends Bloc<AdmingraphEvent, AdmingraphState> {
     on<FetchSalesGraphEvent>((event, emit) async {
       emit(AdmingraphLoading());
       try {
-        salesGraph = await sysRepository.adminsalesgraph(event.token,event.companyCode);
+        salesGraph = await sysRepository.adminsalesgraph(event.token,event.companyCode,event.branch);
         emit(AdmingraphLoaded(
           salesGraph: salesGraph
           ));
-      } catch (e) {
-        print(e);
+      } catch (e,stackTrace) {
+        print('AdmingraphBloc ERROR: $e');
+  print('STACKTRACE: $stackTrace');
         emit(AdmingraphError());
       }
     });

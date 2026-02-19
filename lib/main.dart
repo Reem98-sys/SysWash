@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:overlay_support/overlay_support.dart';
+import 'package:syswash/bloc/bloc/adminbranch_bloc.dart';
 import 'package:syswash/bloc/bloc/adminclosereport_bloc.dart';
 import 'package:syswash/bloc/bloc/admingraph_bloc.dart';
 import 'package:syswash/bloc/bloc/adminhome_bloc.dart';
@@ -28,6 +29,7 @@ import 'package:syswash/bloc/bloc/settings_bloc.dart';
 import 'package:syswash/bloc/bloc/uploadpickup_bloc.dart';
 
 import 'package:syswash/firebase_options.dart';
+import 'package:syswash/model/adminBranch.dart';
 import 'package:syswash/screens/login.dart';
 import 'package:syswash/screens/splash.dart';
 
@@ -70,6 +72,7 @@ void main() async {
           BlocProvider(create: (context) => ReportBloc()),
           BlocProvider(create: (context) => ReportlistBloc()),
           BlocProvider(create: (context) => AdminprofileBloc()),
+          BlocProvider(create: (context) => AdminbranchBloc()),
         ],
         child: const MyApp(),
       ),

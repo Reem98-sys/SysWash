@@ -11,4 +11,10 @@ class AdminClosingReportLoaded extends AdminclosereportState {
     required this.closingReport,
     });
 }
+class AdminClosingBranchReportLoaded extends AdminclosereportState {
+  final ClosingReport closingReport;
+  AdminClosingBranchReportLoaded({
+    required this.closingReport,
+    });
+}
 class AdminClosingReportError extends AdminclosereportState {}

@@ -6,7 +6,8 @@ sealed class AdminhomeEvent {}
 class FetchtotalsaleEvent extends AdminhomeEvent {
   final String token;
   final String companyCode;
-  FetchtotalsaleEvent({required this.token, required this.companyCode});
+  var branch;
+  FetchtotalsaleEvent({required this.token, required this.companyCode, required this.branch});
 }
 class FetchcompanyEvent extends AdminhomeEvent {
   final String token;

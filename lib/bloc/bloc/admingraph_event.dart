@@ -6,5 +6,6 @@ sealed class AdmingraphEvent {}
 class FetchSalesGraphEvent extends AdmingraphEvent {
   final String token;
   final String companyCode;
-  FetchSalesGraphEvent({required this.token, required this.companyCode});
+  var branch;
+  FetchSalesGraphEvent({required this.token, required this.companyCode, required this.branch});
 }
