@@ -79,7 +79,7 @@ class _HistoryState extends State<History> with SingleTickerProviderStateMixin {
         bottom: PreferredSize(
           preferredSize: Size.fromHeight(kToolbarHeight + 60.h), // total height of both widgets
           child: SizedBox(
-            height: 100.h,
+            // height: 100.h,
             child: Column(
               children: [
                 Padding(

@@ -788,7 +788,8 @@ class _DeliverydetailState extends State<Deliverydetail> {
                                       ),
                                     ),
                                     Text(
-                                      deliveryItems.totalAmount?? '',
+                                      (double.tryParse(deliveryItems.totalAmount ?? '0') ?? 0.0)
+                                        .toStringAsFixed(2),
                                       style: TextStyle(
                                         color: const Color(0xFF68188B),
                                         fontSize: 15.sp,

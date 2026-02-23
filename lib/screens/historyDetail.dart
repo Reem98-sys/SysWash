@@ -79,6 +79,9 @@ class _HistorydetailState extends State<Historydetail> {
     return Scaffold(
       body: Column(
         children: [
+          SizedBox(
+            height: 15.h,
+          ),
           Container(
               width: 400.w,
               height: 51.h,
@@ -178,7 +181,7 @@ class _HistorydetailState extends State<Historydetail> {
                             },
                             child: Container(
                               width: 364.w,
-                              height: 90.h,
+                              // height: 90.h,
                               decoration: ShapeDecoration(
                                 color: Colors.white,
                                 shape: RoundedRectangleBorder(

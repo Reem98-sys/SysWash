@@ -139,7 +139,7 @@ class _EditprofileState extends State<Editprofile> {
                 children: [
                   Container(
                     width: 352.w,
-                    height: 80.h,
+                    // height: 80.h,
                     child: Column(
                       children: [
                         Row(
@@ -158,7 +158,7 @@ class _EditprofileState extends State<Editprofile> {
                         SizedBox(height: 5.h),
                         Container(
                           width: 352.w,
-                          height: 50.h,
+                          // height: 50.h,
                           padding: const EdgeInsets.symmetric(horizontal: 16),
                           decoration: BoxDecoration(
                             color: Colors.white,
@@ -182,10 +182,10 @@ class _EditprofileState extends State<Editprofile> {
                       ],
                     ),
                   ),
-                  SizedBox(height: 10.h),
+                  SizedBox(height: 13.h),
                   Container(
                     width: 352.w,
-                    height: 80.h,
+                    // height: 80.h,
                     child: Column(
                       children: [
                         Row(
@@ -204,7 +204,7 @@ class _EditprofileState extends State<Editprofile> {
                         SizedBox(height: 5.h),
                         Container(
                           width: 352.w,
-                          height: 50.h,
+                          // height: 50.h,
                           padding: const EdgeInsets.symmetric(horizontal: 16),
                           decoration: BoxDecoration(
                             color: Colors.white,
@@ -228,15 +228,15 @@ class _EditprofileState extends State<Editprofile> {
                       ],
                     ),
                   ),
-                  SizedBox(height: 10.h),
+                  SizedBox(height: 13.h),
                   Container(
                     width: 352.w,
-                    height: 80.h,
+                    // height: 80.h,
                     child: Row(
                       children: [
                         Container(
                           width: 168.w,
-                          height: 80.h,
+                          // height: 80.h,
                           child: Column(
                             children: [
                               Row(
@@ -255,7 +255,7 @@ class _EditprofileState extends State<Editprofile> {
                               SizedBox(height: 5.h),
                               Container(
                                 width: 168.w,
-                                height: 50.h,
+                                // height: 50.h,
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 16,
                                 ),
@@ -285,7 +285,7 @@ class _EditprofileState extends State<Editprofile> {
                         SizedBox(width: 15.w),
                         Container(
                           width: 168.w,
-                          height: 80.h,
+                          // height: 80.h,
                           child: Column(
                             children: [
                               Row(
@@ -304,7 +304,7 @@ class _EditprofileState extends State<Editprofile> {
                               SizedBox(height: 5.h),
                               Container(
                                 width: 168.w,
-                                height: 50.h,
+                                // height: 50.h,
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 16,
                                 ),
@@ -334,10 +334,10 @@ class _EditprofileState extends State<Editprofile> {
                       ],
                     ),
                   ),
-                  SizedBox(height: 10.h),
+                  SizedBox(height: 13.h),
                   Container(
                     width: 352.w,
-                    height: 85.h,
+                    // height: 85.h,
                     child: Column(
                       children: [
                         Row(
@@ -356,7 +356,7 @@ class _EditprofileState extends State<Editprofile> {
                         SizedBox(height: 5.h),
                         Container(
                           width: 352.w,
-                          height: 50.h,
+                          // height: 50.h,
                           padding: const EdgeInsets.symmetric(horizontal: 16),
                           decoration: BoxDecoration(
                             color: Colors.white,
@@ -381,7 +381,7 @@ class _EditprofileState extends State<Editprofile> {
                       ],
                     ),
                   ),
-                  SizedBox(height: 20.h),
+                  SizedBox(height: 25.h),
                   GestureDetector(
                     onTap: () {
                       _updateProfileData(

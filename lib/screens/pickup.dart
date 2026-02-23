@@ -306,7 +306,7 @@ class _PickupState extends State<Pickup> {
                               },
                               child: Container(
                                 width: 364.w,
-                                height: 105.h,
+                                // height: 105.h,
                                 decoration: ShapeDecoration(
                                   color: Colors.white,
                                   shape: RoundedRectangleBorder(

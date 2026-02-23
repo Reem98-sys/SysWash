@@ -35,7 +35,7 @@ class _PickupdetailsState extends State<Pickupdetails> {
   List<Map<String, dynamic>> _orderItemsList = [];
   int? totalItem = 0;
   int? totalquantity = 0;
-  double totalAmount = 0.0;
+  double totalAmount = 0.00;
 
   final storage = const FlutterSecureStorage();
 
@@ -89,7 +89,7 @@ class _PickupdetailsState extends State<Pickupdetails> {
 
   void _recalculateTotals() {
     int qty = 0;
-    double subtotal = 0.0;
+    double subtotal = 0.00;
 
     for (var item in _orderItemsList) {
       final price =
@@ -220,7 +220,7 @@ class _PickupdetailsState extends State<Pickupdetails> {
                 print('❌ Bloc Error: ${state.message}');
                 ScaffoldMessenger.of(
                   context,
-                ).showSnackBar(SnackBar(content: Text('Failed to load data')));
+                ).showSnackBar(SnackBar(content: Text(state.message)));
               }
               if (state is PickupCustDetailsLoaded) {
                 //  Update local list when new data arrives
@@ -983,7 +983,7 @@ class _PickupdetailsState extends State<Pickupdetails> {
                                       ),
                                     ),
                                     Text(
-                                      totalAmount.toString(),
+                                      totalAmount.toStringAsFixed(2),
                                       style: TextStyle(
                                         color: const Color(0xFF68188B),
                                         fontSize: 15.sp,

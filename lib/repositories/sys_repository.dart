@@ -240,7 +240,17 @@ class SysRepository {
       jsonEncode({}),
       token: token,
     );
-    return CustomerDetailsModel.fromJson(jsonDecode(response.body));
+
+    final decoded = jsonDecode(response.body);
+
+    if (decoded is Map && decoded.containsKey('status')) {
+    if (decoded['status'] != 200) {
+      throw Exception(decoded['Message'] ?? 'Customer not found');
+    }
+  }
+
+    return CustomerDetailsModel.fromJson(decoded);
+
   }
 
   Future<PickupOrderItemsModel> pickuporderitem(

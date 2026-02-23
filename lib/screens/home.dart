@@ -624,7 +624,7 @@ class _HomeState extends State<Home> {
   //  Small reusable button widget
   Widget _orderButton(String text, Color color) {
     return Container(
-      width: 180.w,
+      width: 200.w,
       height: 49.h,
       decoration: BoxDecoration(
         color: color,
@@ -641,7 +641,7 @@ class _HomeState extends State<Home> {
                 color: Colors.white,
                 fontSize: 14.sp,
                 fontFamily: 'DM Sans',
-                fontWeight: FontWeight.w700,
+                fontWeight: FontWeight.w500,
               ),
             ),
             const Spacer(),
