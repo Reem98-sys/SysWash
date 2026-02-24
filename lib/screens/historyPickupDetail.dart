@@ -638,8 +638,8 @@ class _HistorypickupdetailState extends State<Historypickupdetail> {
                         ),
                       ),
                     Container(
-                      width: 380.w,
-                      height: 76.h,
+                      // width: 380.w,
+                      // height: 76.h,
                       decoration: ShapeDecoration(
                         color: Colors.white,
                         shape: RoundedRectangleBorder(
@@ -659,7 +659,7 @@ class _HistorypickupdetailState extends State<Historypickupdetail> {
                                       'Total Quantity :',
                                       style: TextStyle(
                                         color: Colors.black,
-                                        fontSize: 17.sp,
+                                        fontSize: 15.sp,
                                         fontFamily: 'DM Sans',
                                         fontWeight: FontWeight.w700,
                                         height: 1,
@@ -685,14 +685,15 @@ class _HistorypickupdetailState extends State<Historypickupdetail> {
                                       'Total Amount : ',
                                       style: TextStyle(
                                         color: Colors.black,
-                                        fontSize: 17.sp,
+                                        fontSize: 15.sp,
                                         fontFamily: 'DM Sans',
                                         fontWeight: FontWeight.w700,
                                         height: 1,
                                       ),
                                     ),
                                     Text(
-                                      pickupOrderItems.totalAmount.toString(),
+                                      (double.tryParse(pickupOrderItems.totalAmount ?? '0') ?? 0.0)
+                                        .toStringAsFixed(2),
                                       style: TextStyle(
                                         color: const Color(0xFF68188B),
                                         fontSize: 15.sp,
@@ -716,7 +717,7 @@ class _HistorypickupdetailState extends State<Historypickupdetail> {
                                       'Status : ',
                                       style: TextStyle(
                                         color: Colors.black,
-                                        fontSize: 16.sp,
+                                        fontSize: 15.sp,
                                         fontFamily: 'DM Sans',
                                         fontWeight: FontWeight.w700,
                                         height: 1,
@@ -727,7 +728,7 @@ class _HistorypickupdetailState extends State<Historypickupdetail> {
                                       widget.status,
                                       style: TextStyle(
                                         color: widget.statusColor,
-                                        fontSize: 16.sp,
+                                        fontSize: 15.sp,
                                         fontFamily: 'DM Sans',
                                         fontWeight: FontWeight.w700,
                                         height: 1,

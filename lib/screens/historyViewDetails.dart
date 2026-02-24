@@ -632,8 +632,8 @@ class _HistoryviewdetailsState extends State<Historyviewdetails> {
                         ),
                       ),
                     Container(
-                      width: 380.w,
-                      height: 76.h,
+                      // width: 380.w,
+                      // height: 76.h,
                       decoration: ShapeDecoration(
                         color: Colors.white,
                         shape: RoundedRectangleBorder(
@@ -653,7 +653,7 @@ class _HistoryviewdetailsState extends State<Historyviewdetails> {
                                       'Total Quantity :',
                                       style: TextStyle(
                                         color: Colors.black,
-                                        fontSize: 17.sp,
+                                        fontSize: 15.sp,
                                         fontFamily: 'DM Sans',
                                         fontWeight: FontWeight.w700,
                                         height: 1,
@@ -679,14 +679,15 @@ class _HistoryviewdetailsState extends State<Historyviewdetails> {
                                       'Total Amount : ',
                                       style: TextStyle(
                                         color: Colors.black,
-                                        fontSize: 17.sp,
+                                        fontSize: 15.sp,
                                         fontFamily: 'DM Sans',
                                         fontWeight: FontWeight.w700,
                                         height: 1,
                                       ),
                                     ),
                                     Text(
-                                      deliveryItems.totalAmount.toString(),
+                                      (double.tryParse(deliveryItems.totalAmount ?? '0') ?? 0.0)
+                                        .toStringAsFixed(2),
                                       style: TextStyle(
                                         color: const Color(0xFF68188B),
                                         fontSize: 15.sp,
@@ -710,7 +711,7 @@ class _HistoryviewdetailsState extends State<Historyviewdetails> {
                                       'Status : ',
                                       style: TextStyle(
                                         color: Colors.black,
-                                        fontSize: 16.sp,
+                                        fontSize: 15.sp,
                                         fontFamily: 'DM Sans',
                                         fontWeight: FontWeight.w700,
                                         height: 1,
@@ -721,7 +722,7 @@ class _HistoryviewdetailsState extends State<Historyviewdetails> {
                                       widget.status,
                                       style: TextStyle(
                                         color: widget.statusColor,
-                                        fontSize: 16.sp,
+                                        fontSize: 15.sp,
                                         fontFamily: 'DM Sans',
                                         fontWeight: FontWeight.w700,
                                         height: 1,
@@ -743,7 +744,7 @@ class _HistoryviewdetailsState extends State<Historyviewdetails> {
                                         'Payment Mode : ',
                                         style: TextStyle(
                                           color: Colors.black,
-                                          fontSize: 16.sp,
+                                          fontSize: 15.sp,
                                           fontFamily: 'DM Sans',
                                           fontWeight: FontWeight.w700,
                                           height: 1,
@@ -757,7 +758,7 @@ class _HistoryviewdetailsState extends State<Historyviewdetails> {
                                             .toString(),
                                         style: TextStyle(
                                           color: widget.statusColor,
-                                          fontSize: 16.sp,
+                                          fontSize: 15.sp,
                                           fontFamily: 'DM Sans',
                                           fontWeight: FontWeight.w700,
                                           height: 1,

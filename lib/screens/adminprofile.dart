@@ -81,15 +81,14 @@ class _AdminprofileState extends State<Adminprofile> {
           onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => Bottomnavadmin(currentIndex: 1,))),
           child: Icon(Icons.arrow_back_ios_new_outlined),
         ),
-        title: Center(
-          child: Text(
-            'Profile',
-            style: TextStyle(
-              color: Colors.black,
-              fontSize: 22,
-              fontFamily: 'Poppins',
-              fontWeight: FontWeight.w600,
-            ),
+        centerTitle: true,
+        title: Text(
+          'Profile',
+          style: TextStyle(
+            color: Colors.black,
+            fontSize: 22,
+            fontFamily: 'Poppins',
+            fontWeight: FontWeight.w600,
           ),
         ),
       ),

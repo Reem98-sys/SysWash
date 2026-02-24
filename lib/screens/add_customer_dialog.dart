@@ -94,7 +94,7 @@ Future<bool?> showAddCustomerDialog(
                             state.customerListModel?.data ?? [];
                         return Container(
                           width: 348.w,
-                          height: 50.h,
+                          // height: 70.h,
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(8.r),
@@ -133,9 +133,9 @@ Future<bool?> showAddCustomerDialog(
                               decoration: InputDecoration(
                                 hintText: 'Search',
                                 border: InputBorder.none,
-                                contentPadding: EdgeInsets.only(
-                                  left: 16,
-                                  top: 12,
+                                contentPadding: EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 10,
                                 ),
                               ),
                             ),
@@ -151,7 +151,7 @@ Future<bool?> showAddCustomerDialog(
                               searchFieldProps: TextFieldProps(
                                 decoration: InputDecoration(
                                   contentPadding: EdgeInsets.symmetric(
-                                    vertical: 8,
+                                    vertical: 10,
                                     horizontal: 10,
                                   ),
                                   hintText: "Search...",
@@ -199,7 +199,7 @@ Future<bool?> showAddCustomerDialog(
                   SizedBox(height: 10.h),
                   Container(
                     width: 348.w,
-                    height: 50.h,
+                    // height: 50.h,
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     decoration: BoxDecoration(
                       color: Colors.white,
@@ -214,10 +214,14 @@ Future<bool?> showAddCustomerDialog(
                     ),
                     child: TextFormField(
                       controller: phoneController,
-                      decoration: const InputDecoration(
+                      decoration:  InputDecoration(
                         hintText: 'Phone number',
                         border: InputBorder.none,
+                        hintStyle: TextStyle(
+                          fontSize: 16.sp,)
                       ),
+                      style: TextStyle(
+                        fontSize: 16.sp,)
                     ),
                   ),
 
@@ -226,7 +230,7 @@ Future<bool?> showAddCustomerDialog(
                     children: [
                       Container(
                         width: 140.w,
-                        height: 80.h,
+                        // height: 80.h,
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -242,9 +246,9 @@ Future<bool?> showAddCustomerDialog(
                             SizedBox(height: 10.h),
                             Container(
                               width: 140.w,
-                              height: 50.h,
+                              // height: 50.h,
                               padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
+                                horizontal: 10,
                               ),
                               decoration: BoxDecoration(
                                 color: Colors.white,
@@ -259,10 +263,14 @@ Future<bool?> showAddCustomerDialog(
                               ),
                               child: TextFormField(
                                 controller: areaController,
-                                decoration: const InputDecoration(
+                                decoration:  InputDecoration(
                                   hintText: 'Place',
                                   border: InputBorder.none,
+                                  hintStyle: TextStyle(
+                                    fontSize: 16.sp,)
                                 ),
+                                style: TextStyle(
+                                  fontSize: 16.sp,)
                               ),
                             ),
                           ],
@@ -271,7 +279,7 @@ Future<bool?> showAddCustomerDialog(
                       Spacer(),
                       Container(
                         width: 140.w,
-                        height: 80.h,
+                        // height: 80.h,
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -287,9 +295,9 @@ Future<bool?> showAddCustomerDialog(
                             SizedBox(height: 10.h),
                             Container(
                               width: 140.w,
-                              height: 50.h,
+                              // height: 50.h,
                               padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
+                                horizontal: 10,
                               ),
                               decoration: BoxDecoration(
                                 color: Colors.white,
@@ -305,10 +313,14 @@ Future<bool?> showAddCustomerDialog(
                               child: TextFormField(
                                 controller: dateController,
                                 readOnly: true, // prevent manual typing
-                                decoration: const InputDecoration(
+                                decoration:  InputDecoration(
                                   hintText: 'Date',
                                   border: InputBorder.none,
+                                  hintStyle: TextStyle(
+                                    fontSize: 16.sp,)
                                 ),
+                                style: TextStyle(
+                                  fontSize: 16.sp,) 
                               ),
                             ),
                           ],
@@ -344,10 +356,13 @@ Future<bool?> showAddCustomerDialog(
                     ),
                     child: TextFormField(
                       controller: noteController,
-
-                      decoration: const InputDecoration(
+                      style: TextStyle(
+                        fontSize: 16.sp,),
+                      decoration:  InputDecoration(
                         hintText: 'Write Notes here',
                         border: InputBorder.none,
+                        hintStyle: TextStyle(
+                          fontSize: 16.sp,)
                       ),
                       minLines: 4,
                       maxLines: 6,
@@ -382,10 +397,17 @@ Future<bool?> showAddCustomerDialog(
                     ),
                     child: TextFormField(
                       controller: remarkController,
-
-                      decoration: const InputDecoration(
+                      style: TextStyle(
+                        fontSize: 16.sp, 
+                      ),
+                      decoration:  InputDecoration(
                         hintText: 'Write Remark here',
                         border: InputBorder.none,
+                        hintStyle: TextStyle(
+                          fontSize: 16.sp,
+                        ),
+                        // isDense: true,
+                        // contentPadding: EdgeInsets.zero
                       ),
                       minLines: 4,
                       maxLines: 6,
@@ -403,7 +425,7 @@ Future<bool?> showAddCustomerDialog(
               GestureDetector(
                 onTap: () => Navigator.pop(context),
                 child: Container(
-                  width: 140.w,
+                  width: 130.w,
                   height: 50.h,
                   decoration: ShapeDecoration(
                     color: const Color(0xFFFED8CD),
@@ -453,7 +475,7 @@ Future<bool?> showAddCustomerDialog(
                 },
 
                 child: Container(
-                  width: 140.w,
+                  width: 130.w,
                   height: 50.h,
                   decoration: ShapeDecoration(
                     color: const Color(0xFF68188B),

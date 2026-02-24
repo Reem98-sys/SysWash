@@ -197,20 +197,23 @@ class _AdminhomeState extends State<Adminhome> {
                               children: [
                                 Container(
                                   width: 150.w,
-                                  height: 30.h,
+                                  // height: 30.h,
                                   child: DropdownButtonFormField<String>(
                                     value: selectedBranch,
                                     isExpanded: true,
+                                    isDense: true,
                                     icon: Icon(
                                       Icons.keyboard_arrow_down_rounded,
+                                      size: 20,
                                       color: const Color(0xFF822BA8),
                                     ),
                                     decoration: InputDecoration(
                                       hintText: 'Select Branch',
+                                      isDense: true,
                                       contentPadding:
                                                 EdgeInsets.symmetric(
                                                   horizontal: 8.w,
-                                                  vertical: 5.h,
+                                                  vertical: 2.h,
                                                 ),
                                       border: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(5.r),
@@ -240,6 +243,7 @@ class _AdminhomeState extends State<Adminhome> {
                                               b.branchName ?? '',
                                               style: TextStyle(
                                                 fontSize: 14.sp,
+                                                height: 1.0,
                                                 fontFamily: 'Poppins',
                                               ),
                                             ),
@@ -382,32 +386,37 @@ class _AdminhomeState extends State<Adminhome> {
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
                                     children: [
-                                      Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            companyDetails.currencyCode!
-                                                .split(' ')[1]
-                                                .toString(),
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 20.sp,
-                                              fontFamily: 'DM Sans',
-                                              fontWeight: FontWeight.w500,
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              companyDetails.currencyCode!
+                                                  .split(' ')[1]
+                                                  .toString(),
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 20.sp,
+                                                fontFamily: 'DM Sans',
+                                                fontWeight: FontWeight.w500,
+                                              ),
                                             ),
-                                          ),
-                                          Text(
-                                            totalSale.toString(),
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 40.sp,
-                                              fontFamily: 'DM Sans',
-                                              fontWeight: FontWeight.w500,
-                                              letterSpacing: 1.60,
+                                            Text(
+                                              totalSale.toString(),
+                                              maxLines: 1,
+                                              softWrap: false,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 35.sp,
+                                                fontFamily: 'DM Sans',
+                                                fontWeight: FontWeight.w500,
+                                                // letterSpacing: 1.60,
+                                              ),
                                             ),
-                                          ),
-                                        ],
+                                          ],
+                                        ),
                                       ),
 
                                       SvgPicture.asset('assets/Chart.svg'),
@@ -510,8 +519,8 @@ class _AdminhomeState extends State<Adminhome> {
                   builder: (context, state) {
                     if (state is AdminClosingReportLoading) {
                       return Container(
-                        width: 366,
-                        height: 188,
+                        width: 366.w,
+                        height: 188.h,
                         decoration: ShapeDecoration(
                           color: Colors.white,
                           shape: RoundedRectangleBorder(
@@ -527,8 +536,8 @@ class _AdminhomeState extends State<Adminhome> {
                     }
                     if (state is AdminClosingReportError) {
                       return Container(
-                        width: 366,
-                        height: 188,
+                        width: 366.w,
+                        height: 188.h,
                         decoration: ShapeDecoration(
                           color: Colors.white,
                           shape: RoundedRectangleBorder(
@@ -548,7 +557,7 @@ class _AdminhomeState extends State<Adminhome> {
                         children: [
                           SizedBox(height: 24.h),
                           Container(
-                            width: 366,
+                            width: 366.w,
                             // height: 184,
                             decoration: ShapeDecoration(
                               color: Colors.white,
@@ -580,7 +589,7 @@ class _AdminhomeState extends State<Adminhome> {
                                       ),
                                       SizedBox(
                                         width: 81.w,
-                                        height: 36.h,
+                                        // height: 36.h,
                                         child: DropdownButtonFormField<String>(
                                           value: dropdownValue,
                                           isExpanded: true,
@@ -588,7 +597,9 @@ class _AdminhomeState extends State<Adminhome> {
                                             Icons.keyboard_arrow_down,
                                             size: 18.sp,
                                           ),
+                                          isDense: true,
                                           decoration: InputDecoration(
+                                            isDense: true,
                                             contentPadding:
                                                 EdgeInsets.symmetric(
                                                   horizontal: 8.w,
@@ -686,128 +697,130 @@ class _AdminhomeState extends State<Adminhome> {
                                     ),
                                   ),
                                   SizedBox(height: 18.h),
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Column(
-                                        children: [
-                                          Text(
-                                            'Discount',
-                                            style: TextStyle(
-                                              color: const Color(0xFF514A6B),
-                                              fontSize: 12.sp,
-                                              fontFamily: 'DM Sans',
-                                              fontWeight: FontWeight.w400,
+                                  SingleChildScrollView(
+                                    scrollDirection: Axis.horizontal,
+                                    child: Wrap(
+                                      spacing: 12.w,
+                                      children: [
+                                        Column(
+                                          children: [
+                                            Text(
+                                              'Discount',
+                                              style: TextStyle(
+                                                color: const Color(0xFF514A6B),
+                                                fontSize: 12.sp,
+                                                fontFamily: 'DM Sans',
+                                                fontWeight: FontWeight.w400,
+                                              ),
                                             ),
-                                          ),
-                                          Text(
-                                            closingReport.totalDiscount
-                                                .toString(),
-                                            style: TextStyle(
-                                              color: const Color(0xFF5D5FEF),
-                                              fontSize: 16.sp,
-                                              fontFamily: 'DM Sans',
-                                              fontWeight: FontWeight.w700,
+                                            Text(
+                                              closingReport.totalDiscount
+                                                  .toString(),
+                                              style: TextStyle(
+                                                color: const Color(0xFF5D5FEF),
+                                                fontSize: 16.sp,
+                                                fontFamily: 'DM Sans',
+                                                fontWeight: FontWeight.w700,
+                                              ),
                                             ),
-                                          ),
-                                        ],
-                                      ),
-                                      Column(
-                                        children: [
-                                          Text(
-                                            'Commission',
-                                            style: TextStyle(
-                                              color: const Color(0xFF514A6B),
-                                              fontSize: 12.sp,
-                                              fontFamily: 'DM Sans',
-                                              fontWeight: FontWeight.w400,
+                                          ],
+                                        ),
+                                        Column(
+                                          children: [
+                                            Text(
+                                              'Commission',
+                                              style: TextStyle(
+                                                color: const Color(0xFF514A6B),
+                                                fontSize: 12.sp,
+                                                fontFamily: 'DM Sans',
+                                                fontWeight: FontWeight.w400,
+                                              ),
                                             ),
-                                          ),
-                                          Text(
-                                            closingReport.totalCommission
-                                                .toString(),
-                                            style: TextStyle(
-                                              color: const Color(0xFF00C8F4),
-                                              fontSize: 16.sp,
-                                              fontFamily: 'DM Sans',
-                                              fontWeight: FontWeight.w700,
+                                            Text(
+                                              closingReport.totalCommission
+                                                  .toString(),
+                                              style: TextStyle(
+                                                color: const Color(0xFF00C8F4),
+                                                fontSize: 16.sp,
+                                                fontFamily: 'DM Sans',
+                                                fontWeight: FontWeight.w700,
+                                              ),
                                             ),
-                                          ),
-                                        ],
-                                      ),
-                                      Column(
-                                        children: [
-                                          Text(
-                                            'Expenses',
-                                            style: TextStyle(
-                                              color: const Color(0xFF514A6B),
-                                              fontSize: 12.sp,
-                                              fontFamily: 'DM Sans',
-                                              fontWeight: FontWeight.w400,
+                                          ],
+                                        ),
+                                        Column(
+                                          children: [
+                                            Text(
+                                              'Expenses',
+                                              style: TextStyle(
+                                                color: const Color(0xFF514A6B),
+                                                fontSize: 12.sp,
+                                                fontFamily: 'DM Sans',
+                                                fontWeight: FontWeight.w400,
+                                              ),
                                             ),
-                                          ),
-                                          Text(
-                                            (closingReport.totalExpense! -
-                                                    closingReport
-                                                        .totalCommission!
-                                                        .toInt())
-                                                .toString(),
-                                            style: TextStyle(
-                                              color: const Color(0xFFFF9228),
-                                              fontSize: 16.sp,
-                                              fontFamily: 'DM Sans',
-                                              fontWeight: FontWeight.w700,
+                                            Text(
+                                              (closingReport.totalExpense! -
+                                                      closingReport
+                                                          .totalCommission!
+                                                          .toInt())
+                                                  .toString(),
+                                              style: TextStyle(
+                                                color: const Color(0xFFFF9228),
+                                                fontSize: 16.sp,
+                                                fontFamily: 'DM Sans',
+                                                fontWeight: FontWeight.w700,
+                                              ),
                                             ),
-                                          ),
-                                        ],
-                                      ),
-                                      Column(
-                                        children: [
-                                          Text(
-                                            'Pending',
-                                            style: TextStyle(
-                                              color: const Color(0xFF514A6B),
-                                              fontSize: 12.sp,
-                                              fontFamily: 'DM Sans',
-                                              fontWeight: FontWeight.w400,
+                                          ],
+                                        ),
+                                        Column(
+                                          children: [
+                                            Text(
+                                              'Pending',
+                                              style: TextStyle(
+                                                color: const Color(0xFF514A6B),
+                                                fontSize: 12.sp,
+                                                fontFamily: 'DM Sans',
+                                                fontWeight: FontWeight.w400,
+                                              ),
                                             ),
-                                          ),
-                                          Text(
-                                            closingReport.debtamount.toString(),
-                                            style: TextStyle(
-                                              color: const Color(0xFFEA0000),
-                                              fontSize: 16.sp,
-                                              fontFamily: 'DM Sans',
-                                              fontWeight: FontWeight.w700,
+                                            Text(
+                                              closingReport.debtamount.toString(),
+                                              style: TextStyle(
+                                                color: const Color(0xFFEA0000),
+                                                fontSize: 16.sp,
+                                                fontFamily: 'DM Sans',
+                                                fontWeight: FontWeight.w700,
+                                              ),
                                             ),
-                                          ),
-                                        ],
-                                      ),
-                                      Column(
-                                        children: [
-                                          Text(
-                                            'Outstanding',
-                                            style: TextStyle(
-                                              color: const Color(0xFF514A6B),
-                                              fontSize: 12.sp,
-                                              fontFamily: 'DM Sans',
-                                              fontWeight: FontWeight.w400,
+                                          ],
+                                        ),
+                                        Column(
+                                          children: [
+                                            Text(
+                                              'Outstanding',
+                                              style: TextStyle(
+                                                color: const Color(0xFF514A6B),
+                                                fontSize: 12.sp,
+                                                fontFamily: 'DM Sans',
+                                                fontWeight: FontWeight.w400,
+                                              ),
                                             ),
-                                          ),
-                                          Text(
-                                            closingReport.outstandingamount
-                                                .toString(),
-                                            style: TextStyle(
-                                              color: const Color(0xFFEA0000),
-                                              fontSize: 16.sp,
-                                              fontFamily: 'DM Sans',
-                                              fontWeight: FontWeight.w700,
+                                            Text(
+                                              closingReport.outstandingamount
+                                                  .toString(),
+                                              style: TextStyle(
+                                                color: const Color(0xFFEA0000),
+                                                fontSize: 16.sp,
+                                                fontFamily: 'DM Sans',
+                                                fontWeight: FontWeight.w700,
+                                              ),
                                             ),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
+                                          ],
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ],
                               ),

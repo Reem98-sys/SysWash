@@ -88,6 +88,7 @@ class _ProfileState extends State<Profile> {
           },
           child: Icon(Icons.arrow_back_sharp),
         ),
+        centerTitle: true,
         title: Text(
           'Profile',
           style: TextStyle(
