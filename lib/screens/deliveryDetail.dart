@@ -333,277 +333,311 @@ class _DeliverydetailState extends State<Deliverydetail> {
                         ),
                         child: Padding(
                           padding: const EdgeInsets.all(15.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          child: GridView.count(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            crossAxisCount: 3,
+                            childAspectRatio: 2,
+                            crossAxisSpacing: 5.w,
+                            mainAxisSpacing: 5.h,
                             children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Area',
-                                    style: TextStyle(
-                                      color: const Color(0xFFA9A5B8),
-                                      fontSize: 14.sp,
-                                      fontFamily: 'DM Sans',
-                                      fontWeight: FontWeight.w500,
-                                      height: 1.17,
-                                    ),
-                                  ),
-                                  Text(
-                                    customerDetailsModel.area.toString(),
-                                    style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 12.sp,
-                                      fontFamily: 'DM Sans',
-                                      fontWeight: FontWeight.w500,
-                                      height: 1.17,
-                                    ),
-                                  ),
-                                  SizedBox(height: 17.h),
-                                  Text(
-                                    'Villa No',
-                                    style: TextStyle(
-                                      color: const Color(0xFFA9A5B8),
-                                      fontSize: 14.sp,
-                                      fontFamily: 'DM Sans',
-                                      fontWeight: FontWeight.w500,
-                                      height: 1.17,
-                                    ),
-                                  ),
-                                  Text(
-                                    customerDetailsModel.villaNumber.toString(),
-                                    style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 12.sp,
-                                      fontFamily: 'DM Sans',
-                                      fontWeight: FontWeight.w500,
-                                      height: 1.17,
-                                    ),
-                                  ),
-                                  SizedBox(height: 17.h),
-                                  Text(
-                                    'Fragrance',
-                                    style: TextStyle(
-                                      color: const Color(0xFFA9A5B8),
-                                      fontSize: 14.sp,
-                                      fontFamily: 'DM Sans',
-                                      fontWeight: FontWeight.w500,
-                                      height: 1.17,
-                                    ),
-                                  ),
-                                  Text(
-                                    customerDetailsModel.fragrance.toString(),
-                                    style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 12.sp,
-                                      fontFamily: 'DM Sans',
-                                      fontWeight: FontWeight.w500,
-                                      height: 1.17,
-                                    ),
-                                  ),
-                                  SizedBox(height: 17.h),
-                                  Text(
-                                    'Remark',
-                                    style: TextStyle(
-                                      color: const Color(0xFFA9A5B8),
-                                      fontSize: 14.sp,
-                                      fontFamily: 'DM Sans',
-                                      fontWeight: FontWeight.w500,
-                                      height: 1.17,
-                                    ),
-                                  ),
-                                  Text(
-                                    widget.remarks,
-                                    style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 12.sp,
-                                      fontFamily: 'DM Sans',
-                                      fontWeight: FontWeight.w500,
-                                      height: 1.17,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Zone',
-                                    style: TextStyle(
-                                      color: const Color(0xFFA9A5B8),
-                                      fontSize: 14.sp,
-                                      fontFamily: 'DM Sans',
-                                      fontWeight: FontWeight.w500,
-                                      height: 1.17,
-                                    ),
-                                  ),
-                                  Text(
-                                    customerDetailsModel.zone.toString(),
-                                    style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 12.sp,
-                                      fontFamily: 'DM Sans',
-                                      fontWeight: FontWeight.w500,
-                                      height: 1.17,
-                                    ),
-                                  ),
-                                  SizedBox(height: 17.h),
-                                  Text(
-                                    'Hotel',
-                                    style: TextStyle(
-                                      color: const Color(0xFFA9A5B8),
-                                      fontSize: 14.sp,
-                                      fontFamily: 'DM Sans',
-                                      fontWeight: FontWeight.w500,
-                                      height: 1.17,
-                                    ),
-                                  ),
-                                  Text(
-                                    customerDetailsModel.hotel.toString(),
-                                    style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 12.sp,
-                                      fontFamily: 'DM Sans',
-                                      fontWeight: FontWeight.w500,
-                                      height: 1.17,
-                                    ),
-                                  ),
-                                  SizedBox(height: 17.h),
-                                  Text(
-                                    'Reference No',
-                                    style: TextStyle(
-                                      color: const Color(0xFFA9A5B8),
-                                      fontSize: 14.sp,
-                                      fontFamily: 'DM Sans',
-                                      fontWeight: FontWeight.w500,
-                                      height: 1.17,
-                                    ),
-                                  ),
-                                  Text(
-                                    customerDetailsModel.refNo.toString(),
-                                    style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 12.sp,
-                                      fontFamily: 'DM Sans',
-                                      fontWeight: FontWeight.w500,
-                                      height: 1.17,
-                                    ),
-                                  ),
-                                  SizedBox(height: 17.h),
-                                  Text(
-                                    'Order No',
-                                    style: TextStyle(
-                                      color: const Color(0xFFA9A5B8),
-                                      fontSize: 14.sp,
-                                      fontFamily: 'DM Sans',
-                                      fontWeight: FontWeight.w500,
-                                      height: 1.17,
-                                    ),
-                                  ),
-                                  Text(
-                                    deliveryItems.orderId.toString(),
-                                    style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 12.sp,
-                                      fontFamily: 'DM Sans',
-                                      fontWeight: FontWeight.w500,
-                                      height: 1.17,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Street No',
-                                    style: TextStyle(
-                                      color: const Color(0xFFA9A5B8),
-                                      fontSize: 14.sp,
-                                      fontFamily: 'DM Sans',
-                                      fontWeight: FontWeight.w500,
-                                      height: 1.17,
-                                    ),
-                                  ),
-                                  Text(
-                                    customerDetailsModel.streetNo.toString(),
-                                    style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 12.sp,
-                                      fontFamily: 'DM Sans',
-                                      fontWeight: FontWeight.w500,
-                                      height: 1.17,
-                                    ),
-                                  ),
-                                  SizedBox(height: 17.h),
-                                  Text(
-                                    'Room No',
-                                    style: TextStyle(
-                                      color: const Color(0xFFA9A5B8),
-                                      fontSize: 14.sp,
-                                      fontFamily: 'DM Sans',
-                                      fontWeight: FontWeight.w500,
-                                      height: 1.17,
-                                    ),
-                                  ),
-                                  Text(
-                                    customerDetailsModel.roomNo.toString(),
-                                    style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 12.sp,
-                                      fontFamily: 'DM Sans',
-                                      fontWeight: FontWeight.w500,
-                                      height: 1.17,
-                                    ),
-                                  ),
-                                  SizedBox(height: 17.h),
-                                  Text(
-                                    'Note',
-                                    style: TextStyle(
-                                      color: const Color(0xFFA9A5B8),
-                                      fontSize: 14.sp,
-                                      fontFamily: 'DM Sans',
-                                      fontWeight: FontWeight.w500,
-                                      height: 1.17,
-                                    ),
-                                  ),
-                                  Text(
-                                    widget.notes,
-                                    style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 12.sp,
-                                      fontFamily: 'DM Sans',
-                                      fontWeight: FontWeight.w500,
-                                      height: 1.17,
-                                    ),
-                                  ),
-                                  SizedBox(height: 17.h),
-                                  Text(
-                                    'Pickup Id',
-                                    style: TextStyle(
-                                      color: const Color(0xFFA9A5B8),
-                                      fontSize: 14.sp,
-                                      fontFamily: 'DM Sans',
-                                      fontWeight: FontWeight.w500,
-                                      height: 1.17,
-                                    ),
-                                  ),
-                                  Text(
-                                    widget.deliveryAssgnId.toString(),
-                                    style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 12.sp,
-                                      fontFamily: 'DM Sans',
-                                      fontWeight: FontWeight.w500,
-                                      height: 1.17,
-                                    ),
-                                  ),
-                                ],
-                              ),
+                              _buildGridItem('Area', customerDetailsModel.area.toString()),
+                              _buildGridItem('Zone', customerDetailsModel.zone.toString()),
+                              _buildGridItem('Street No', customerDetailsModel.streetNo.toString()),
+                              _buildGridItem('Villa No', customerDetailsModel.villaNumber.toString()),
+                              _buildGridItem('Hotel', customerDetailsModel.hotel.toString()),
+                              _buildGridItem('Room No', customerDetailsModel.roomNo.toString()),
+                              _buildGridItem('Fragrance', customerDetailsModel.fragrance.toString()),
+                              _buildGridItem('Reference No', customerDetailsModel.refNo.toString()),
+                              _buildGridItem('Note', widget.notes),
+                              _buildGridItem('Remark', widget.remarks),
+                              _buildGridItem('Order No', deliveryItems.orderId.toString()),
+                              _buildGridItem('Pickup Id', widget.deliveryAssgnId.toString()),
                             ],
                           ),
                         ),
                       ),
+                      // secondChild: Container(
+                      //   width: 384.w,
+                      //   decoration: ShapeDecoration(
+                      //     color: Colors.white,
+                      //     shape: RoundedRectangleBorder(
+                      //       borderRadius: BorderRadius.circular(10.r),
+                      //     ),
+                      //   ),
+                      //   child: Padding(
+                      //     padding: const EdgeInsets.all(15.0),
+                      //     child: Row(
+                      //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      //       children: [
+                      //         Column(
+                      //           crossAxisAlignment: CrossAxisAlignment.start,
+                      //           children: [
+                      //             Text(
+                      //               'Area',
+                      //               style: TextStyle(
+                      //                 color: const Color(0xFFA9A5B8),
+                      //                 fontSize: 14.sp,
+                      //                 fontFamily: 'DM Sans',
+                      //                 fontWeight: FontWeight.w500,
+                      //                 height: 1.17,
+                      //               ),
+                      //             ),
+                      //             Text(
+                      //               customerDetailsModel.area.toString(),
+                      //               style: TextStyle(
+                      //                 color: Colors.black,
+                      //                 fontSize: 12.sp,
+                      //                 fontFamily: 'DM Sans',
+                      //                 fontWeight: FontWeight.w500,
+                      //                 height: 1.17,
+                      //               ),
+                      //             ),
+                      //             SizedBox(height: 17.h),
+                      //             Text(
+                      //               'Villa No',
+                      //               style: TextStyle(
+                      //                 color: const Color(0xFFA9A5B8),
+                      //                 fontSize: 14.sp,
+                      //                 fontFamily: 'DM Sans',
+                      //                 fontWeight: FontWeight.w500,
+                      //                 height: 1.17,
+                      //               ),
+                      //             ),
+                      //             Text(
+                      //               customerDetailsModel.villaNumber.toString(),
+                      //               style: TextStyle(
+                      //                 color: Colors.black,
+                      //                 fontSize: 12.sp,
+                      //                 fontFamily: 'DM Sans',
+                      //                 fontWeight: FontWeight.w500,
+                      //                 height: 1.17,
+                      //               ),
+                      //             ),
+                      //             SizedBox(height: 17.h),
+                      //             Text(
+                      //               'Fragrance',
+                      //               style: TextStyle(
+                      //                 color: const Color(0xFFA9A5B8),
+                      //                 fontSize: 14.sp,
+                      //                 fontFamily: 'DM Sans',
+                      //                 fontWeight: FontWeight.w500,
+                      //                 height: 1.17,
+                      //               ),
+                      //             ),
+                      //             Text(
+                      //               customerDetailsModel.fragrance.toString(),
+                      //               style: TextStyle(
+                      //                 color: Colors.black,
+                      //                 fontSize: 12.sp,
+                      //                 fontFamily: 'DM Sans',
+                      //                 fontWeight: FontWeight.w500,
+                      //                 height: 1.17,
+                      //               ),
+                      //             ),
+                      //             SizedBox(height: 17.h),
+                      //             Text(
+                      //               'Remark',
+                      //               style: TextStyle(
+                      //                 color: const Color(0xFFA9A5B8),
+                      //                 fontSize: 14.sp,
+                      //                 fontFamily: 'DM Sans',
+                      //                 fontWeight: FontWeight.w500,
+                      //                 height: 1.17,
+                      //               ),
+                      //             ),
+                      //             Text(
+                      //               widget.remarks,
+                      //               style: TextStyle(
+                      //                 color: Colors.black,
+                      //                 fontSize: 12.sp,
+                      //                 fontFamily: 'DM Sans',
+                      //                 fontWeight: FontWeight.w500,
+                      //                 height: 1.17,
+                      //               ),
+                      //             ),
+                      //           ],
+                      //         ),
+                      //         Column(
+                      //           crossAxisAlignment: CrossAxisAlignment.start,
+                      //           children: [
+                      //             Text(
+                      //               'Zone',
+                      //               style: TextStyle(
+                      //                 color: const Color(0xFFA9A5B8),
+                      //                 fontSize: 14.sp,
+                      //                 fontFamily: 'DM Sans',
+                      //                 fontWeight: FontWeight.w500,
+                      //                 height: 1.17,
+                      //               ),
+                      //             ),
+                      //             Text(
+                      //               customerDetailsModel.zone.toString(),
+                      //               style: TextStyle(
+                      //                 color: Colors.black,
+                      //                 fontSize: 12.sp,
+                      //                 fontFamily: 'DM Sans',
+                      //                 fontWeight: FontWeight.w500,
+                      //                 height: 1.17,
+                      //               ),
+                      //             ),
+                      //             SizedBox(height: 17.h),
+                      //             Text(
+                      //               'Hotel',
+                      //               style: TextStyle(
+                      //                 color: const Color(0xFFA9A5B8),
+                      //                 fontSize: 14.sp,
+                      //                 fontFamily: 'DM Sans',
+                      //                 fontWeight: FontWeight.w500,
+                      //                 height: 1.17,
+                      //               ),
+                      //             ),
+                      //             Text(
+                      //               customerDetailsModel.hotel.toString(),
+                      //               style: TextStyle(
+                      //                 color: Colors.black,
+                      //                 fontSize: 12.sp,
+                      //                 fontFamily: 'DM Sans',
+                      //                 fontWeight: FontWeight.w500,
+                      //                 height: 1.17,
+                      //               ),
+                      //             ),
+                      //             SizedBox(height: 17.h),
+                      //             Text(
+                      //               'Reference No',
+                      //               style: TextStyle(
+                      //                 color: const Color(0xFFA9A5B8),
+                      //                 fontSize: 14.sp,
+                      //                 fontFamily: 'DM Sans',
+                      //                 fontWeight: FontWeight.w500,
+                      //                 height: 1.17,
+                      //               ),
+                      //             ),
+                      //             Text(
+                      //               customerDetailsModel.refNo.toString(),
+                      //               style: TextStyle(
+                      //                 color: Colors.black,
+                      //                 fontSize: 12.sp,
+                      //                 fontFamily: 'DM Sans',
+                      //                 fontWeight: FontWeight.w500,
+                      //                 height: 1.17,
+                      //               ),
+                      //             ),
+                      //             SizedBox(height: 17.h),
+                      //             Text(
+                      //               'Order No',
+                      //               style: TextStyle(
+                      //                 color: const Color(0xFFA9A5B8),
+                      //                 fontSize: 14.sp,
+                      //                 fontFamily: 'DM Sans',
+                      //                 fontWeight: FontWeight.w500,
+                      //                 height: 1.17,
+                      //               ),
+                      //             ),
+                      //             Text(
+                      //               deliveryItems.orderId.toString(),
+                      //               style: TextStyle(
+                      //                 color: Colors.black,
+                      //                 fontSize: 12.sp,
+                      //                 fontFamily: 'DM Sans',
+                      //                 fontWeight: FontWeight.w500,
+                      //                 height: 1.17,
+                      //               ),
+                      //             ),
+                      //           ],
+                      //         ),
+                      //         Column(
+                      //           crossAxisAlignment: CrossAxisAlignment.start,
+                      //           children: [
+                      //             Text(
+                      //               'Street No',
+                      //               style: TextStyle(
+                      //                 color: const Color(0xFFA9A5B8),
+                      //                 fontSize: 14.sp,
+                      //                 fontFamily: 'DM Sans',
+                      //                 fontWeight: FontWeight.w500,
+                      //                 height: 1.17,
+                      //               ),
+                      //             ),
+                      //             Text(
+                      //               customerDetailsModel.streetNo.toString(),
+                      //               style: TextStyle(
+                      //                 color: Colors.black,
+                      //                 fontSize: 12.sp,
+                      //                 fontFamily: 'DM Sans',
+                      //                 fontWeight: FontWeight.w500,
+                      //                 height: 1.17,
+                      //               ),
+                      //             ),
+                      //             SizedBox(height: 17.h),
+                      //             Text(
+                      //               'Room No',
+                      //               style: TextStyle(
+                      //                 color: const Color(0xFFA9A5B8),
+                      //                 fontSize: 14.sp,
+                      //                 fontFamily: 'DM Sans',
+                      //                 fontWeight: FontWeight.w500,
+                      //                 height: 1.17,
+                      //               ),
+                      //             ),
+                      //             Text(
+                      //               customerDetailsModel.roomNo.toString(),
+                      //               style: TextStyle(
+                      //                 color: Colors.black,
+                      //                 fontSize: 12.sp,
+                      //                 fontFamily: 'DM Sans',
+                      //                 fontWeight: FontWeight.w500,
+                      //                 height: 1.17,
+                      //               ),
+                      //             ),
+                      //             SizedBox(height: 17.h),
+                      //             Text(
+                      //               'Note',
+                      //               style: TextStyle(
+                      //                 color: const Color(0xFFA9A5B8),
+                      //                 fontSize: 14.sp,
+                      //                 fontFamily: 'DM Sans',
+                      //                 fontWeight: FontWeight.w500,
+                      //                 height: 1.17,
+                      //               ),
+                      //             ),
+                      //             Text(
+                      //               widget.notes,
+                      //               style: TextStyle(
+                      //                 color: Colors.black,
+                      //                 fontSize: 12.sp,
+                      //                 fontFamily: 'DM Sans',
+                      //                 fontWeight: FontWeight.w500,
+                      //                 height: 1.17,
+                      //               ),
+                      //             ),
+                      //             SizedBox(height: 17.h),
+                      //             Text(
+                      //               'Pickup Id',
+                      //               style: TextStyle(
+                      //                 color: const Color(0xFFA9A5B8),
+                      //                 fontSize: 14.sp,
+                      //                 fontFamily: 'DM Sans',
+                      //                 fontWeight: FontWeight.w500,
+                      //                 height: 1.17,
+                      //               ),
+                      //             ),
+                      //             Text(
+                      //               widget.deliveryAssgnId.toString(),
+                      //               style: TextStyle(
+                      //                 color: Colors.black,
+                      //                 fontSize: 12.sp,
+                      //                 fontFamily: 'DM Sans',
+                      //                 fontWeight: FontWeight.w500,
+                      //                 height: 1.17,
+                      //               ),
+                      //             ),
+                      //           ],
+                      //         ),
+                      //       ],
+                      //     ),
+                      //   ),
+                      // ),
                       crossFadeState:
                           showDetails
                               ? CrossFadeState.showSecond
@@ -863,4 +897,31 @@ class _DeliverydetailState extends State<Deliverydetail> {
       ),
     );
   }
+}
+Widget _buildGridItem(String label, String value) {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(
+        label,
+        style: TextStyle(
+          color: const Color(0xFFA9A5B8),
+          fontSize: 14.sp,
+          fontFamily: 'DM Sans',
+          fontWeight: FontWeight.w500,
+        ),
+      ),
+      Text(
+        value.isEmpty ? '-' : value,
+        style: TextStyle(
+          color: Colors.black,
+          fontSize: 12.sp,
+          fontFamily: 'DM Sans',
+          fontWeight: FontWeight.w500,
+        ),
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
+      ),
+    ],
+  );
 }

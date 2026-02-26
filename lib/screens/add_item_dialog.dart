@@ -121,7 +121,7 @@ Future<Map<String, dynamic>?> showAddItemDialog(
                                   .toList();
                           return Container(
                             width: 348.w,
-                            height: 50.h,
+                            // height: 50.h,
                             padding: const EdgeInsets.symmetric(horizontal: 16),
                             decoration: BoxDecoration(
                               color: Colors.white,
@@ -226,7 +226,7 @@ Future<Map<String, dynamic>?> showAddItemDialog(
 
                           return Container(
                             width: 348.w,
-                            height: 50.h,
+                            // height: 50.h,
                             padding: const EdgeInsets.symmetric(horizontal: 16),
                             decoration: BoxDecoration(
                               color: Colors.white,
@@ -327,7 +327,7 @@ Future<Map<String, dynamic>?> showAddItemDialog(
                       children: [
                         Container(
                           width: 140.w,
-                          height: 70.h,
+                          // height: 70.h,
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -343,7 +343,7 @@ Future<Map<String, dynamic>?> showAddItemDialog(
                               SizedBox(height: 10.h),
                               Container(
                                 width: 140.w,
-                                height: 40.h,
+                                // height: 40.h,
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 16,
                                 ),
@@ -384,7 +384,7 @@ Future<Map<String, dynamic>?> showAddItemDialog(
                         Spacer(),
                         Container(
                           width: 140.w,
-                          height: 70.h,
+                          // height: 70.h,
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -400,7 +400,7 @@ Future<Map<String, dynamic>?> showAddItemDialog(
                               SizedBox(height: 10.h),
                               Container(
                                 width: 140.w,
-                                height: 40.h,
+                                // height: 40.h,
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 16,
                                 ),

@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:syswash/bloc/bloc/adminhome_bloc.dart';
 
 import 'package:syswash/bloc/bloc/home_bloc.dart';
 import 'package:syswash/bloc/bloc/pickuplist_bloc.dart';
@@ -59,6 +60,9 @@ class _HomeState extends State<Home> {
           token: token,
         ),
       );
+      context.read<AdminhomeBloc>().add(
+        FetchcompanyEvent(token: token, companyCode: companyCode)
+      );
     } else {
       debugPrint('Missing userId or companyCode in storage');
     }
@@ -85,6 +89,10 @@ class _HomeState extends State<Home> {
         token: token,
       ),
     );
+
+    context.read<AdminhomeBloc>().add(
+        FetchcompanyEvent(token: token, companyCode: companyCode)
+      );
   }
 }
 
@@ -112,14 +120,35 @@ class _HomeState extends State<Home> {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
-        title: Text(
-          'Hello, $username',
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: 22.sp,
-            fontFamily: 'Poppins',
-            fontWeight: FontWeight.w600,
+        centerTitle: false,
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start, 
+          children: [
+            BlocBuilder<AdminhomeBloc, AdminhomeState>(
+            builder: (context, state) {
+              if (state is AdmincompanyLoaded &&
+                  state.companyDetails.imageLightMode != null &&
+                  state.companyDetails.imageLightMode!.isNotEmpty) {
+                return Image.network(
+                  state.companyDetails.imageLightMode!,
+                  width: 150.w,
+                  height: 35.h,
+                  fit: BoxFit.contain,
+                );
+              }
+              return SizedBox();
+            },
           ),
+            Text(
+              'Hello, $username',
+              style: TextStyle(
+                color: Colors.black,
+                fontSize: 22.sp,
+                fontFamily: 'Poppins',
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
         ),
         actions: [
           Padding(

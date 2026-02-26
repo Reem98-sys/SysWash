@@ -216,12 +216,16 @@ class _AdminedithistoryState extends State<Adminedithistory> {
                                     vertical: 20,
                                   ),
                                   child: SingleChildScrollView(
-                                    scrollDirection: Axis.vertical,
+                                    scrollDirection: Axis.horizontal,
+                                    child: ConstrainedBox(
+                                      constraints: BoxConstraints(
+                                        minWidth: MediaQuery.of(context).size.width,
+                                      ),
                                     child: Table(
                                       columnWidths: const {
-                                        0: FixedColumnWidth(100),
-                                        1: FixedColumnWidth(80),
-                                        2: FlexColumnWidth(),
+                                        0: FlexColumnWidth(1.2),
+                                        1: FlexColumnWidth(1.4),
+                                        2: FlexColumnWidth(2),
                                       },
                                       border: TableBorder.all(
                                         color: const Color(0xFFE7E7E7),
@@ -258,7 +262,7 @@ class _AdminedithistoryState extends State<Adminedithistory> {
                                             );
                                           }).toList(),
                                       ],
-                                    ),
+                                    ),)
                                   ),
                                 ),
                               ),
@@ -287,7 +291,7 @@ Widget _tableText(String data) {
       data,
       style: TextStyle(
         color: const Color(0xFF150A33),
-        fontSize: 14.sp,
+        fontSize: 16.sp,
         fontFamily: 'DM Sans',
         fontWeight: FontWeight.w700,
       ),
@@ -322,7 +326,7 @@ Widget _detailsCell(List<EditedDetails>? details) {
   children.add(
     const Text(
       'Changes:',
-      style: TextStyle(fontWeight: FontWeight.w600),
+      style: TextStyle(fontWeight: FontWeight.w500),
     ),
   );
 
@@ -370,7 +374,7 @@ void _buildEditedDetail(EditedDetails detail, List<Widget> children) {
       padding: const EdgeInsets.only(top: 6),
       child: Text(
         formatTitle(detail.title),
-        style: const TextStyle(fontWeight: FontWeight.w600),
+        style: const TextStyle(fontWeight: FontWeight.w500),
       ),
     ),
   );

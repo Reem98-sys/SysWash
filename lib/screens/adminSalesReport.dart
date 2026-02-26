@@ -323,7 +323,7 @@ class _AdminsalesreportState extends State<Adminsalesreport> {
                           SizedBox(height: 10.h),
                           Container(
                             width: 362.w,
-                            height: 230.h,
+                            // height: 230.h,
                             decoration: ShapeDecoration(
                               color: Colors.white,
                               shape: RoundedRectangleBorder(
@@ -338,6 +338,7 @@ class _AdminsalesreportState extends State<Adminsalesreport> {
                               child: Padding(
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 25,
+                                  vertical: 20
                                 ),
                                 child: Table(
                                   border: TableBorder.all(

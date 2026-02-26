@@ -22,10 +22,16 @@ class _ForgotpasswordState extends State<Forgotpassword> {
         leading: GestureDetector(
           onTap: () =>  Navigator.pop(context),
           child: Icon(Icons.arrow_back)),
-        title: Padding(
-          padding: const EdgeInsets.only(left: 60.0),
-          child: Text('Forgot Password'),
-        ),  
+        centerTitle: true,
+        title: Text(
+          'Forgot Password',
+          style: TextStyle(
+            color: Colors.black,
+            fontSize: 22,
+            fontFamily: 'Poppins',
+            fontWeight: FontWeight.w600,
+          ),
+        ), 
       ),
       body: SingleChildScrollView(
         child: Column(

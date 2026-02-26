@@ -86,9 +86,12 @@ class MonthlySalesChart extends StatelessWidget {
                   if (index < 0 || index >= data.length) {
                     return const SizedBox();
                   }
-                  return Text(
-                    data[index].month!.substring(0, 3).toUpperCase(),
-                    style: const TextStyle(fontSize: 12),
+                  return Transform.rotate(
+                    angle: -0.5,
+                    child: Text(
+                      data[index].month!.substring(0, 3).toUpperCase(),
+                      style: const TextStyle(fontSize: 12),
+                    ),
                   );
                 },
               ),

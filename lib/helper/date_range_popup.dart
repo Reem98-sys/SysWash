@@ -122,9 +122,9 @@ Widget _dateField({
       ),
       SizedBox(height: 10.h),
       Container(
-        width: 160.w,
-        height: 50.h,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
+        width: 170.w,
+        // height: 50.h,
+        padding: const EdgeInsets.symmetric(horizontal: 10),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(8.r),
           boxShadow: [

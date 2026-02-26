@@ -110,7 +110,7 @@ class _AdmineditprofileState extends State<Admineditprofile> {
                 children: [
                   Container(
                     width: 352.w,
-                    height: 80.h,
+                    // height: 80.h,
                     child: Column(
                       children: [
                         Row(
@@ -129,7 +129,7 @@ class _AdmineditprofileState extends State<Admineditprofile> {
                         SizedBox(height: 5.h),
                         Container(
                           width: 352.w,
-                          height: 50.h,
+                          // height: 50.h,
                           padding: const EdgeInsets.symmetric(horizontal: 16),
                           decoration: BoxDecoration(
                             color: Colors.white,
@@ -156,7 +156,7 @@ class _AdmineditprofileState extends State<Admineditprofile> {
                   SizedBox(height: 10.h),
                   Container(
                     width: 352.w,
-                    height: 80.h,
+                    // height: 80.h,
                     child: Column(
                       children: [
                         Row(
@@ -175,7 +175,7 @@ class _AdmineditprofileState extends State<Admineditprofile> {
                         SizedBox(height: 5.h),
                         Container(
                           width: 352.w,
-                          height: 50.h,
+                          // height: 50.h,
                           padding: const EdgeInsets.symmetric(horizontal: 16),
                           decoration: BoxDecoration(
                             color: Colors.white,
@@ -202,7 +202,7 @@ class _AdmineditprofileState extends State<Admineditprofile> {
                   
                   
                   
-                  SizedBox(height: 20.h),
+                  SizedBox(height: 30.h),
                   GestureDetector(
                     onTap: () {
                       _updateProfileData(

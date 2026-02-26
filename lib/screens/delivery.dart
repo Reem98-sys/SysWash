@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:syswash/bloc/bloc/adminhome_bloc.dart';
 import 'package:syswash/bloc/bloc/pickuplist_bloc.dart';
 import 'package:syswash/helper/date_helper.dart';
 import 'package:syswash/screens/bottomnav.dart';
@@ -44,6 +45,9 @@ class _DeliveryState extends State<Delivery> {
               userId: userId!,
             ),
           );
+          context.read<AdminhomeBloc>().add(
+        FetchcompanyEvent(token: token!, companyCode: companyCode!)
+      );
     }
   }
 
@@ -60,6 +64,9 @@ class _DeliveryState extends State<Delivery> {
               userId: userId!,
             ),
           );
+          context.read<AdminhomeBloc>().add(
+        FetchcompanyEvent(token: token, companyCode: companyCode)
+      );
   }
 }
 
@@ -103,17 +110,34 @@ class _DeliveryState extends State<Delivery> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Text(
-            userName ?? '',
-            style: TextStyle(
-              color: Colors.black,
-              fontSize: 22,
-              fontFamily: 'Poppins',
-              fontWeight: FontWeight.w600,
-            ),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            BlocBuilder<AdminhomeBloc, AdminhomeState>(
+            builder: (context, state) {
+              if (state is AdmincompanyLoaded &&
+                  state.companyDetails.imageLightMode != null &&
+                  state.companyDetails.imageLightMode!.isNotEmpty) {
+                return Image.network(
+                  state.companyDetails.imageLightMode!,
+                  width: 150.w,
+                  height: 35.h,
+                  fit: BoxFit.contain,
+                );
+              }
+              return SizedBox();
+            },
           ),
+            Text(
+              userName ?? '',
+              style: TextStyle(
+                color: Colors.black,
+                fontSize: 22,
+                fontFamily: 'Poppins',
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
         ),
         actions: [
           Padding(

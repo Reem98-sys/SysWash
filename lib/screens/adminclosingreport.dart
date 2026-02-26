@@ -22,6 +22,10 @@ class _AdminclosingreportState extends State<Adminclosingreport> {
   final TextEditingController startDateController = TextEditingController();
   final TextEditingController endDateController = TextEditingController();
   String? username;
+  int itemTotalQty = 0;
+  double itemTotalSale = 0;
+  int serviceTotalQty = 0;
+  double serviceTotalSale = 0;
   @override
   void initState() {
     super.initState();
@@ -158,12 +162,32 @@ class _AdminclosingreportState extends State<Adminclosingreport> {
               if (state is ClosingReportLoaded) {
                 adminClosingReport = state.adminClosingReport;
                 serviceDetails = state.servicedetail;
+                itemTotalQty = 0;
+                itemTotalSale = 0;
+                serviceTotalQty = 0;
+                serviceTotalSale = 0;
                 final Map<String, String> serviceNameMap = {
                   for (final service in serviceDetails)
                     if (service.posView == true)
                       service.serviceCode!:
                           service.serviceName ?? service.serviceCode!,
                 };
+
+                if (adminClosingReport.clothcount != null) {
+                  for (var e in adminClosingReport.clothcount!) {
+                    itemTotalQty += e.count ?? 0;
+                    itemTotalSale += e.price ?? 0;
+                  }
+                }
+
+                if (adminClosingReport.serviceWiseCounts != null) {
+                  adminClosingReport.serviceWiseCounts!.forEach((key, value) {
+                    if (serviceNameMap.containsKey(key)) {
+                      serviceTotalQty += value.count ?? 0;
+                      serviceTotalSale += value.totalPrice ?? 0;
+                    }
+                  });
+                }
 
                 return SingleChildScrollView(
                   child: Column(
@@ -415,52 +439,68 @@ class _AdminclosingreportState extends State<Adminclosingreport> {
                                     horizontal: 25,
                                     vertical: 20,
                                   ),
-                                  child: Table(
-                                    border: TableBorder.all(
-                                      color: const Color(0xFFE7E7E7),
-                                      width: 1,
-                                    ),
-                                    children: [
-                                      TableRow(
-                                        children: [
-                                          _tableText('Item Name'),
-                                          _tableText('Quantity'),
-                                          _tableText('Gross Sales'),
-                                        ],
+                                  child: SingleChildScrollView(
+                                    scrollDirection: Axis.horizontal,
+                                    child: ConstrainedBox(
+                                      constraints: BoxConstraints(
+                                        minWidth: MediaQuery.of(context).size.width,
                                       ),
-                                      if (adminClosingReport.clothcount ==
-                                              null ||
-                                          adminClosingReport
-                                              .clothcount!
-                                              .isEmpty)
+                                    child: Table(
+                                      border: TableBorder.all(
+                                        color: const Color(0xFFE7E7E7),
+                                        width: 1,
+                                      ),
+                                      children: [
                                         TableRow(
                                           children: [
-                                            _tableText('-'),
-                                            _tableValue('-'),
-                                            _tableValue('-'),
+                                            _tableText('Item Name'),
+                                            _tableText('Quantity'),
+                                            _tableText('Gross Sales'),
                                           ],
                                         ),
-
-                                      // Data rows
-                                      if (adminClosingReport.clothcount != null)
-                                        ...adminClosingReport.clothcount!.map((
-                                          entry,
-                                        ) {
-                                          return TableRow(
+                                        if (adminClosingReport.clothcount ==
+                                                null ||
+                                            adminClosingReport
+                                                .clothcount!
+                                                .isEmpty)
+                                          TableRow(
                                             children: [
-                                              _tableText(
-                                                entry.cloth.toString(),
-                                              ),
-                                              _tableValue(
-                                                entry.count.toString(),
-                                              ),
-                                              _tableValue(
-                                                entry.price.toString(),
-                                              ),
+                                              _tableText('-'),
+                                              _tableValue('-'),
+                                              _tableValue('-'),
                                             ],
-                                          );
-                                        }).toList(),
-                                    ],
+                                          ),
+                                    
+                                        // Data rows
+                                        if (adminClosingReport.clothcount != null)
+                                          ...adminClosingReport.clothcount!.map((
+                                            entry,
+                                          ) {
+                                            return TableRow(
+                                              children: [
+                                                _tableText(
+                                                  entry.cloth.toString(),
+                                                ),
+                                                _tableValue(
+                                                  entry.count.toString(),
+                                                ),
+                                                _tableValue(
+                                                  entry.price.toString(),
+                                                ),
+                                              ],
+                                            );
+                                          }).toList(),
+                                          TableRow(
+                                            decoration: BoxDecoration(
+                                            ),
+                                            children: [
+                                              _tableText('Total'),
+                                              _tableValue(itemTotalQty.toString()),
+                                              _tableValue(itemTotalSale.toStringAsFixed(2)),
+                                            ],
+                                          ),
+                                      ],
+                                    ),)
                                   ),
                                 ),
                               ),
@@ -503,68 +543,84 @@ class _AdminclosingreportState extends State<Adminclosingreport> {
                                     horizontal: 25,
                                     vertical: 20,
                                   ),
-                                  child: Table(
-                                    border: TableBorder.all(
-                                      color: Colors.grey.shade300,
-                                    ),
-                                    children: [
-                                      TableRow(
-                                        children: [
-                                          _tableText('Service'),
-                                          _tableText('Quantity'),
-                                          _tableText('Gross Sales'),
-                                        ],
+                                  child: SingleChildScrollView(
+                                    scrollDirection: Axis.horizontal,
+                                    child: ConstrainedBox(
+                                      constraints: BoxConstraints(
+                                        minWidth: MediaQuery.of(context).size.width,
                                       ),
-                                      if (adminClosingReport
-                                                  .serviceWiseCounts ==
-                                              null ||
-                                          adminClosingReport
-                                              .serviceWiseCounts!
-                                              .isEmpty)
+                                    child: Table(
+                                      border: TableBorder.all(
+                                        color: Colors.grey.shade300,
+                                      ),
+                                      children: [
                                         TableRow(
                                           children: [
-                                            _tableText('-'),
-                                            _tableValue('-'),
-                                            _tableValue('-'),
+                                            _tableText('Service'),
+                                            _tableText('Quantity'),
+                                            _tableText('Gross Sales'),
                                           ],
                                         ),
-
-                                      if (adminClosingReport
-                                              .serviceWiseCounts !=
-                                          null)
-                                        ...adminClosingReport
-                                            .serviceWiseCounts!
-                                            .entries
-                                            .map((entry) {
-                                              final serviceCode = entry.key;
-                                              final data = entry.value;
-
-                                              if (!serviceNameMap.containsKey(
-                                                serviceCode,
-                                              )) {
-                                                return null;
-                                              }
-
-                                              return TableRow(
+                                        if (adminClosingReport
+                                                    .serviceWiseCounts ==
+                                                null ||
+                                            adminClosingReport
+                                                .serviceWiseCounts!
+                                                .isEmpty)
+                                          TableRow(
+                                            children: [
+                                              _tableText('-'),
+                                              _tableValue('-'),
+                                              _tableValue('-'),
+                                            ],
+                                          ),
+                                    
+                                        if (adminClosingReport
+                                                .serviceWiseCounts !=
+                                            null)
+                                          ...adminClosingReport
+                                              .serviceWiseCounts!
+                                              .entries
+                                              .map((entry) {
+                                                final serviceCode = entry.key;
+                                                final data = entry.value;
+                                    
+                                                if (!serviceNameMap.containsKey(
+                                                  serviceCode,
+                                                )) {
+                                                  return null;
+                                                }
+                                    
+                                                return TableRow(
+                                                  children: [
+                                                    _tableText(
+                                                      serviceNameMap[serviceCode]!,
+                                                    ), 
+                                                    _tableValue(
+                                                      data.count.toString(),
+                                                    ),
+                                                    _tableValue(
+                                                      data.totalPrice
+                                                          .toStringAsFixed(
+                                                            2,
+                                                          ), 
+                                                    ),
+                                                  ],
+                                                );
+                                              })
+                                              .whereType<TableRow>()
+                                              .toList(),
+                                              TableRow(
+                                                decoration: BoxDecoration(
+                                                ),
                                                 children: [
-                                                  _tableText(
-                                                    serviceNameMap[serviceCode]!,
-                                                  ), 
-                                                  _tableValue(
-                                                    data.count.toString(),
-                                                  ),
-                                                  _tableValue(
-                                                    data.totalPrice
-                                                        .toStringAsFixed(
-                                                          2,
-                                                        ), 
-                                                  ),
+                                                  _tableText('Total'),
+                                                  _tableValue(serviceTotalQty.toString()),
+                                                  _tableValue(serviceTotalSale.toStringAsFixed(2)),
                                                 ],
-                                              );
-                                            })
-                                            .whereType<TableRow>()
-                                            .toList(),
-                                    ],
+                                              ),
+                                      ],
+                                    ),)
                                   ),
                                 ),
                               ),
@@ -591,6 +647,9 @@ Widget _tableText(String data) {
     padding: const EdgeInsets.fromLTRB(15, 10, 15, 10),
     child: Text(
       data,
+      softWrap: true,
+      maxLines: null,
+      overflow: TextOverflow.visible,
       style: TextStyle(
         color: const Color(0xFF150A33),
         fontSize: 14.sp,
@@ -608,6 +667,10 @@ Widget _tableValue(String data) {
       alignment: Alignment.centerRight,
       child: Text(
         data,
+        textAlign: TextAlign.right,
+        softWrap: true,
+        maxLines: null,
+        overflow: TextOverflow.visible,
         style: TextStyle(
           color: const Color(0xFF150A33),
           fontSize: 14.sp,
