@@ -5,6 +5,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:syswash/bloc/bloc/pickupcustdetails_bloc.dart';
 import 'package:syswash/bloc/bloc/servicedetails_bloc.dart';
 import 'package:syswash/helper/gis_qatar_service.dart';
+import 'package:syswash/helper/customerdetail_helper.dart';
 import 'package:syswash/screens/add_item_dialog.dart';
 import 'package:syswash/screens/mapping.dart';
 
@@ -312,19 +313,19 @@ class _PickupdetailsState extends State<Pickupdetails> {
                 final pickupOrderItems = state.pickupOrderItemsModel;
                 final settingsData = state.settingsModel;
                 final gridItems = [
-  {'label': 'Area', 'value': customerDetailsModel.area},
-  {'label': 'Zone', 'value': customerDetailsModel.zone},
-  {'label': 'Street No', 'value': customerDetailsModel.streetNo},
-  {'label': 'Villa No', 'value': customerDetailsModel.villaNumber},
-  {'label': 'Hotel', 'value': customerDetailsModel.hotel},
-  {'label': 'Room No', 'value': customerDetailsModel.roomNo},
-  {'label': 'Fragrance', 'value': customerDetailsModel.fragrance},
-  {'label': 'Reference No', 'value': customerDetailsModel.refNo},
-  {'label': 'Note', 'value': widget.notes},
-  {'label': 'Remark', 'value': widget.remarks},
-  {'label': 'Order No', 'value': widget.pickupOrderId?.toString() ?? ''},
-  {'label': 'Pickup Id', 'value': widget.pickupAssignId.toString()},
-];
+                  {'label': 'Area', 'value': customerDetailsModel.area},
+                  {'label': 'Zone', 'value': customerDetailsModel.zone},
+                  {'label': 'Street No', 'value': customerDetailsModel.streetNo},
+                  {'label': 'Villa No', 'value': customerDetailsModel.villaNumber},
+                  {'label': 'Hotel', 'value': customerDetailsModel.hotel},
+                  {'label': 'Room No', 'value': customerDetailsModel.roomNo},
+                  {'label': 'Fragrance', 'value': customerDetailsModel.fragrance},
+                  {'label': 'Reference No', 'value': customerDetailsModel.refNo},
+                  {'label': 'Note', 'value': widget.notes},
+                  {'label': 'Remark', 'value': widget.remarks},
+                  {'label': 'Order No', 'value': widget.pickupOrderId?.toString() ?? ''},
+                  {'label': 'Pickup Id', 'value': widget.pickupAssignId.toString()},
+                ];
                 return Column(
                   children: [
                     Container(
@@ -543,36 +544,18 @@ class _PickupdetailsState extends State<Pickupdetails> {
                         ),
                         child: Padding(
                           padding: const EdgeInsets.all(15.0),
-                          child: GridView.builder(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-    crossAxisCount: getGridCount(context),
-    crossAxisSpacing: 8.w,
-    mainAxisSpacing: 10.h,
-    childAspectRatio: 1.6, 
-  ),
-  itemCount: gridItems.length,
-  itemBuilder: (context, index) {
-    final item = gridItems[index];
-    return _buildGridItem(item['label']!, item['value']!);
-  },
-                            // children: [
-                            //   _buildGridItem('Area', customerDetailsModel.area.toString()),
-                            //   _buildGridItem('Zone', customerDetailsModel.zone.toString()),
-                            //   _buildGridItem('Street No', customerDetailsModel.streetNo.toString()),
-                            //   _buildGridItem('Villa No', customerDetailsModel.villaNumber.toString()),
-                            //   _buildGridItem('Hotel', customerDetailsModel.hotel.toString()),
-                            //   _buildGridItem('Room No', customerDetailsModel.roomNo.toString()),
-                            //   _buildGridItem('Fragrance', customerDetailsModel.fragrance.toString()),
-                            //   _buildGridItem('Reference No', customerDetailsModel.refNo.toString()),
-                            //   _buildGridItem('Note', widget.notes),
-                            //   _buildGridItem('Remark', widget.remarks),
-                            //   _buildGridItem('Order No', widget.pickupOrderId != null && 
-                            //     widget.pickupOrderId != 'null' ? widget.pickupOrderId : ''),
-                            //   _buildGridItem('Pickup Id', widget.pickupAssignId.toString()),
-                            // ],
-                          ),
+                          child: 
+                             Table(
+                            columnWidths: const {
+                              0: FlexColumnWidth(1),
+                              1: FlexColumnWidth(1),
+                              2: FlexColumnWidth(1),
+                            },
+                            children: buildDetailsTableRows(gridItems),
+                          )
+                            
+                            
+                          
                         ),
                       ),
                       // secondChild: Container(
@@ -1279,31 +1262,4 @@ class _PickupdetailsState extends State<Pickupdetails> {
       // ),
     );
   }
-}
-Widget _buildGridItem(String label, String value) {
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Text(
-        label,
-        style: TextStyle(
-          color: const Color(0xFFA9A5B8),
-          fontSize: 14.sp,
-          fontFamily: 'DM Sans',
-          fontWeight: FontWeight.w500,
-        ),
-      ),
-      Text(
-        value.isEmpty ? '-' : value,
-        style: TextStyle(
-          color: Colors.black,
-          fontSize: 12.sp,
-          fontFamily: 'DM Sans',
-          fontWeight: FontWeight.w500,
-        ),
-        maxLines: 2,
-        overflow: TextOverflow.ellipsis,
-      ),
-    ],
-  );
 }

@@ -223,9 +223,9 @@ class _AdminedithistoryState extends State<Adminedithistory> {
                                       ),
                                     child: Table(
                                       columnWidths: const {
-                                        0: FlexColumnWidth(1.7),
-                                        1: FlexColumnWidth(1.7),
-                                        2: FlexColumnWidth(1.9),
+                                        0: FixedColumnWidth(150),
+                                        1: FixedColumnWidth(150),
+                                        2: FixedColumnWidth(300),
                                       },
                                       border: TableBorder.all(
                                         color: const Color(0xFFE7E7E7),

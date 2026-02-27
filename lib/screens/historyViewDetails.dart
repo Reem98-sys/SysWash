@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:syswash/bloc/bloc/pickupcustdetails_bloc.dart';
+import 'package:syswash/helper/customerdetail_helper.dart';
 
 class Historyviewdetails extends StatefulWidget {
   final String customerId;
@@ -92,6 +93,20 @@ class _HistoryviewdetailsState extends State<Historyviewdetails> {
               if (state is PickupCustDetailsLoaded) {
                 final customerDetailsModel = state.customerDetailsModel;
                 final deliveryItems = state.pickupOrderItemsModel;
+                final gridItems = [
+                  {'label': 'Area', 'value': customerDetailsModel.area},
+                  {'label': 'Zone', 'value': customerDetailsModel.zone},
+                  {'label': 'Street No', 'value': customerDetailsModel.streetNo},
+                  {'label': 'Villa No', 'value': customerDetailsModel.villaNumber},
+                  {'label': 'Hotel', 'value': customerDetailsModel.hotel},
+                  {'label': 'Room No', 'value': customerDetailsModel.roomNo},
+                  {'label': 'Fragrance', 'value': customerDetailsModel.fragrance},
+                  {'label': 'Reference No', 'value': customerDetailsModel.refNo},
+                  {'label': 'Note', 'value': widget.notes},
+                  {'label': 'Remark', 'value': widget.remarks},
+                  {'label': 'Order No', 'value': deliveryItems.orderId.toString()},
+                  {'label': 'Pickup Id', 'value': widget.deliveryAssgnId.toString()},
+                ];
                 return Column(
                   children: [
                     Container(
@@ -231,28 +246,14 @@ class _HistoryviewdetailsState extends State<Historyviewdetails> {
                         ),
                         child: Padding(
                           padding: const EdgeInsets.all(15.0),
-                          child: GridView.count(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            crossAxisCount: 3,
-                            childAspectRatio: 2,
-                            crossAxisSpacing: 5.w,
-                            mainAxisSpacing: 5.h,
-                            children: [
-                              _buildGridItem('Area', customerDetailsModel.area.toString()),
-                              _buildGridItem('Zone', customerDetailsModel.zone.toString()),
-                              _buildGridItem('Street No', customerDetailsModel.streetNo.toString()),
-                              _buildGridItem('Villa No', customerDetailsModel.villaNumber.toString()),
-                              _buildGridItem('Hotel', customerDetailsModel.hotel.toString()),
-                              _buildGridItem('Room No', customerDetailsModel.roomNo.toString()),
-                              _buildGridItem('Fragrance', customerDetailsModel.fragrance.toString()),
-                              _buildGridItem('Reference No', customerDetailsModel.refNo.toString()),
-                              _buildGridItem('Note', widget.notes),
-                              _buildGridItem('Remark', widget.remarks),
-                              _buildGridItem('Order No', deliveryItems.orderId.toString()),
-                              _buildGridItem('Pickup Id', widget.deliveryAssgnId.toString()),
-                            ],
-                          ),
+                          child: Table(
+                            columnWidths: const {
+                              0: FlexColumnWidth(1),
+                              1: FlexColumnWidth(1),
+                              2: FlexColumnWidth(1),
+                            },
+                            children: buildDetailsTableRows(gridItems),
+                          )
                         ),
                       ),
                       // secondChild: Container(
