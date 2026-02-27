@@ -45,6 +45,13 @@ class _PickupdetailsState extends State<Pickupdetails> {
     _loadUserAndFetchData(); // run async function
   }
 
+  int getGridCount(BuildContext context) {
+  final width = MediaQuery.of(context).size.width;
+  if (width < 360) return 2;   // very small phones
+  if (width < 600) return 3;   // normal phones
+  return 4;                   // tablets
+}
+
   Future<void> _loadUserAndFetchData() async {
     final companyCode = await storage.read(key: 'company_Code');
     final token = await storage.read(key: 'access_Token');
@@ -304,7 +311,20 @@ class _PickupdetailsState extends State<Pickupdetails> {
                 final customerDetailsModel = state.customerDetailsModel;
                 final pickupOrderItems = state.pickupOrderItemsModel;
                 final settingsData = state.settingsModel;
-
+                final gridItems = [
+  {'label': 'Area', 'value': customerDetailsModel.area},
+  {'label': 'Zone', 'value': customerDetailsModel.zone},
+  {'label': 'Street No', 'value': customerDetailsModel.streetNo},
+  {'label': 'Villa No', 'value': customerDetailsModel.villaNumber},
+  {'label': 'Hotel', 'value': customerDetailsModel.hotel},
+  {'label': 'Room No', 'value': customerDetailsModel.roomNo},
+  {'label': 'Fragrance', 'value': customerDetailsModel.fragrance},
+  {'label': 'Reference No', 'value': customerDetailsModel.refNo},
+  {'label': 'Note', 'value': widget.notes},
+  {'label': 'Remark', 'value': widget.remarks},
+  {'label': 'Order No', 'value': widget.pickupOrderId?.toString() ?? ''},
+  {'label': 'Pickup Id', 'value': widget.pickupAssignId.toString()},
+];
                 return Column(
                   children: [
                     Container(
@@ -523,28 +543,35 @@ class _PickupdetailsState extends State<Pickupdetails> {
                         ),
                         child: Padding(
                           padding: const EdgeInsets.all(15.0),
-                          child: GridView.count(
+                          child: GridView.builder(
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
-                            crossAxisCount: 3,
-                            childAspectRatio: 2,
-                            crossAxisSpacing: 5.w,
-                            mainAxisSpacing: 5.h,
-                            children: [
-                              _buildGridItem('Area', customerDetailsModel.area.toString()),
-                              _buildGridItem('Zone', customerDetailsModel.zone.toString()),
-                              _buildGridItem('Street No', customerDetailsModel.streetNo.toString()),
-                              _buildGridItem('Villa No', customerDetailsModel.villaNumber.toString()),
-                              _buildGridItem('Hotel', customerDetailsModel.hotel.toString()),
-                              _buildGridItem('Room No', customerDetailsModel.roomNo.toString()),
-                              _buildGridItem('Fragrance', customerDetailsModel.fragrance.toString()),
-                              _buildGridItem('Reference No', customerDetailsModel.refNo.toString()),
-                              _buildGridItem('Note', widget.notes),
-                              _buildGridItem('Remark', widget.remarks),
-                              _buildGridItem('Order No', widget.pickupOrderId != null && 
-                                widget.pickupOrderId != 'null' ? widget.pickupOrderId : ''),
-                              _buildGridItem('Pickup Id', widget.pickupAssignId.toString()),
-                            ],
+                            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+    crossAxisCount: getGridCount(context),
+    crossAxisSpacing: 8.w,
+    mainAxisSpacing: 10.h,
+    childAspectRatio: 1.6, 
+  ),
+  itemCount: gridItems.length,
+  itemBuilder: (context, index) {
+    final item = gridItems[index];
+    return _buildGridItem(item['label']!, item['value']!);
+  },
+                            // children: [
+                            //   _buildGridItem('Area', customerDetailsModel.area.toString()),
+                            //   _buildGridItem('Zone', customerDetailsModel.zone.toString()),
+                            //   _buildGridItem('Street No', customerDetailsModel.streetNo.toString()),
+                            //   _buildGridItem('Villa No', customerDetailsModel.villaNumber.toString()),
+                            //   _buildGridItem('Hotel', customerDetailsModel.hotel.toString()),
+                            //   _buildGridItem('Room No', customerDetailsModel.roomNo.toString()),
+                            //   _buildGridItem('Fragrance', customerDetailsModel.fragrance.toString()),
+                            //   _buildGridItem('Reference No', customerDetailsModel.refNo.toString()),
+                            //   _buildGridItem('Note', widget.notes),
+                            //   _buildGridItem('Remark', widget.remarks),
+                            //   _buildGridItem('Order No', widget.pickupOrderId != null && 
+                            //     widget.pickupOrderId != 'null' ? widget.pickupOrderId : ''),
+                            //   _buildGridItem('Pickup Id', widget.pickupAssignId.toString()),
+                            // ],
                           ),
                         ),
                       ),
@@ -900,7 +927,7 @@ class _PickupdetailsState extends State<Pickupdetails> {
                               padding: const EdgeInsets.only(bottom: 10.0),
                               child: Container(
                                 width: 364.w,
-                                height: 64.h,
+                                // height: 64.h,
                                 decoration: ShapeDecoration(
                                   color: Colors.white,
                                   shape: RoundedRectangleBorder(
@@ -993,8 +1020,8 @@ class _PickupdetailsState extends State<Pickupdetails> {
                       ),
                     // Spacer(),
                     Container(
-                      width: 380.w,
-                      height: 76.h,
+                      // width: 380.w,
+                      // height: 76.h,
                       decoration: ShapeDecoration(
                         color: Colors.white,
                         shape: RoundedRectangleBorder(

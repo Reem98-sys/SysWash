@@ -670,7 +670,7 @@ class _DeliverydetailState extends State<Deliverydetail> {
                               padding: const EdgeInsets.only(bottom: 10.0),
                               child: Container(
                                 width: 364.w,
-                                height: 64.h,
+                                // height: 64.h,
                                 decoration: ShapeDecoration(
                                   color: Colors.white,
                                   shape: RoundedRectangleBorder(
@@ -768,8 +768,8 @@ class _DeliverydetailState extends State<Deliverydetail> {
                         ),
                       ),
                     Container(
-                      width: 380.w,
-                      height: 76.h,
+                      // width: 380.w,
+                      // height: 76.h,
                       decoration: ShapeDecoration(
                         color: Colors.white,
                         shape: RoundedRectangleBorder(

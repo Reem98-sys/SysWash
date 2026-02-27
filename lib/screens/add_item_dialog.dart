@@ -57,7 +57,7 @@ Future<Map<String, dynamic>?> showAddItemDialog(
             return SingleChildScrollView(
               child: SizedBox(
                 width: 402.w,
-                height: 431.h,
+                // height: 431.h,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [

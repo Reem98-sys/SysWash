@@ -121,36 +121,25 @@ class _HomeState extends State<Home> {
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
         centerTitle: false,
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start, 
-          children: [
-            BlocBuilder<AdminhomeBloc, AdminhomeState>(
-            builder: (context, state) {
-              if (state is AdmincompanyLoaded &&
-                  state.companyDetails.imageLightMode != null &&
-                  state.companyDetails.imageLightMode!.isNotEmpty) {
-                return Image.network(
-                  state.companyDetails.imageLightMode!,
-                  width: 150.w,
-                  height: 35.h,
-                  fit: BoxFit.contain,
-                );
-              }
-              return SizedBox();
-            },
-          ),
-            Text(
-              'Hello, $username',
-              style: TextStyle(
-                color: Colors.black,
-                fontSize: 22.sp,
-                fontFamily: 'Poppins',
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ],
-        ),
+        leading: null,
+        title: BlocBuilder<AdminhomeBloc, AdminhomeState>(
+          builder: (context, state) {
+            if (state is AdmincompanyLoaded &&
+                state.companyDetails.imageLightMode != null &&
+                state.companyDetails.imageLightMode!.isNotEmpty) {
+              return Image.network(
+                state.companyDetails.imageLightMode!,
+                width: 150.w,
+                height: 42.h,
+                fit: BoxFit.contain,
+              );
+            }
+            return SizedBox();
+          },
+                    ),
         actions: [
+          
+          
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Container(
@@ -175,10 +164,21 @@ class _HomeState extends State<Home> {
               // a Header Section
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 20, 20, 10),
+                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 10),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      Text(
+              'Hello, $username',
+              style: TextStyle(
+                color: Colors.black,
+                fontSize: 22.sp,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            SizedBox(
+              height: 10.h,
+            ),
                       CarouselSlider(
                         items: [
                           Image.asset('assets/sys.png'),

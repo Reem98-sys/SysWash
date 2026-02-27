@@ -149,35 +149,21 @@ class _PickupState extends State<Pickup> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: false,
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start, 
-          children: [
-            BlocBuilder<AdminhomeBloc, AdminhomeState>(
-            builder: (context, state) {
-              if (state is AdmincompanyLoaded &&
-                  state.companyDetails.imageLightMode != null &&
-                  state.companyDetails.imageLightMode!.isNotEmpty) {
-                return Image.network(
-                  state.companyDetails.imageLightMode!,
-                  width: 150.w,
-                  height: 35.h,
-                  fit: BoxFit.contain,
-                );
-              }
-              return SizedBox();
-            },
-          ),
-            Text(
-              userName ?? '',
-              style: const TextStyle(
-                color: Colors.black,
-                fontSize: 22,
-                fontFamily: 'Poppins',
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ],
-        ),
+        title: BlocBuilder<AdminhomeBloc, AdminhomeState>(
+        builder: (context, state) {
+          if (state is AdmincompanyLoaded &&
+              state.companyDetails.imageLightMode != null &&
+              state.companyDetails.imageLightMode!.isNotEmpty) {
+            return Image.network(
+              state.companyDetails.imageLightMode!,
+              width: 150.w,
+              height: 42.h,
+              fit: BoxFit.contain,
+            );
+          }
+          return SizedBox();
+        },
+                  ),
         actions: [
           Padding(
             padding: const EdgeInsets.all(8.0),

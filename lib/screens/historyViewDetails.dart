@@ -567,7 +567,7 @@ class _HistoryviewdetailsState extends State<Historyviewdetails> {
                               padding: const EdgeInsets.only(bottom: 10.0),
                               child: Container(
                                 width: 364.w,
-                                height: 64.h,
+                                // height: 64.h,
                                 decoration: ShapeDecoration(
                                   color: Colors.white,
                                   shape: RoundedRectangleBorder(
@@ -855,10 +855,20 @@ class _HistoryviewdetailsState extends State<Historyviewdetails> {
 
                 final deliveryItems = state.pickupOrderItemsModel;
 
-                return Row(
+                return LayoutBuilder(
+  builder: (context, constraints) {
+    final isSmallScreen = constraints.maxWidth < 360;
+    final itemWidth = isSmallScreen
+        ? constraints.maxWidth
+        : (constraints.maxWidth - 16) / 2;
+                return Wrap(
+                  alignment: WrapAlignment.start,   
+    spacing: 5,                      // horizontal spacing
+    runSpacing: 7, 
                   children: [
                     // LEFT
-                    Expanded(
+                    SizedBox(
+                      width: itemWidth,
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -883,7 +893,7 @@ class _HistoryviewdetailsState extends State<Historyviewdetails> {
                               ),
                             ],
                           ),
-
+                      
                           const SizedBox(height: 6),
                           Row(
                             children: [
@@ -913,72 +923,65 @@ class _HistoryviewdetailsState extends State<Historyviewdetails> {
                       ),
                     ),
 
-                    // RIGHT
-                    Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Row(
-                          children: [
-                            Text(
-                              'Status : ',
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontSize: 15.sp,
-                                fontFamily: 'DM Sans',
-                                fontWeight: FontWeight.w700,
-                                height: 1,
-                              ),
-                            ),
-                            SizedBox(height: 10.h),
-                            Text(
-                              widget.status,
-                              style: TextStyle(
-                                color: widget.statusColor,
-                                fontSize: 16.sp,
-                                fontFamily: 'DM Sans',
-                                fontWeight: FontWeight.w700,
-                                height: 1,
-                                letterSpacing: 1.20,
-                              ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 10.h),
-                        if (deliveryItems.deliveryassgn != null &&
-                            deliveryItems.deliveryassgn!.isNotEmpty &&
-                            deliveryItems.deliveryassgn![0].paymentMode != "")
+                    SizedBox(width: 5.w,),
+                    SizedBox(
+                      width: itemWidth,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
                           Row(
                             children: [
                               Text(
-                                'Payment Mode : ',
+                                'Status : ',
                                 style: TextStyle(
                                   color: Colors.black,
                                   fontSize: 15.sp,
-                                  fontFamily: 'DM Sans',
                                   fontWeight: FontWeight.w700,
-                                  height: 1,
                                 ),
                               ),
                               SizedBox(height: 10.h),
                               Text(
-                                deliveryItems.deliveryassgn![0].paymentMode
-                                    .toString(),
+                                widget.status,
                                 style: TextStyle(
                                   color: widget.statusColor,
                                   fontSize: 16.sp,
-                                  fontFamily: 'DM Sans',
                                   fontWeight: FontWeight.w700,
-                                  height: 1,
-                                  letterSpacing: 1.20,
                                 ),
                               ),
                             ],
                           ),
-                      ],
+                          SizedBox(height: 6.h),
+                          if (deliveryItems.deliveryassgn != null &&
+                              deliveryItems.deliveryassgn!.isNotEmpty &&
+                              deliveryItems.deliveryassgn![0].paymentMode != "")
+                            Row(
+                              children: [
+                                Text(
+                                  'Payment Mode : ',
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 15.sp,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                                SizedBox(height: 10.h),
+                                Text(
+                                  deliveryItems.deliveryassgn![0].paymentMode
+                                      .toString(),
+                                  style: TextStyle(
+                                    color: widget.statusColor,
+                                    fontSize: 16.sp,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ],
+                            ),
+                        ],
+                      ),
                     ),
                   ],
-                );
+                );});
               },
             ),
           ),

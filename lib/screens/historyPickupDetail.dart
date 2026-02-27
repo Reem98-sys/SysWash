@@ -571,7 +571,7 @@ class _HistorypickupdetailState extends State<Historypickupdetail> {
                               padding: const EdgeInsets.only(bottom: 10.0),
                               child: Container(
                                 width: 364.w,
-                                height: 64.h,
+                                // height: 64.h,
                                 decoration: ShapeDecoration(
                                   color: Colors.white,
                                   shape: RoundedRectangleBorder(
@@ -715,55 +715,95 @@ class _HistorypickupdetailState extends State<Historypickupdetail> {
                 }
 
                 final pickupOrderItems = state.pickupOrderItemsModel;
-
-                return Row(
+return LayoutBuilder(
+  builder: (context, constraints) {
+    final isSmallScreen = constraints.maxWidth < 360;
+    final itemWidth = isSmallScreen
+        ? constraints.maxWidth
+        : (constraints.maxWidth - 16) / 2;
+                return Wrap(
+                  alignment: WrapAlignment.start,   
+    spacing: 16,                      // horizontal spacing
+    runSpacing: 7, 
                   children: [
-                    // LEFT
-                    Expanded(
+                     SizedBox(
+                      width: itemWidth,
+                       child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Text(
+                                  'Total Quantity :',
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 15.sp,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                                Text(
+                                  pickupOrderItems.quantity.toString(),
+                                  style: TextStyle(
+                                    color: const Color(0xFF68188B),
+                                    fontSize: 16.sp,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ],
+                            ),
+                       
+                            const SizedBox(height: 6),
+                            Row(
+                              children: [
+                                Text(
+                                  'Total Amount : ',
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 15.sp,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                                Text(
+                                  (double.tryParse(
+                                            pickupOrderItems.totalAmount ?? '0',
+                                          ) ??
+                                          0.0)
+                                      .toStringAsFixed(2),
+                                  style: TextStyle(
+                                    color: const Color(0xFF68188B),
+                                    fontSize: 16.sp,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                     ),
+                    
+
+                    SizedBox(
+                      width: itemWidth,
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           Row(
                             children: [
                               Text(
-                                'Total Quantity :',
+                                'Status : ',
                                 style: TextStyle(
                                   color: Colors.black,
                                   fontSize: 15.sp,
                                   fontWeight: FontWeight.w700,
                                 ),
                               ),
+                              SizedBox(height: 10.h),
                               Text(
-                                pickupOrderItems.quantity.toString(),
+                                widget.status,
                                 style: TextStyle(
-                                  color: const Color(0xFF68188B),
-                                  fontSize: 16.sp,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                            ],
-                          ),
-
-                          const SizedBox(height: 6),
-                          Row(
-                            children: [
-                              Text(
-                                'Total Amount : ',
-                                style: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 15.sp,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                              Text(
-                                (double.tryParse(
-                                          pickupOrderItems.totalAmount ?? '0',
-                                        ) ??
-                                        0.0)
-                                    .toStringAsFixed(2),
-                                style: TextStyle(
-                                  color: const Color(0xFF68188B),
+                                  color: widget.statusColor,
                                   fontSize: 16.sp,
                                   fontWeight: FontWeight.w700,
                                 ),
@@ -773,42 +813,8 @@ class _HistorypickupdetailState extends State<Historypickupdetail> {
                         ],
                       ),
                     ),
-
-                    // RIGHT
-                    Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Row(
-                          children: [
-                            Text(
-                              'Status : ',
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontSize: 15.sp,
-                                fontFamily: 'DM Sans',
-                                fontWeight: FontWeight.w700,
-                                height: 1,
-                              ),
-                            ),
-                            SizedBox(height: 10.h),
-                            Text(
-                              widget.status,
-                              style: TextStyle(
-                                color: widget.statusColor,
-                                fontSize: 16.sp,
-                                fontFamily: 'DM Sans',
-                                fontWeight: FontWeight.w700,
-                                height: 1,
-                                letterSpacing: 1.20,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
                   ],
-                );
+                );});
               },
             ),
           ),
