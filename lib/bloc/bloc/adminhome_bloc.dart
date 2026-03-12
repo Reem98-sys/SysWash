@@ -16,11 +16,11 @@ class AdminhomeBloc extends Bloc<AdminhomeEvent, AdminhomeState> {
     on<FetchtotalsaleEvent>((event, emit) async {
       emit(AdmintotalsaleLoading());
       try {
-        final result = await sysRepository.admintotalsale(event.token, event.companyCode,event.branch);
+        var result = await sysRepository.admintotalsale(event.token, event.companyCode,event.branch);
         totalCount = await sysRepository.admintotalcount(event.token, event.companyCode);
         companyDetails = await sysRepository.admincompany(event.token,event.companyCode);
         emit(AdmintotalsaleLoaded(
-          totalSale: result??0.0,
+          totalSaleData: result,
           totalCount: totalCount,
           companyDetails: companyDetails
           ));

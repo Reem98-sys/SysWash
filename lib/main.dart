@@ -19,6 +19,7 @@ import 'package:syswash/bloc/bloc/devicetoken_bloc.dart';
 import 'package:syswash/bloc/bloc/forgotpass_bloc.dart';
 import 'package:syswash/bloc/bloc/home_bloc.dart';
 import 'package:syswash/bloc/bloc/login_bloc.dart';
+import 'package:syswash/bloc/bloc/notificationlist_bloc.dart';
 import 'package:syswash/bloc/bloc/pickupcustdetails_bloc.dart';
 import 'package:syswash/bloc/bloc/pickuplist_bloc.dart';
 import 'package:syswash/bloc/bloc/profile_bloc.dart';
@@ -73,6 +74,7 @@ void main() async {
           BlocProvider(create: (context) => ReportlistBloc()),
           BlocProvider(create: (context) => AdminprofileBloc()),
           BlocProvider(create: (context) => AdminbranchBloc()),
+          BlocProvider(create: (context) => NotificationlistBloc()),
         ],
         child: const MyApp(),
       ),

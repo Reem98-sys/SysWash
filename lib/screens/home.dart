@@ -14,6 +14,7 @@ import 'package:syswash/model/pickupListModel.dart';
 import 'package:syswash/model/totalOrder.dart';
 import 'package:syswash/screens/bottomnav.dart';
 import 'package:syswash/screens/deliveryDetail.dart';
+import 'package:syswash/screens/notificationList.dart';
 import 'package:syswash/screens/pickup.dart';
 import 'package:syswash/screens/pickupDetails.dart';
 
@@ -140,16 +141,21 @@ class _HomeState extends State<Home> {
         actions: [
           
           
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Container(
-              width: 42,
-              height: 42,
-              decoration: BoxDecoration(
-                color: const Color(0xFFE2E5F4),
-                borderRadius: BorderRadius.circular(8),
+          GestureDetector(
+            onTap: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) => Notificationlist()));
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Container(
+                width: 42,
+                height: 42,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFE2E5F4),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(Icons.notifications_none_rounded),
               ),
-              child: const Icon(Icons.notifications_none_rounded),
             ),
           ),
         ],

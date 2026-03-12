@@ -6,11 +6,11 @@ sealed class AdminhomeState {}
 final class AdminhomeInitial extends AdminhomeState {}
 class AdmintotalsaleLoading extends AdminhomeState {}
 class AdmintotalsaleLoaded extends AdminhomeState {
-  final double totalSale;
+  final Map<String,dynamic> totalSaleData;
   final TotalCount totalCount;
   final CompanyDetails companyDetails;
   AdmintotalsaleLoaded({
-    required this.totalSale,
+    required this.totalSaleData,
     required this.totalCount,
     required this.companyDetails,
     });

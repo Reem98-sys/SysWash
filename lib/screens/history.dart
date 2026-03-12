@@ -6,6 +6,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:syswash/bloc/bloc/adminhome_bloc.dart';
 import 'package:syswash/screens/bottomnav.dart';
 import 'package:syswash/screens/historyDetail.dart';
+import 'package:syswash/screens/notificationList.dart';
 
 class History extends StatefulWidget {
   const History({super.key});
@@ -74,16 +75,21 @@ class _HistoryState extends State<History> with SingleTickerProviderStateMixin {
         },
                   ),
         actions: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Container(
-              width: 42.w,
-              height: 42.w,
-              decoration: BoxDecoration(
-                color: const Color(0xFFE2E5F4),
-                borderRadius: BorderRadius.circular(8),
+          GestureDetector(
+            onTap: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) => Notificationlist()));
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Container(
+                width: 42.w,
+                height: 42.w,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFE2E5F4),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(Icons.notifications_none_rounded),
               ),
-              child: const Icon(Icons.notifications_none_rounded),
             ),
           ),
         ],

@@ -90,7 +90,7 @@ class _AdminhomeState extends State<Adminhome> {
       final dates = getDateRange(dropdownValue); // Daily by default
 
       context.read<AdminhomeBloc>().add(
-        FetchtotalsaleEvent(token: token, companyCode: companyCode, branch: ''),
+        FetchtotalsaleEvent(token: token, companyCode: companyCode, branch: null),
       );
       context.read<AdminbranchBloc>().add(
         FetchBranchEvent(token: token, companyCode: companyCode),
@@ -357,8 +357,8 @@ class _AdminhomeState extends State<Adminhome> {
                       );
                     }
                     if (state is AdmintotalsaleLoaded) {
-                      final totalSale = state.totalSale;
-                      totalCount = state.totalCount;
+                      var totalSaleDatas = state.totalSaleData;
+                      // totalCount = state.totalCount;
                       companyDetails = state.companyDetails;
                       return Column(
                         children: [
@@ -403,7 +403,7 @@ class _AdminhomeState extends State<Adminhome> {
                                               ),
                                             ),
                                             Text(
-                                              totalSale.toString(),
+                                              (totalSaleDatas['totalSales'] ?? 0).toString(),
                                               maxLines: 1,
                                               softWrap: false,
                                               overflow: TextOverflow.ellipsis,
@@ -441,8 +441,7 @@ class _AdminhomeState extends State<Adminhome> {
                                             ),
                                           ),
                                           Text(
-                                            totalCount.results!.orderCount
-                                                .toString(),
+                                            (totalSaleDatas['totalOrder'] ?? 0).toString(),
                                             style: TextStyle(
                                               color: Colors.white,
                                               fontSize: 18.sp,
@@ -466,8 +465,7 @@ class _AdminhomeState extends State<Adminhome> {
                                             ),
                                           ),
                                           Text(
-                                            totalCount.results!.customerCount
-                                                .toString(),
+                                            (totalSaleDatas['totalCustomer'] ?? 0).toString(),
                                             style: TextStyle(
                                               color: Colors.white,
                                               fontSize: 18.sp,
@@ -491,8 +489,7 @@ class _AdminhomeState extends State<Adminhome> {
                                             ),
                                           ),
                                           Text(
-                                            totalCount.results!.employeeCount
-                                                .toString(),
+                                            (totalSaleDatas['totalEmploye'] ?? 0).toString(),
                                             style: TextStyle(
                                               color: Colors.white,
                                               fontSize: 18.sp,

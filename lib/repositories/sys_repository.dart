@@ -19,6 +19,7 @@ import 'package:syswash/model/employeeReport.dart';
 import 'package:syswash/model/expCategory.dart';
 import 'package:syswash/model/expenseReport.dart';
 import 'package:syswash/model/itemwise.dart';
+import 'package:syswash/model/notificationlist.dart';
 import 'package:syswash/model/orderReport.dart';
 import 'package:syswash/model/outstandingModel.dart';
 import 'package:syswash/model/pickupListModel.dart';
@@ -636,8 +637,26 @@ class SysRepository {
     
   }
 
+  Future<List<NotificationList>> notificationlist(
+    String userId,
+    String token,
+    String companyCode
+  ) async {
+    String url =
+        "https://be.syswash.net/api/syswash/drivernotificationlist/${userId}?code=${companyCode}";
+    body = {};
+    Response response = await apiClient.invokeAPI(
+      url,
+      "GET",
+      jsonEncode(body),
+      token: token,
+    );
+    final List data = jsonDecode(response.body);
+    return data.map((e) => NotificationList.fromJson(e)).toList();
+  }
+
   // API FOR ADMIN
-  Future<double?> admintotalsale(
+  Future<Map<String,dynamic>> admintotalsale(
     String token,
     String companyCode,
     var branch
@@ -652,7 +671,13 @@ class SysRepository {
       token: token,
     );
     final data = jsonDecode(response.body);
-    return data['total_sales'];
+    var responsedata = {
+      "totalSales" : data['total_sales'],
+      "totalOrder" : data['total_order'],
+      "totalCustomer" : data['total_customer'],
+      "totalEmploye" : data['total_employe']
+    };
+    return responsedata;
   }
 
   

@@ -4,7 +4,7 @@ class CustomerListModel {
     String? name;
     String? joinDate;
     String? email;
-    int? mobile;
+    String? mobile;
     String? streetNo;
     String? villaNumber;
     String? roomNo;
@@ -41,8 +41,8 @@ class CustomerListModel {
         if(json["email"] is String) {
             email = json["email"];
         }
-        if(json["mobile"] is num) {
-            mobile = (json["mobile"] as num).toInt();
+        if(json["mobile"] is String) {
+            mobile = json["mobile"];
         }
         if(json["streetNo"] is String) {
             streetNo = json["streetNo"];
@@ -145,7 +145,7 @@ class CustomerListModel {
         String? name,
         String? joinDate,
         String? email,
-        int? mobile,
+        String? mobile,
         String? streetNo,
         String? villaNumber,
         String? roomNo,

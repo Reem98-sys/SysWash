@@ -1,7 +1,7 @@
 import 'package:url_launcher/url_launcher.dart';
 
 Future<void> openRouteLatLng(double lat, double lng) async {
-  final googleMapsApp = Uri.parse('geo:0,0?q=$lat,$lng');
+  final googleMapsApp = Uri.parse('https://www.google.com/maps/search/?api=1&query=$lat,$lng');
   final googleMapsWeb =
       Uri.parse('https://www.google.com/maps/search/?api=1&query=$lat,$lng');
   final wazeApp = Uri.parse('waze://?ll=$lat,$lng&navigate=yes');
