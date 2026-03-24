@@ -39,17 +39,29 @@ import 'package:syswash/screens/splash.dart';
 // BACKGROUND HANDLER
 // --------------------------------------------------------------------
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  if (Firebase.apps.isEmpty) {
-    await Firebase.initializeApp();
+  try {
+    if (Firebase.apps.isEmpty) {
+      await Firebase.initializeApp();
+    }
+    print('Firebase Initialized successfull');
+  } catch (e) {
+    print("Firebase already initialized or errors : $e");
   }
+  
   print("📨 Background message: ${message.notification?.title}");
 }
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  if (Firebase.apps.isEmpty) {
-    await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  try {
+    if (Firebase.apps.isEmpty) {
+      await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+      print('Firebase Initialized successfully');
+    }
+  } catch (e) {
+    print("Firebase already initialized or error : $e");
   }
+  
 
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
