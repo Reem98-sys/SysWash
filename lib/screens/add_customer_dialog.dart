@@ -63,12 +63,12 @@ Future<bool?> showAddCustomerDialog(
                         height: MediaQuery.of(context).size.height * 0.8,
                         child: SingleChildScrollView(
                           keyboardDismissBehavior:
-              ScrollViewKeyboardDismissBehavior.onDrag,
+              ScrollViewKeyboardDismissBehavior.manual,
                 padding: EdgeInsets.fromLTRB(
             16.w,
             16.h,
             16.w,
-            16.h + MediaQuery.of(context).viewInsets.bottom, 
+            16.h, 
           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -237,6 +237,7 @@ Future<bool?> showAddCustomerDialog(
                                 ),
                                 child: TextFormField(
                                   controller: phoneController,
+                                  keyboardType: TextInputType.number,
                                   decoration: InputDecoration(
                                     hintText: 'Phone number',
                                     border: InputBorder.none,

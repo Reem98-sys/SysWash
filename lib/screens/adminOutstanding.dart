@@ -248,7 +248,7 @@ class _AdminoutstandingState extends State<Adminoutstanding> {
                                       }).toList(),
                                   TableRow(
                                       children: [
-                                        _tableText('Total Discount'),
+                                        _tableText('TOTAL OUTSTANDING'),
                                         _tableValue(
                                           totalOutstanding.toStringAsFixed(2),
                                         ),

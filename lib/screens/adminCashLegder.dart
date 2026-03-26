@@ -293,43 +293,49 @@ class _AdmincashlegderState extends State<Admincashlegder> {
                       child: Padding(
                         padding: const EdgeInsets.all(10),
                         child: SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          child: DataTable(
-                            headingRowColor: MaterialStateProperty.all(
-                              const Color(0xFFF5F5F5),
-                            ),
-                            columns: const [
-                              DataColumn(label: Text('Order')),
-                              DataColumn(label: Text('Date')),
-                              DataColumn(label: Text('Customer')),
-                              DataColumn(label: Text('Mode')),
-                              DataColumn(label: Text('Receiver')),
-                              DataColumn(label: Text('Amount')),
-                            ],
-                            rows:
-                                cashLedger.map((item) {
-                                  return DataRow(
-                                    cells: [
-                                      DataCell(Text(item.order.toString())),
-                                      DataCell(Text(formatApiDateToUi(item.paymentDate.toString()) ?? '')),
-                                      DataCell(Text(item.customerName ?? '')),
-                                      DataCell(Text(item.paymentMode ?? '')),
-                                      DataCell(Text(item.billReceiver ?? '')),
-                                      DataCell(
-                                        Align(
-                                          alignment: Alignment.centerRight,
-                                          child: Text(
-                                            item.paidAmount.toString(),
+                          scrollDirection: Axis.vertical,
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: DataTable(
+                              headingRowColor: MaterialStateProperty.all(
+                                const Color(0xFFF5F5F5),
+                              ),
+                              columns: const [
+                                DataColumn(label: Text('Order')),
+                                DataColumn(label: Text('Date')),
+                                DataColumn(label: Text('Customer')),
+                                DataColumn(label: Text('Mode')),
+                                DataColumn(label: Text('Receiver')),
+                                DataColumn(label: Text('Amount')),
+                              ],
+                              rows:
+                                  cashLedger.map((item) {
+                                    return DataRow(
+                                      cells: [
+                                        DataCell(Text(item.order.toString())),
+                                        DataCell(Text(formatApiDateToUi(item.paymentDate.toString()) ?? '')),
+                                        DataCell(Text(item.customerName ?? '')),
+                                        DataCell(Text(item.paymentMode ?? '')),
+                                        DataCell(Text(item.billReceiver ?? '')),
+                                        DataCell(
+                                          Align(
+                                            alignment: Alignment.centerRight,
+                                            child: Text(
+                                              item.paidAmount.toString(),
+                                            ),
                                           ),
                                         ),
-                                      ),
-                                    ],
-                                  );
-                                }).toList(),
+                                      ],
+                                    );
+                                  }).toList(),
+                            ),
                           ),
                         ),
                       ),
                     ),
+                    SizedBox(
+                      height: 20.h,
+                    )
                   ],
                 );
               } else {

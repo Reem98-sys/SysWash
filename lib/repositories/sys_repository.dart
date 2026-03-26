@@ -18,6 +18,7 @@ import 'package:syswash/model/driverReport.dart';
 import 'package:syswash/model/employeeReport.dart';
 import 'package:syswash/model/expCategory.dart';
 import 'package:syswash/model/expenseReport.dart';
+import 'package:syswash/model/expensecategorymodel.dart';
 import 'package:syswash/model/itemwise.dart';
 import 'package:syswash/model/notificationlist.dart';
 import 'package:syswash/model/orderReport.dart';
@@ -680,7 +681,23 @@ class SysRepository {
     return responsedata;
   }
 
-  
+  Future<ExpenseCategoryModel> expensecategory(
+    String token,
+    String companyCode,
+    var branch
+  ) async {
+    String url =
+        "https://be.syswash.net/api/syswash/Expensegraph?database=$branch&code=$companyCode";
+    body = {};
+    Response response = await apiClient.invokeAPI(
+      url,
+      "GET",
+      jsonEncode(body),
+      token: token,
+    );
+    return ExpenseCategoryModel.fromJson(jsonDecode(response.body));
+  }
+
   Future<TotalCount> admintotalcount(
     String token,
     String companyCode

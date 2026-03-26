@@ -8,9 +8,11 @@ import 'package:syswash/bloc/bloc/adminclosereport_bloc.dart';
 import 'package:syswash/bloc/bloc/admingraph_bloc.dart';
 import 'package:syswash/bloc/bloc/adminhome_bloc.dart';
 import 'package:syswash/helper/graph.dart';
+import 'package:syswash/helper/pie_chart.dart';
 import 'package:syswash/model/adminBranch.dart' as branch_model;
 import 'package:syswash/model/closingReport.dart';
 import 'package:syswash/model/companydetailsModel.dart';
+import 'package:syswash/model/expensecategorymodel.dart';
 import 'package:syswash/model/totalCountModel.dart';
 
 class Adminhome extends StatefulWidget {
@@ -25,6 +27,7 @@ class _AdminhomeState extends State<Adminhome> {
   late TotalCount totalCount;
   late ClosingReport closingReport;
   late CompanyDetails companyDetails;
+  ExpenseCategoryModel? expenseCategoryModel;
   branch_model.AdminBranch? adminBranch;
   List<branch_model.Data> branchList = [];
   String? selectedBranch = null;
@@ -360,6 +363,7 @@ class _AdminhomeState extends State<Adminhome> {
                       var totalSaleDatas = state.totalSaleData;
                       // totalCount = state.totalCount;
                       companyDetails = state.companyDetails;
+                      expenseCategoryModel = state.expenseCategoryModel;
                       return Column(
                         children: [
                           Container(
@@ -1088,6 +1092,59 @@ class _AdminhomeState extends State<Adminhome> {
                     } else {
                       return SizedBox();
                     }
+                  },
+                ),
+                SizedBox(height: 20.h),
+
+                BlocBuilder<AdminhomeBloc, AdminhomeState>(
+                  builder: (context, state) {
+                    if (state is AdmintotalsaleLoading) {
+                      return SizedBox(
+                        height: 200,
+                        child: Center(child: CircularProgressIndicator()),
+                      );
+                    }
+                
+                    if (state is AdmintotalsaleLoaded &&
+                        state.expenseCategoryModel.expenseCategoryTotals != null) {
+                        
+                      final data =
+                          state.expenseCategoryModel.expenseCategoryTotals!.categories;
+                
+                      return Container(
+                        width: 366.w,
+                        decoration: ShapeDecoration(
+                              color: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                side: BorderSide(
+                                  width: 1,
+                                  color: const Color(0xFFF0F0F0),
+                                ),
+                                borderRadius: BorderRadius.circular(15),
+                              ),
+                            ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Expense Categories",
+                                style: TextStyle(
+                                  fontSize: 16.sp,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              SizedBox(height: 16.h),
+                
+                              ExpensePieChart(data: data),
+                            ],
+                          ),
+                        ),
+                      );
+                    }
+                
+                    return const Center(child: Text("No data"));
                   },
                 ),
                 SizedBox(height: 25.h),

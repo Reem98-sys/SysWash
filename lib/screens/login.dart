@@ -192,15 +192,28 @@ class _LoginState extends State<Login> {
               //           ).createShader(const Rect.fromLTWH(0, 0, 200, 70)),
               //       ),
               //     ),
-              Text(
-                'Welcome Back',
-                style: TextStyle(
-                  color: const Color(0xFF0D0140),
-                  fontSize: 30.sp,
-                  fontFamily: 'DM Sans',
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
+              Center(
+        child: ShaderMask(
+          shaderCallback: (bounds) => LinearGradient(
+            colors: [
+              Color(0xFF392D91), 
+              Color(0xFF632B85),// Deep Blue/Indigo
+          Color(0xFF8E2675), // Magenta/Purple
+            ],
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
+          ).createShader(Rect.fromLTWH(0, 0, bounds.width, bounds.height)),
+          child: Text(
+            'SYSWASH',
+            style: TextStyle(
+              fontSize: 48,
+              fontWeight: FontWeight.bold,
+              color: Colors.white, // required for ShaderMask
+              // letterSpacing: 2,
+              fontFamily: 'sans-serif'
+            ),
+          ),
+        )),
               SizedBox(height: 50.h),
               Container(
                 width: 317.w,
