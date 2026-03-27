@@ -628,6 +628,7 @@ class _AdminclosingreportState extends State<Adminclosingreport> {
                           ],
                         ),
                       ),
+                      SizedBox(height: 20.h,)
                     ],
                   ),
                 );

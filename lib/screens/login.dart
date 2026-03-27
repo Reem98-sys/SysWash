@@ -206,7 +206,7 @@ class _LoginState extends State<Login> {
           child: Text(
             'SYSWASH',
             style: TextStyle(
-              fontSize: 48,
+              fontSize: 40.sp,
               fontWeight: FontWeight.bold,
               color: Colors.white, // required for ShaderMask
               // letterSpacing: 2,
@@ -241,7 +241,7 @@ class _LoginState extends State<Login> {
                     Container(
                       width: 317.w,
                       // height: 50.h,
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      padding: EdgeInsets.symmetric(horizontal: 16),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(8.r),
@@ -297,7 +297,7 @@ class _LoginState extends State<Login> {
                     Container(
                       width: 317.w,
                       // height: 50.h,
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      padding: EdgeInsets.symmetric(horizontal: 16),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(8.r),
@@ -359,7 +359,7 @@ class _LoginState extends State<Login> {
                     Container(
                       width: 317.w,
                       // height: 50.h,
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      padding: EdgeInsets.symmetric(horizontal: 16),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(8.r),
@@ -403,7 +403,7 @@ class _LoginState extends State<Login> {
               ),
               // SizedBox(height: 20.h),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 30),
+                padding: EdgeInsets.symmetric(horizontal: 30),
                 child: Row(
                   children: [
                     // Checkbox(
@@ -433,7 +433,7 @@ class _LoginState extends State<Login> {
                         'Forgot Password ?',
                         style: TextStyle(
                           color: const Color(0xFF0D0140),
-                          fontSize: 12,
+                          fontSize: 14.sp,
                           fontFamily: 'DM Sans',
                           fontWeight: FontWeight.w400,
                         ),

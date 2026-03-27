@@ -1234,6 +1234,7 @@ class _AdminhomeState extends State<Adminhome> {
                     }
                   },
                 ),
+                SizedBox(height : 20.h)
               ],
             ),
           ),

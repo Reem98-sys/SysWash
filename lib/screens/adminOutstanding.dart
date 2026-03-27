@@ -261,7 +261,7 @@ class _AdminoutstandingState extends State<Adminoutstanding> {
                         ],
                       ),
                     ),
-                    
+                    SizedBox(height: 20.h,)
                   ],
                 );
               } else {

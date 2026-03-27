@@ -377,6 +377,7 @@ class _AdminsalesreportState extends State<Adminsalesreport> {
                         ],
                       ),
                     ),
+                    SizedBox(height: 20.h,)
                   ],
                 );
               } else {

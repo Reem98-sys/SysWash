@@ -270,6 +270,7 @@ class _AdminedithistoryState extends State<Adminedithistory> {
                           ],
                         ),
                       ),
+                      SizedBox(height: 20.h,)
                     ],
                   ),
                 );
