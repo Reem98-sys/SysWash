@@ -180,7 +180,7 @@ class _LoginState extends State<Login> {
             children: [
               SizedBox(height: 113.h),
               Image.asset('assets/icon.png', width: 77.w, height: 77.h),
-              SizedBox(height: 34.h),
+              SizedBox(height: 10.h),
               // Text(
               //       "SYSWASH",
               //       style: TextStyle(
@@ -442,7 +442,7 @@ class _LoginState extends State<Login> {
                   ],
                 ),
               ),
-              SizedBox(height: 32.h),
+              SizedBox(height: 20.h),
               BlocListener<LoginBloc, LoginState>(
                 listener: (context, state) {
                   if (state is LoginBlocLoading) {

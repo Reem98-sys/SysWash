@@ -436,7 +436,7 @@ Future<Map<String, dynamic>?> showAddItemDialog(
                         GestureDetector(
                           onTap: () => Navigator.pop(context),
                           child: Container(
-                            width: 140.w,
+                            width: 130.w,
                             height: 50.h,
                             decoration: ShapeDecoration(
                               color: const Color(0xFFFED8CD),
@@ -480,7 +480,7 @@ Future<Map<String, dynamic>?> showAddItemDialog(
                           },
 
                           child: Container(
-                            width: 140.w,
+                            width: 130.w,
                             height: 50.h,
                             decoration: ShapeDecoration(
                               color: const Color(0xFF68188B),

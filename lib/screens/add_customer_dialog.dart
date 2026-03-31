@@ -322,9 +322,28 @@ Future<bool?> showAddCustomerDialog(
                                               ),
                                             ],
                                           ),
-                                          child: TextFormField(
+                                          child:TextFormField(
                                             controller: dateController,
                                             readOnly: true,
+                                            onTap: () async {
+                                              DateTime today = DateTime.now();
+                                              DateTime lastDate = today.add(const Duration(days: 30));
+
+                                              DateTime? pickedDate = await showDatePicker(
+                                                context: context,
+                                                initialDate: today,
+                                                firstDate: today,
+                                                lastDate: lastDate,
+                                              );
+
+                                              if (pickedDate != null) {
+                                                String formattedDate =
+                                                    "${pickedDate.day.toString().padLeft(2, '0')}-"
+                                                    "${pickedDate.month.toString().padLeft(2, '0')}-"
+                                                    "${pickedDate.year}";
+                                                dateController.text = formattedDate;
+                                              }
+                                            },
                                             decoration: InputDecoration(
                                               hintText: 'Date',
                                               border: InputBorder.none,
