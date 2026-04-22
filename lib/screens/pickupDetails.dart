@@ -157,22 +157,24 @@ class _PickupdetailsState extends State<Pickupdetails> {
   ) async {
     final companyCode = await storage.read(key: 'company_Code');
     final token = await storage.read(key: 'access_Token');
+    final now = TimeOfDay.now();
+    final formattedTime ='${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}';
     if (token != null && companyCode != null) {
       context.read<PickupcustdetailsBloc>().add(
         FetchAddPickupOrderEvent(
           token: token,
           companyCode: companyCode,
           pickupOrderId: widget.pickupOrderId,
-          balance: blnc.toString(),
+          balance: blnc ?? 0.0,
           clothData: _orderItemsList,
           customerDiscount: pickupOrderItems.customerDiscount ?? 0,
-          discount: totalDiscount,
-          lastModifiedTime: TimeOfDay.now().format(context),
+          discount: totalDiscount.toDouble() ?? 0.0,
+          lastModifiedTime: formattedTime,
           lastModifieddate: DateTime.now().toIso8601String().split('T').first,
-          paidAmount: double.parse(pickupOrderItems.paidAmount).toInt() ?? 0,
+          paidAmount: double.parse(pickupOrderItems.paidAmount) ?? 0.0,
           quantity: totalquantity ?? 0,
-          subTotal: subtotal.toString(),
-          totalAmount: totalamt.toString(),
+          subTotal: subtotal ?? 0.0,
+          totalAmount: totalamt ?? 0.0,
           userName: pickupOrderItems.customerName ?? '',
           vatValue: vatAmount
         ),

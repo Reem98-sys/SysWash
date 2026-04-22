@@ -43,16 +43,16 @@ class FetchAddPickupOrderEvent extends PickupcustdetailsEvent {
   final String pickupOrderId;
   final String token;
   final String companyCode;
-  final String balance;
+  final double balance;
   final List<Map<String,dynamic>> clothData;
   final int customerDiscount;
-  final int discount;
+  final double discount;
   final String lastModifiedTime;
   final String lastModifieddate;
-  final int paidAmount;
+  final double paidAmount;
   final int quantity;
-  final String subTotal;
-  final String totalAmount;
+  final double subTotal;
+  final double totalAmount;
   final String userName;
   final double vatValue;
   FetchAddPickupOrderEvent({
