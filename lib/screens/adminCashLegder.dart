@@ -123,6 +123,7 @@ class _AdmincashlegderState extends State<Admincashlegder> {
           onTap: () => Navigator.pop(context),
           child: Icon(Icons.arrow_back_ios_new_outlined),
         ),
+        centerTitle: false,
         backgroundColor: Colors.white,
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -159,6 +160,9 @@ class _AdmincashlegderState extends State<Admincashlegder> {
                     state.companyDetails.imageLightMode!,
                     width: 115.w,
                     height: 35.h,
+                    errorBuilder: (context, error, stackTrace) {
+    return Icon(Icons.broken_image, size: 30); // fallback UI
+  },
                   ),
                 );
               }

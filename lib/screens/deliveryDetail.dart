@@ -662,7 +662,8 @@ class _DeliverydetailState extends State<Deliverydetail> {
                       ],
                     ),
                     SizedBox(height: 17.h),
-                    if (deliveryItems.clothData!.isNotEmpty)
+                    if (deliveryItems.deliveryassgn != null &&
+    deliveryItems.deliveryassgn!.isNotEmpty)
                       Expanded(
                         child: ListView.builder(
                           itemCount: deliveryItems.clothData!.length,
@@ -797,7 +798,7 @@ class _DeliverydetailState extends State<Deliverydetail> {
                                       ),
                                     ),
                                     Text(
-                                      deliveryItems.quantity.toString(),
+                                      deliveryItems.quantity != null ? deliveryItems.quantity.toString() : '0',
                                       style: TextStyle(
                                         color: const Color(0xFF68188B),
                                         fontSize: 15.sp,

@@ -34,7 +34,9 @@ class _HomeState extends State<Home> {
   @override
   void initState() {
     super.initState();
-    _loadUserAndFetchData(); // run async function
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+    _loadUserAndFetchData();
+  });// run async function
   }
 
   Future<void> _loadUserAndFetchData() async {
@@ -133,6 +135,9 @@ class _HomeState extends State<Home> {
                 width: 150.w,
                 height: 42.h,
                 fit: BoxFit.contain,
+                errorBuilder: (context, error, stackTrace) {
+    return Icon(Icons.broken_image, size: 30); // fallback UI
+  },
               );
             }
             return SizedBox();
@@ -244,9 +249,7 @@ class _HomeState extends State<Home> {
                               }
                               if (state is HomeBlocLoaded) {
                                 totalOrderModel =
-                                    BlocProvider.of<HomeBloc>(
-                                      context,
-                                    ).totalOrderModel;
+                                    state.totalOrderModel;
                                 return Container(
                                   width: 167.w,
                                   height: 114.h,

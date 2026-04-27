@@ -148,6 +148,7 @@ class _AdminreportdetailState extends State<Adminreportdetail> {
           child: Icon(Icons.arrow_back_ios_new_outlined),
         ),
         backgroundColor: Colors.white,
+        centerTitle: false,
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -183,6 +184,9 @@ class _AdminreportdetailState extends State<Adminreportdetail> {
                     state.companyDetails.imageLightMode!,
                     width: 115.w,
                     height: 35.h,
+                    errorBuilder: (context, error, stackTrace) {
+    return Icon(Icons.broken_image, size: 30); // fallback UI
+  },
                   ),
                 );
               }

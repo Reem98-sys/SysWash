@@ -103,6 +103,7 @@ class _AdminreportState extends State<Adminreport> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
+        centerTitle: false,
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -138,6 +139,9 @@ class _AdminreportState extends State<Adminreport> {
                     state.companyDetails.imageLightMode!,
                     width: 115.w,
                     height: 35.h,
+                    errorBuilder: (context, error, stackTrace) {
+    return Icon(Icons.broken_image, size: 30); // fallback UI
+  },
                   ),
                 );
               }

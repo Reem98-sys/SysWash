@@ -39,7 +39,9 @@ class _AdminhomeState extends State<Adminhome> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
     _loadAndFetchData();
+  });
   }
 
   Map<String, String> getDateRange(String type) {
@@ -119,6 +121,7 @@ class _AdminhomeState extends State<Adminhome> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
+        centerTitle: false,
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -154,6 +157,9 @@ class _AdminhomeState extends State<Adminhome> {
                     state.companyDetails.imageLightMode!,
                     width: 115.w,
                     height: 35.h,
+                    errorBuilder: (context, error, stackTrace) {
+    return Icon(Icons.broken_image, size: 30); // fallback UI
+  },
                   ),
                 );
               }

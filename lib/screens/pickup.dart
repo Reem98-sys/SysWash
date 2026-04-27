@@ -160,6 +160,9 @@ class _PickupState extends State<Pickup> {
               width: 150.w,
               height: 42.h,
               fit: BoxFit.contain,
+              errorBuilder: (context, error, stackTrace) {
+    return Icon(Icons.broken_image, size: 30); // fallback UI
+  },
             );
           }
           return SizedBox();

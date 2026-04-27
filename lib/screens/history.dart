@@ -69,6 +69,9 @@ class _HistoryState extends State<History> with SingleTickerProviderStateMixin {
               width: 150.w,
               height: 42.h,
               fit: BoxFit.contain,
+              errorBuilder: (context, error, stackTrace) {
+    return Icon(Icons.broken_image, size: 30); // fallback UI
+  },
             );
           }
           return SizedBox();

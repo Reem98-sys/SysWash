@@ -14,7 +14,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       emit(HomeBlocLoading());
       try {
         totalOrderModel = await sysRepository.totalOrder(event.userId, event.companyCode,event.token);
-        emit(HomeBlocLoaded());
+        emit(HomeBlocLoaded(totalOrderModel: totalOrderModel));
       } catch (e) {
         emit(HomeBlocError());
       }

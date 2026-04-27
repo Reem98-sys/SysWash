@@ -66,9 +66,22 @@ class _LoginState extends State<Login> {
     }
   }
 
+  Future<void> requestPermission() async {
+  FirebaseMessaging messaging = FirebaseMessaging.instance;
+
+  NotificationSettings settings = await messaging.requestPermission(
+    alert: true,
+    badge: true,
+    sound: true,
+  );
+
+  print('Permission status: ${settings.authorizationStatus}');
+}
+
   @override
   void initState() {
     super.initState();
+    requestPermission();
     clearSecureStorageIfBroken().then((_) {
     _loadSavedLogin();
   });
