@@ -124,6 +124,10 @@ class _LoginState extends State<Login> {
     // 1️⃣ Get current device token
     String? deviceToken = await messaging.getToken();
     print('Device token = $deviceToken');
+    NotificationSettings settings =
+    await FirebaseMessaging.instance.getNotificationSettings();
+
+print("NOTIFICATION STATUS: ${settings.authorizationStatus}");
     if (userType == 'Driver') {
       if (deviceToken != null) {
         BlocProvider.of<DevicetokenBloc>(context).add(

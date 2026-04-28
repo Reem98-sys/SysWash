@@ -73,7 +73,13 @@ class _SplashScreenState extends State<SplashScreen> {
               try {
                 final String? deviceToken =
                     await FirebaseMessaging.instance.getToken().timeout(const Duration(seconds: 3));
-      
+                print(' FCM DEVICE TOKEN: $deviceToken');
+                
+                NotificationSettings settings =
+                    await FirebaseMessaging.instance.getNotificationSettings();
+
+                print(" NOTIFICATION STATUS: ${settings.authorizationStatus}"); 
+
                 if (deviceToken != null && mounted) {
                   context.read<DevicetokenBloc>().add(
                         FetchDeviceTokenEvent(
