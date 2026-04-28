@@ -120,14 +120,17 @@ class _LoginState extends State<Login> {
     String userType
   ) async {
     final FirebaseMessaging messaging = FirebaseMessaging.instance;
+    await Future.delayed(Duration(seconds: 3));
+
+    String? apns = await messaging.getAPNSToken();
+    print("APNS TOKEN = $apns");
 
     // 1️⃣ Get current device token
     String? deviceToken = await messaging.getToken();
     print('Device token = $deviceToken');
-    NotificationSettings settings =
-    await FirebaseMessaging.instance.getNotificationSettings();
+    
+    if (!mounted) return;
 
-print("NOTIFICATION STATUS: ${settings.authorizationStatus}");
     if (userType == 'Driver') {
       if (deviceToken != null) {
         BlocProvider.of<DevicetokenBloc>(context).add(
@@ -142,6 +145,7 @@ print("NOTIFICATION STATUS: ${settings.authorizationStatus}");
 
       // 2️⃣ Listen for token refresh
       messaging.onTokenRefresh.listen((newToken) {
+        print("REFRESH TOKEN = $newToken");
         BlocProvider.of<DevicetokenBloc>(context).add(
           FetchDeviceTokenEvent(
             userID: userId,
@@ -461,7 +465,7 @@ print("NOTIFICATION STATUS: ${settings.authorizationStatus}");
               ),
               SizedBox(height: 20.h),
               BlocListener<LoginBloc, LoginState>(
-                listener: (context, state) {
+                listener: (context, state) async {
                   if (state is LoginBlocLoading) {
                     showDialog(
                       context: context,
@@ -500,7 +504,7 @@ print("NOTIFICATION STATUS: ${settings.authorizationStatus}");
                         loginModel.userType.toString()
                       );
                       //  Initialize and sync device token
-                      initializeDeviceTokenUpdates(
+                      await initializeDeviceTokenUpdates(
                         context,
                         loginModel.id.toString(),
                         companyCode.text.trim(),

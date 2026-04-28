@@ -57,6 +57,10 @@ void main() async {
     if (Firebase.apps.isEmpty) {
       await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
       print('Firebase Initialized successfully');
+
+      await FirebaseMessaging.instance.setAutoInitEnabled(true);
+      print("FCM Auto Init Enabled");
+      await FirebaseMessaging.instance.requestPermission();
     }
   } catch (e) {
     print("Firebase already initialized or error : $e");
@@ -143,7 +147,19 @@ class _MyAppState extends State<MyApp> {
     );
 
     print("🔔 Permission: ${settings.authorizationStatus}");
+    // IOS APNS TOKEN
+    await Future.delayed(Duration(seconds: 2));
+    String? apnsToken = await messaging.getAPNSToken();
+    print(" APNS Token: $apnsToken");
 
+    // FCM TOKEN
+    String? fcmToken = await messaging.getToken();
+    print(" FCM Token: $fcmToken");
+
+    // Token Refresh Listener
+    FirebaseMessaging.instance.onTokenRefresh.listen((newToken) {
+      print("♻️ Refreshed Token: $newToken");
+    });
     // ---------------------------------------------------------------
     // FOREGROUND NOTIFICATION → SHOW IN-APP BANNER
     // ---------------------------------------------------------------

@@ -71,6 +71,12 @@ class _SplashScreenState extends State<SplashScreen> {
       
               // Optional: re-sync device token (safe version)
               try {
+                await Future.delayed(const Duration(seconds: 2));
+
+                final String? apnsToken =
+                    await FirebaseMessaging.instance.getAPNSToken();
+
+                print("APNS TOKEN: $apnsToken");
                 final String? deviceToken =
                     await FirebaseMessaging.instance.getToken().timeout(const Duration(seconds: 3));
                 print(' FCM DEVICE TOKEN: $deviceToken');
