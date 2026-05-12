@@ -346,6 +346,19 @@ class _PickupdetailsState extends State<Pickupdetails> {
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
+                                if(widget.pickupOrderId != null &&
+                                  widget.pickupOrderId.toString().trim().isNotEmpty &&
+                                  widget.pickupOrderId.toString().toLowerCase() != 'null')
+                                Text(
+                                  '# ${widget.pickupOrderId}',
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 16.sp,
+                                    fontFamily: 'DM Sans',
+                                    // fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                                
                                 Text(
                                   '${customerDetailsModel.name} [${customerDetailsModel.cusCode}]',
                                   style: TextStyle(
@@ -414,6 +427,21 @@ class _PickupdetailsState extends State<Pickupdetails> {
                             Spacer(),
                             Column(
                               children: [
+                                if (widget.pickupOrderId != null &&
+                                  widget.pickupOrderId.toString().trim().isNotEmpty &&
+                                  widget.pickupOrderId.toString().toLowerCase() != 'null')
+                                                        Text(
+                                  pickupOrderItems.status.toString(),
+                                  style: TextStyle(
+                                    color: Colors.green,
+                                    fontSize: 16.sp,
+                                    fontFamily: 'DM Sans',
+                                    // fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                                SizedBox(
+                                  height: 5.h,
+                                ),
                                 GestureDetector(
                                   onTap: () async {
                                     

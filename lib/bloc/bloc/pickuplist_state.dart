@@ -8,7 +8,8 @@ class PickUpBlocLoading extends PickuplistState {}
 class PickUpBlocLoaded extends PickuplistState {
   final PickUpListResponse? pickUpListModel;
   final DeliveryListResponse? deliveryListModel;
-  PickUpBlocLoaded({required this.pickUpListModel, required this.deliveryListModel});
+  final Map<String, String> latestStatuses;
+  PickUpBlocLoaded({required this.pickUpListModel, required this.deliveryListModel,this.latestStatuses = const {},});
 }
 class PickUpBlocError extends PickuplistState {
   final String message; 

@@ -27,7 +27,8 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   String selectedFilter = 'All';
-
+  DateTime? fromDate;
+  DateTime? toDate;
   late TotalOrderModel totalOrderModel;
   final storage = const FlutterSecureStorage();
   String? username;
@@ -35,8 +36,38 @@ class _HomeState extends State<Home> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-    _loadUserAndFetchData();
-  });// run async function
+      _loadUserAndFetchData();
+    });
+  }
+
+  Future<void> _selectFromDate() async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2010),
+      lastDate: DateTime(2100),
+    );
+
+    if (picked != null) {
+      setState(() {
+        fromDate = picked;
+      });
+    }
+  }
+
+  Future<void> _selectToDate() async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2010),
+      lastDate: DateTime(2100),
+    );
+
+    if (picked != null) {
+      setState(() {
+        toDate = picked;
+      });
+    }
   }
 
   Future<void> _loadUserAndFetchData() async {
@@ -44,14 +75,45 @@ class _HomeState extends State<Home> {
     final companyCode = await storage.read(key: 'company_Code');
     final token = await storage.read(key: 'access_Token');
     final storedUsername = await storage.read(key: 'user_name');
+    
     if (mounted) {
       setState(() {
         username = storedUsername ?? 'User';
       });
     }
+    
     print('userId : ${userId}');
     print('companyCode : ${companyCode}');
     print('token : ${token}');
+    
+    if (userId != null && companyCode != null && token != null) {
+      context.read<HomeBloc>().add(
+        FetchHomeEvent(
+          userId: userId,
+          companyCode: companyCode!,
+          token: token!,
+        ),
+      );
+      context.read<PickuplistBloc>().add(
+        FetchAllOrdersEvent(
+          userId: userId,
+          companyCode: companyCode!,
+          token: token!,
+        ),
+      );
+      context.read<AdminhomeBloc>().add(
+        FetchcompanyEvent(token: token!, companyCode: companyCode!),
+      );
+    } else {
+      debugPrint('Missing userId or companyCode in storage');
+    }
+  }
+
+  Future<void> _onRefresh() async {
+    final userId = await storage.read(key: 'login_id');
+    final companyCode = await storage.read(key: 'company_Code');
+    final token = await storage.read(key: 'access_Token');
+
     if (userId != null && companyCode != null && token != null) {
       context.read<HomeBloc>().add(
         FetchHomeEvent(userId: userId, companyCode: companyCode, token: token),
@@ -64,59 +126,26 @@ class _HomeState extends State<Home> {
         ),
       );
       context.read<AdminhomeBloc>().add(
-        FetchcompanyEvent(token: token, companyCode: companyCode)
+        FetchcompanyEvent(token: token, companyCode: companyCode),
       );
-    } else {
-      debugPrint('Missing userId or companyCode in storage');
     }
   }
-
-  Future<void> _onRefresh() async {
-  final userId = await storage.read(key: 'login_id');
-  final companyCode = await storage.read(key: 'company_Code');
-  final token = await storage.read(key: 'access_Token');
-
-  if (userId != null && companyCode != null && token != null) {
-    context.read<HomeBloc>().add(
-      FetchHomeEvent(
-        userId: userId,
-        companyCode: companyCode,
-        token: token,
-      ),
-    );
-
-    context.read<PickuplistBloc>().add(
-      FetchAllOrdersEvent(
-        userId: userId,
-        companyCode: companyCode,
-        token: token,
-      ),
-    );
-
-    context.read<AdminhomeBloc>().add(
-        FetchcompanyEvent(token: token, companyCode: companyCode)
-      );
-  }
-}
 
   DateTime _getOrderDateTime(dynamic order) {
-  try {
-    if (order is PickUpListModel) {
-      final date = order.pickupDate ?? '';
-      final time = order.pickuptime ?? '00:00';
-      return DateTime.parse('$date $time');
-    } else if (order is DeliveryListModel) {
-      final date = order.deliveryDate ?? '';
-      final time = order.deliveryTime ?? '00:00';
-      return DateTime.parse('$date $time');
-    }
-  } catch (_) {
-    
-  }
+    try {
+      if (order is PickUpListModel) {
+        final date = order.pickupDate ?? '';
+        final time = order.pickuptime ?? '00:00';
+        return DateTime.parse('$date $time');
+      } else if (order is DeliveryListModel) {
+        final date = order.deliveryDate ?? '';
+        final time = order.deliveryTime ?? '00:00';
+        return DateTime.parse('$date $time');
+      }
+    } catch (_) {}
 
-  // fallback if parsing fails
-  return DateTime.fromMillisecondsSinceEpoch(0);
-}
+    return DateTime.fromMillisecondsSinceEpoch(0);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -136,19 +165,20 @@ class _HomeState extends State<Home> {
                 height: 42.h,
                 fit: BoxFit.contain,
                 errorBuilder: (context, error, stackTrace) {
-    return Icon(Icons.broken_image, size: 30); // fallback UI
-  },
+                  return Icon(Icons.broken_image, size: 30);
+                },
               );
             }
             return SizedBox();
           },
-                    ),
+        ),
         actions: [
-          
-          
           GestureDetector(
             onTap: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => Notificationlist()));
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => Notificationlist()),
+              );
             },
             child: Padding(
               padding: const EdgeInsets.all(8.0),
@@ -165,14 +195,12 @@ class _HomeState extends State<Home> {
           ),
         ],
       ),
-
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: _onRefresh,
           child: CustomScrollView(
             physics: const BouncingScrollPhysics(),
             slivers: [
-              // a Header Section
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(20, 0, 20, 10),
@@ -180,16 +208,14 @@ class _HomeState extends State<Home> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-              'Hello, $username',
-              style: TextStyle(
-                color: Colors.black,
-                fontSize: 22.sp,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            SizedBox(
-              height: 10.h,
-            ),
+                        'Hello, $username',
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 22.sp,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      SizedBox(height: 10.h),
                       CarouselSlider(
                         items: [
                           Image.asset('assets/sys.png'),
@@ -203,10 +229,7 @@ class _HomeState extends State<Home> {
                           viewportFraction: 1,
                         ),
                       ),
-          
                       SizedBox(height: 22.h),
-          
-                      //  Order Summary Row
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -248,8 +271,7 @@ class _HomeState extends State<Home> {
                                 );
                               }
                               if (state is HomeBlocLoaded) {
-                                totalOrderModel =
-                                    state.totalOrderModel;
+                                totalOrderModel = state.totalOrderModel;
                                 return Container(
                                   width: 167.w,
                                   height: 114.h,
@@ -305,20 +327,17 @@ class _HomeState extends State<Home> {
                               }
                             },
                           ),
-          
-                          // SizedBox(width: 35.w),
                           Column(
                             children: [
                               GestureDetector(
-                                onTap:
-                                    () => Navigator.pushReplacement(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder:
-                                            (context) =>
-                                                const Bottomnav(currentIndex: 1),
-                                      ),
+                                onTap: () => Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const Bottomnav(
+                                      currentIndex: 1,
                                     ),
+                                  ),
+                                ),
                                 child: _orderButton(
                                   'PICKUP ORDER',
                                   const Color(0xFF5F02E7),
@@ -327,13 +346,13 @@ class _HomeState extends State<Home> {
                               SizedBox(height: 14.h),
                               GestureDetector(
                                 onTap: () => Navigator.pushReplacement(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder:
-                                            (context) =>
-                                                const Bottomnav(currentIndex: 2),
-                                      ),
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const Bottomnav(
+                                      currentIndex: 2,
                                     ),
+                                  ),
+                                ),
                                 child: _orderButton(
                                   'DELIVERY ORDER',
                                   const Color(0xFFF38305),
@@ -343,10 +362,181 @@ class _HomeState extends State<Home> {
                           ),
                         ],
                       ),
-          
-                      SizedBox(height: 25.h),
-          
-                      //  Latest Orders Header + Filter Chips
+                      SizedBox(height: 15.h),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Expanded(
+                                child: GestureDetector(
+                                  onTap: _selectFromDate,
+                                  child: Container(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 10.w,
+                                      vertical: 12.h,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      border: Border.all(
+                                        color: Colors.grey.shade300,
+                                      ),
+                                      borderRadius: BorderRadius.circular(10.r),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        Icon(
+                                          Icons.calendar_today_outlined,
+                                          size: 16.sp,
+                                          color: Colors.grey,
+                                        ),
+                                        SizedBox(width: 8.w),
+                                        Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              'From Date',
+                                              style: TextStyle(
+                                                color: Colors.grey,
+                                                fontSize: 10.sp,
+                                              ),
+                                            ),
+                                            SizedBox(height: 2.h),
+                                            Text(
+                                              fromDate == null
+                                                  ? 'Select'
+                                                  : '${fromDate!.day}-${fromDate!.month}-${fromDate!.year}',
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.w500,
+                                                fontSize: 12.sp,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              SizedBox(width: 8.w),
+                              Text(
+                                '-',
+                                style: TextStyle(
+                                  fontSize: 18.sp,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              SizedBox(width: 8.w),
+                              Expanded(
+                                child: GestureDetector(
+                                  onTap: _selectToDate,
+                                  child: Container(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 10.w,
+                                      vertical: 12.h,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      border: Border.all(
+                                        color: Colors.grey.shade300,
+                                      ),
+                                      borderRadius: BorderRadius.circular(10.r),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        Icon(
+                                          Icons.calendar_today_outlined,
+                                          size: 16.sp,
+                                          color: Colors.grey,
+                                        ),
+                                        SizedBox(width: 8.w),
+                                        Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              'To Date',
+                                              style: TextStyle(
+                                                color: Colors.grey,
+                                                fontSize: 10.sp,
+                                              ),
+                                            ),
+                                            SizedBox(height: 2.h),
+                                            Text(
+                                              toDate == null
+                                                  ? 'Select'
+                                                  : '${toDate!.day}-${toDate!.month}-${toDate!.year}',
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.w500,
+                                                fontSize: 12.sp,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              SizedBox(width: 10.w),
+                              GestureDetector(
+                                onTap: () {
+                                  setState(() {});
+                                },
+                                child: Container(
+                                  height: 52.h,
+                                  padding: EdgeInsets.symmetric(horizontal: 18.w),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFF7B1FA2),
+                                    borderRadius: BorderRadius.circular(10.r),
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      'Apply',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 13.sp,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              SizedBox(
+                                width: 5.w,
+                              ),
+                              GestureDetector(
+      onTap: () {
+        setState(() {
+          fromDate = null;
+          toDate = null;
+          selectedFilter = 'All';
+        });
+      },
+      child: Container(
+        height: 52.h,
+        padding: EdgeInsets.symmetric(horizontal: 16.w),
+        decoration: BoxDecoration(
+          color: Colors.grey.shade200,
+          borderRadius: BorderRadius.circular(10.r),
+          border: Border.all(color: Colors.grey.shade300),
+        ),
+        child: Center(
+          child: Text(
+            'Clear',
+            style: TextStyle(
+              color: Colors.black87,
+              fontSize: 13.sp,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ),
+      ),
+    ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 10.h),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -360,46 +550,40 @@ class _HomeState extends State<Home> {
                             ),
                           ),
                           Row(
-                            children:
-                                ['All', 'Pickup', 'Delivery'].map((filter) {
-                                  bool isSelected = selectedFilter == filter;
-                                  return Padding(
-                                    padding: const EdgeInsets.only(left: 4.0),
-                                    child: ChoiceChip(
-                                      label: Padding(
-                                        padding: EdgeInsets.symmetric(
-                                          horizontal: 3.w,
-                                        ),
-                                        child: Text(
-                                          filter,
-                                          style: TextStyle(
-                                            fontSize: 10.sp,
-                                            color:
-                                                isSelected
-                                                    ? Colors.white
-                                                    : Colors.black,
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                        ),
+                            children: ['All', 'Pickup', 'Delivery'].map((filter) {
+                              bool isSelected = selectedFilter == filter;
+                              return Padding(
+                                padding: const EdgeInsets.only(left: 4.0),
+                                child: ChoiceChip(
+                                  label: Padding(
+                                    padding: EdgeInsets.symmetric(horizontal: 3.w),
+                                    child: Text(
+                                      filter,
+                                      style: TextStyle(
+                                        fontSize: 10.sp,
+                                        color: isSelected ? Colors.white : Colors.black,
+                                        fontWeight: FontWeight.w500,
                                       ),
-                                      selected: isSelected,
-                                      selectedColor: const Color(0xFF5D5FEF),
-                                      backgroundColor: const Color(0xFFECECEC),
-                                      showCheckmark: false,
-                                      visualDensity: const VisualDensity(
-                                        horizontal: -4,
-                                        vertical: -4,
-                                      ),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(6),
-                                        side: BorderSide.none,
-                                      ),
-                                      onSelected: (_) {
-                                        setState(() => selectedFilter = filter);
-                                      },
                                     ),
-                                  );
-                                }).toList(),
+                                  ),
+                                  selected: isSelected,
+                                  selectedColor: const Color(0xFF5D5FEF),
+                                  backgroundColor: const Color(0xFFECECEC),
+                                  showCheckmark: false,
+                                  visualDensity: const VisualDensity(
+                                    horizontal: -4,
+                                    vertical: -4,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(6),
+                                    side: BorderSide.none,
+                                  ),
+                                  onSelected: (_) {
+                                    setState(() => selectedFilter = filter);
+                                  },
+                                ),
+                              );
+                            }).toList(),
                           ),
                         ],
                       ),
@@ -407,7 +591,6 @@ class _HomeState extends State<Home> {
                   ),
                 ),
               ),
-          
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(15, 10, 15, 30),
@@ -416,45 +599,42 @@ class _HomeState extends State<Home> {
                       if (state is PickUpBlocLoading) {
                         return const Center(child: CircularProgressIndicator());
                       }
-          
+
                       if (state is PickUpBlocError) {
                         return Center(
                           child: Text(
                             'Failed to load orders',
-                            style: TextStyle(color: Colors.red, fontSize: 14.sp),
+                            style: TextStyle(
+                              color: Colors.red,
+                              fontSize: 14.sp,
+                            ),
                           ),
                         );
                       }
-          
+
                       if (state is PickUpBlocLoaded) {
-                        final pickupOrdersList =
-                            state.pickUpListModel?.data ?? [];
-                        // Filter orders whose pickupstatus is NOT "Received"
-                        final pickupOrders =
-                            pickupOrdersList
-                                .where(
-                                  (order) =>
-                                      order.pickupstatus
-                                          ?.toString()
-                                          .toLowerCase() !=
-                                      'received' && order.pickupstatus
-                                          ?.toString()
-                                          .toLowerCase() != 'collected',
-                                )
-                                .toList();
-                        final deliveryOrdersList =
-                            state.deliveryListModel?.data ?? [];
-                        final deliveryOrders =
-                                  deliveryOrdersList.where((order) =>
-                                      order.status?.toString().toLowerCase() !=
-                                  "delivered").toList();
+                        final pickupOrdersList = state.pickUpListModel?.data ?? [];
+                        final pickupOrders = pickupOrdersList
+                            .where(
+                              (order) =>
+                                  order.pickupstatus?.toString().toLowerCase() != 'received' &&
+                                  order.pickupstatus?.toString().toLowerCase() != 'collected',
+                            )
+                            .toList();
+                            
+                        final deliveryOrdersList = state.deliveryListModel?.data ?? [];
+                        final deliveryOrders = deliveryOrdersList
+                            .where(
+                              (order) => order.status?.toString().toLowerCase() != "delivered",
+                            )
+                            .toList();
+                            
                         final allOrders = [...pickupOrders, ...deliveryOrders];
-                        // sort pickup orders
+                        
                         pickupOrders.sort((a, b) {
                           return _getOrderDateTime(b).compareTo(_getOrderDateTime(a));
                         });
-
-                        // sort delivery orders
+                        
                         deliveryOrders.sort((a, b) {
                           return _getOrderDateTime(b).compareTo(_getOrderDateTime(a));
                         });
@@ -462,23 +642,34 @@ class _HomeState extends State<Home> {
                         allOrders.sort((a, b) {
                           final dateA = _getOrderDateTime(a);
                           final dateB = _getOrderDateTime(b);
-                          return dateB.compareTo(dateA); // newest first
+                          return dateB.compareTo(dateA);
                         });
 
 
-                        final filteredOrders =
-                            selectedFilter == 'All'
-                                ? allOrders
-                                : selectedFilter == 'Pickup'
-                                ? pickupOrders
-                                : deliveryOrders;
-          
+                        List<dynamic> filteredOrders = selectedFilter == 'All'
+                            ? allOrders
+                            : selectedFilter == 'Pickup'
+                            ? pickupOrders
+                            : deliveryOrders;
+
+                        if (fromDate != null && toDate != null) {
+                          filteredOrders = filteredOrders.where((order) {
+                            DateTime orderDate = _getOrderDateTime(order);
+                            return orderDate.isAfter(
+                                  fromDate!.subtract(const Duration(days: 1)),
+                                ) &&
+                                orderDate.isBefore(
+                                  toDate!.add(const Duration(days: 1)),
+                                );
+                          }).toList();
+                        }
+
                         if (filteredOrders.isEmpty) {
                           return Center(
                             child: Text('No $selectedFilter orders found.'),
                           );
                         }
-          
+
                         return ListView.builder(
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
@@ -486,26 +677,27 @@ class _HomeState extends State<Home> {
                           itemBuilder: (context, index) {
                             final order = filteredOrders[index];
                             final isPickup = order is PickUpListModel;
-          
-                            final name =
-                                isPickup
-                                    ? order.pickupCustomerName
-                                    : (order as DeliveryListModel)
-                                        .deliveryCustomerName;
-                            final location =
-                                isPickup
-                                    ? order.pickupCustomerArea
-                                    : (order as DeliveryListModel)
-                                        .deliveryCustomerArea;
-                            final rawDate =
-                                isPickup
-                                    ? order.pickupDate
-                                    : (order as DeliveryListModel).deliveryDate;
-          
-                            final date = formatOrderDate(rawDate);
-          
-                            final time = isPickup ? order.pickuptime ?? '' : (order as DeliveryListModel).deliveryTime;
+
+                            final orderid = isPickup
+                                ? order.pickupOrderId
+                                : (order as DeliveryListModel).deliveryInvoiceNo.toString();
+
                             
+
+                            final name = isPickup
+                                ? order.pickupCustomerName
+                                : (order as DeliveryListModel).deliveryCustomerName;
+                            final location = isPickup
+                                ? order.pickupCustomerArea
+                                : (order as DeliveryListModel).deliveryCustomerArea;
+                            final rawDate = isPickup
+                                ? order.pickupDate
+                                : (order as DeliveryListModel).deliveryDate;
+                            final date = formatOrderDate(rawDate);
+                            final time = isPickup
+                                ? order.pickuptime ?? ''
+                                : (order as DeliveryListModel).deliveryTime;
+
                             return Padding(
                               padding: const EdgeInsets.only(bottom: 8.0),
                               child: Material(
@@ -514,128 +706,152 @@ class _HomeState extends State<Home> {
                                 child: GestureDetector(
                                   onTap: () async {
                                     if (isPickup) {
-                                      final result = await Navigator.push(context, MaterialPageRoute(builder: (context) => Pickupdetails(customerId: order.pickupCustomerId.toString(), pickupOrderId: order.pickupOrderId.toString(), pickupAssignId: order.pickupassgnId ?? 0, notes: order.notes ?? '', remarks: order.remarks ?? '')));
-                                      if (result == true) {
-                                       _loadUserAndFetchData();
-                                      }
-                                    }
-                                    else {
-                                      final result = await Navigator.push(context, MaterialPageRoute(builder: (context) => Deliverydetail(customerId: (order as DeliveryListModel).deliveryCustomerId.toString(), deliveryOrderId: order.deliveryInvoiceNo!.toString(),deliveryAssgnId: order.deliveryassgnId, notes: '', remarks: '')));
-                                      if (result == true) {
-                                       _loadUserAndFetchData();
-                                       ScaffoldMessenger.of(context).showSnackBar(
-                                        const SnackBar(
-                                          content: Text('Updated Successfully'),
-                                          backgroundColor: Colors.green,
+                                      final result = await Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => Pickupdetails(
+                                            customerId: order.pickupCustomerId.toString(),
+                                            pickupOrderId: order.pickupOrderId.toString(),
+                                            pickupAssignId: order.pickupassgnId ?? 0,
+                                            notes: order.notes ?? '',
+                                            remarks: order.remarks ?? '',
+                                          ),
                                         ),
                                       );
+                                      if (result == true) {
+                                        _loadUserAndFetchData();
+                                      }
+                                    } else {
+                                      final result = await Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => Deliverydetail(
+                                            customerId: (order as DeliveryListModel)
+                                                .deliveryCustomerId
+                                                .toString(),
+                                            deliveryOrderId: order.deliveryInvoiceNo!.toString(),
+                                            deliveryAssgnId: order.deliveryassgnId,
+                                            notes: '',
+                                            remarks: '',
+                                          ),
+                                        ),
+                                      );
+                                      if (result == true) {
+                                        _loadUserAndFetchData();
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          const SnackBar(
+                                            content: Text('Updated Successfully'),
+                                            backgroundColor: Colors.green,
+                                          ),
+                                        );
                                       }
                                     }
                                   },
                                   child: Container(
-                                    height: 60.h,
                                     padding: EdgeInsets.symmetric(horizontal: 10.w),
-                                    child: Row(
+                                    child: Column(
                                       children: [
-                                        Container(
-                                          width: 38.w,
-                                          height: 38.h,
-                                          decoration: BoxDecoration(
-                                            color: const Color(0xFF5D5FEF),
-                                            borderRadius: BorderRadius.circular(
-                                              8.r,
+                                        Row(
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                              '# $orderid',
+                                              style: TextStyle(
+                                                color: Colors.black,
+                                                fontSize: 17.sp,
+                                                fontFamily: 'Poppins',
+                                                fontWeight: FontWeight.w500,
+                                              ),
                                             ),
-                                          ),
-                                          child: Center(
-                                            child: SvgPicture.asset(
-                                              isPickup
-                                                  ? 'assets/pickUp.svg'
-                                                  : 'assets/delivery.svg',
-                                            ),
-                                          ),
+                                            
+                                          ],
                                         ),
-                                        SizedBox(width: 12.w),
-                                        Expanded(
-                                          child: Padding(
-                                            padding: const EdgeInsets.only(
-                                              top: 5.0,
-                                            ),
-                                            child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  name ?? 'No Name',
-                                                  style: TextStyle(
-                                                    color: Colors.black,
-                                                    fontSize: 17.sp,
-                                                    fontFamily: 'Poppins',
-                                                    fontWeight: FontWeight.w500,
-                                                  ),
+                                        Row(
+                                          children: [
+                                            Container(
+                                              width: 38.w,
+                                              height: 38.h,
+                                              decoration: BoxDecoration(
+                                                color: const Color(0xFF5D5FEF),
+                                                borderRadius: BorderRadius.circular(8.r),
+                                              ),
+                                              child: Center(
+                                                child: SvgPicture.asset(
+                                                  isPickup
+                                                      ? 'assets/pickUp.svg'
+                                                      : 'assets/delivery.svg',
                                                 ),
-                                                SizedBox(height: 5.h),
-                                                Container(
-                                                  decoration: BoxDecoration(
-                                                    color:
-                                                        isPickup
-                                                            ? const Color(
-                                                              0xFFF38305,
-                                                            )
-                                                            : const Color(
-                                                              0xFF27AE60,
-                                                            ),
-                                                    borderRadius:
-                                                        BorderRadius.circular(4),
-                                                  ),
-                                                  padding: EdgeInsets.symmetric(
-                                                    horizontal: 8.w,
-                                                    vertical: 2.h,
-                                                  ),
-                                                  child: Text(
-                                                    isPickup
-                                                        ? 'Pickup'
-                                                        : 'Delivery',
+                                              ),
+                                            ),
+                                            SizedBox(width: 12.w),
+                                            Expanded(
+                                              child: Padding(
+                                                padding: const EdgeInsets.only(top: 5.0),
+                                                child: Column(
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      name ?? 'No Name',
+                                                      style: TextStyle(
+                                                        color: Colors.black,
+                                                        fontSize: 17.sp,
+                                                        fontFamily: 'Poppins',
+                                                        fontWeight: FontWeight.w500,
+                                                      ),
+                                                    ),
+                                                    SizedBox(height: 5.h),
+                                                    Container(
+                                                      decoration: BoxDecoration(
+                                                        color: isPickup
+                                                            ? const Color(0xFFF38305)
+                                                            : const Color(0xFF27AE60),
+                                                        borderRadius: BorderRadius.circular(4),
+                                                      ),
+                                                      padding: EdgeInsets.symmetric(
+                                                        horizontal: 8.w,
+                                                        vertical: 2.h,
+                                                      ),
+                                                      child: Text(
+                                                        isPickup ? 'Pickup' : 'Delivery',
+                                                        style: TextStyle(
+                                                          color: Colors.white,
+                                                          fontSize: 10.sp,
+                                                          fontFamily: 'Poppins',
+                                                          fontWeight: FontWeight.w500,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                            Padding(
+                                              padding: const EdgeInsets.only(top: 10, right: 8),
+                                              child: Column(
+                                                crossAxisAlignment: CrossAxisAlignment.end,
+                                                children: [
+                                                  Text(
+                                                    location ?? 'Unknown',
                                                     style: TextStyle(
-                                                      color: Colors.white,
-                                                      fontSize: 10.sp,
+                                                      fontSize: 14.sp,
                                                       fontFamily: 'Poppins',
                                                       fontWeight: FontWeight.w500,
                                                     ),
                                                   ),
-                                                ),
-                                              ],
+                                                  SizedBox(height: 4.h),
+                                                  Text(
+                                                    '$date $time',
+                                                    style: TextStyle(
+                                                      color: const Color(0xFFFF0000),
+                                                      fontSize: 12.sp,
+                                                      fontFamily: 'Poppins',
+                                                      fontWeight: FontWeight.w500,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
                                             ),
-                                          ),
-                                        ),
-                                        Padding(
-                                          padding: const EdgeInsets.only(
-                                            top: 10,
-                                            right: 8,
-                                          ),
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.end,
-                                            children: [
-                                              Text(
-                                                location ?? 'Unknown',
-                                                style: TextStyle(
-                                                  fontSize: 14.sp,
-                                                  fontFamily: 'Poppins',
-                                                  fontWeight: FontWeight.w500,
-                                                ),
-                                              ),
-                                              SizedBox(height: 4.h),
-                                              Text(
-                                                '$date $time',
-                                                style: TextStyle(
-                                                  color: const Color(0xFFFF0000),
-                                                  fontSize: 12.sp,
-                                                  fontFamily: 'Poppins',
-                                                  fontWeight: FontWeight.w500,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
+                                          ],
                                         ),
                                       ],
                                     ),
@@ -646,7 +862,6 @@ class _HomeState extends State<Home> {
                           },
                         );
                       }
-          
                       return const SizedBox.shrink();
                     },
                   ),
@@ -659,7 +874,6 @@ class _HomeState extends State<Home> {
     );
   }
 
-  //  Small reusable button widget
   Widget _orderButton(String text, Color color) {
     return Container(
       width: 200.w,
@@ -672,7 +886,6 @@ class _HomeState extends State<Home> {
         padding: const EdgeInsets.all(10.0),
         child: Row(
           children: [
-            // SizedBox(width: 15.w),
             Text(
               text,
               style: TextStyle(

@@ -28,3 +28,15 @@ class FetchAllOrdersEvent extends PickuplistEvent {
     required this.token,
   });
 }
+
+class FetchOrderStatusEvent extends PickuplistEvent {
+  final String pickupOrderId;
+  final String token;
+  final String companyCode;
+
+  FetchOrderStatusEvent({
+    required this.pickupOrderId,
+    required this.token,
+    required this.companyCode
+  });
+}

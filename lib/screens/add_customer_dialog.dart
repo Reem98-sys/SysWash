@@ -147,16 +147,30 @@ Future<bool?> showAddCustomerDialog(
                                         items: (filter, infiniteScrollProps) {
                                           return customerList
                                               .where(
-                                                (c) =>
-                                                    c.name
-                                                        ?.toLowerCase()
-                                                        .contains(
-                                                          filter?.toLowerCase() ?? '',
-                                                        ) ??
-                                                    false,
-                                              )
-                                              .map((c) => c.name ?? '')
+                                                (c) {
+                                                final search = filter?.toLowerCase() ?? '';
+                                                final name = c.name?.toLowerCase() ?? '';
+                                                final phone = c.mobile?.toString() ?? '';
+
+                                                return name.contains(search) || phone.contains(search);
+                                              })
+                                              .map((c) => "${c.name} (${c.mobile ?? ''})")
                                               .toList();
+                                        },
+                                        dropdownBuilder: (context, selectedItem) {
+                                          if (selectedItem == null) {
+                                            return Text(
+                                              '',
+                                              style: TextStyle(fontSize: 16.sp),
+                                            );
+                                          }
+
+                                          final name = selectedItem.split('(').first.trim();
+
+                                          return Text(
+                                            name,
+                                            style: TextStyle(fontSize: 16.sp),
+                                          );
                                         },
                                         decoratorProps: DropDownDecoratorProps(
                                           decoration: InputDecoration(
@@ -189,7 +203,7 @@ Future<bool?> showAddCustomerDialog(
                                         onChanged: (selectedName) {
                                           final selectedCustomer =
                                               customerList.firstWhere(
-                                            (c) => c.name == selectedName,
+                                            (c) => selectedName == "${c.name} (${c.mobile ?? ''})",
                                           );
                             
                                           phoneController.text =

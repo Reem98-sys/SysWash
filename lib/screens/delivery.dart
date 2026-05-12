@@ -111,6 +111,7 @@ class _DeliveryState extends State<Delivery> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        centerTitle: false,
         title: BlocBuilder<AdminhomeBloc, AdminhomeState>(
         builder: (context, state) {
           if (state is AdmincompanyLoaded &&

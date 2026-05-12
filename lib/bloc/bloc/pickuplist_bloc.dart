@@ -51,5 +51,43 @@ class PickuplistBloc extends Bloc<PickuplistEvent, PickuplistState> {
         emit(PickUpBlocError(e.toString()));
       }
     });
+
+    on<FetchOrderStatusEvent>((event, emit) async {
+
+      if (state is PickUpBlocLoaded) {
+
+        final currentState = state as PickUpBlocLoaded;
+
+        try {
+
+          final response = await sysRepository.pickuporderitem(
+            event.pickupOrderId,
+            event.token,
+            event.companyCode,
+          );
+
+          /// GET STATUS FROM RESPONSE
+          final latestStatus =
+              response.status;
+          print(latestStatus);
+          final updatedStatuses = Map<String, String>.from(
+            currentState.latestStatuses,
+          );
+
+          updatedStatuses[event.pickupOrderId] = latestStatus!;
+
+          emit(
+            PickUpBlocLoaded(
+              pickUpListModel: currentState.pickUpListModel,
+              deliveryListModel: currentState.deliveryListModel,
+              latestStatuses: updatedStatuses,
+            ),
+          );
+
+        } catch (e) {
+          print(e.toString());
+        }
+      }
+    });
   }
 }

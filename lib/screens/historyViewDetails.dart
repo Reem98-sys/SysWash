@@ -125,6 +125,18 @@ class _HistoryviewdetailsState extends State<Historyviewdetails> {
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
+                                if(widget.deliveryOrderId != null &&
+                                  widget.deliveryOrderId.toString().trim().isNotEmpty &&
+                                  widget.deliveryOrderId.toString().toLowerCase() != 'null')
+                                Text(
+                                  '# ${widget.deliveryOrderId}',
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 16.sp,
+                                    fontFamily: 'DM Sans',
+                                    // fontWeight: FontWeight.w700,
+                                  ),
+                                ),
                                 Text(
                                   '${customerDetailsModel.name} [${customerDetailsModel.cusCode}]',
                                   style: TextStyle(
@@ -193,6 +205,18 @@ class _HistoryviewdetailsState extends State<Historyviewdetails> {
                             Spacer(),
                             Column(
                               children: [
+                                if (widget.deliveryOrderId != null &&
+                                  widget.deliveryOrderId.toString().trim().isNotEmpty &&
+                                  widget.deliveryOrderId.toString().toLowerCase() != 'null')
+                                                        Text(
+                                  deliveryItems.status.toString(),
+                                  style: TextStyle(
+                                    color: Colors.green,
+                                    fontSize: 16.sp,
+                                    fontFamily: 'DM Sans',
+                                    // fontWeight: FontWeight.w700,
+                                  ),
+                                ),
                                 SizedBox(height: 40.h),
                                 GestureDetector(
                                   onTap: () {

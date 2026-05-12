@@ -46,7 +46,7 @@ class _DeliveryDialogContent extends StatelessWidget {
           Center(child: CircularProgressIndicator());
         } else if (state is DeliverySuccess) {
           
-            Navigator.of(context, rootNavigator: true).pop(true);
+            Navigator.of(context).pop(true);
           
         } else if (state is DeliveryError) {
           Navigator.of(context).popUntil((route) => route.isFirst);

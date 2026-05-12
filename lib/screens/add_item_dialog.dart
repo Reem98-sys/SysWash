@@ -14,8 +14,8 @@ Future<Map<String, dynamic>?> showAddItemDialog(
 ) async {
   String? selectedCloth;
   String? selectedService;
-  String? billingType;
-  TextEditingController quantityController = TextEditingController();
+  String? billingType = 'Normal';
+  TextEditingController quantityController = TextEditingController(text: "1");
 
   List<String> billingServices = ['Normal', 'Express'];
   late ClothDetailsModel clothDetailsModel;
@@ -119,6 +119,22 @@ Future<Map<String, dynamic>?> showAddItemDialog(
                               servicelist
                                   .where((service) => service.posView == true)
                                   .toList();
+
+                          // Set default value if none is selected
+                          if (selectedService == null && filteredServices.isNotEmpty) {
+                            selectedService = filteredServices.first.serviceName;
+                            
+                            // Trigger Cloth Bloc for the default selection
+                            WidgetsBinding.instance.addPostFrameCallback((_) {
+                              context.read<ClothdetailsBloc>().add(
+                                FetchClothDetailsEvent(
+                                  token: token,
+                                  companyCode: companyCode,
+                                  servicetype: selectedService!,
+                                ),
+                              );
+                            });
+                          }        
                           return Container(
                             width: 348.w,
                             // height: 50.h,
