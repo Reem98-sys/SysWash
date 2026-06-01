@@ -282,7 +282,7 @@ class _DeliveryState extends State<Delivery> {
                                     fullList.clear();
                                     filteredList.clear();
                                   });
-                                  await Future.delayed(const Duration(seconds: 1), () {
+                                  
                                     context.read<PickuplistBloc>().add(
                                       FetchDeliveryEvent(
                                         userId: userId ?? '',
@@ -290,7 +290,7 @@ class _DeliveryState extends State<Delivery> {
                                         token: token ?? '',
                                       ),
                                     );
-                                  });
+                                  
                                   ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
                                     content: Text('Updated Successfully'),

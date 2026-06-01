@@ -114,7 +114,7 @@ class _DeliverydetailState extends State<Deliverydetail> {
                   ),
                 );
 
-                Navigator.pop(context, true);
+                // Navigator.pop(context, true);
 
               }
             },
