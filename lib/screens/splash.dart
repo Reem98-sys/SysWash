@@ -17,6 +17,8 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+  bool _waitingForDeviceToken = false;
+  String? _userType;
   final FlutterSecureStorage storage = const FlutterSecureStorage();
 
   @override
@@ -42,6 +44,7 @@ class _SplashScreenState extends State<SplashScreen> {
     String? refreshtoken;
 
     try {
+      _userType = userType;
       userId = await storage.read(key: 'login_id').timeout(const Duration(seconds: 2));
       companyCode = await storage.read(key: 'company_Code').timeout(const Duration(seconds: 2));
       accessToken = await storage.read(key: 'access_Token').timeout(const Duration(seconds: 2));
@@ -87,6 +90,7 @@ class _SplashScreenState extends State<SplashScreen> {
                 print(" NOTIFICATION STATUS: ${settings.authorizationStatus}"); 
 
                 if (deviceToken != null && mounted) {
+                  _waitingForDeviceToken = true;
                   context.read<DevicetokenBloc>().add(
                         FetchDeviceTokenEvent(
                           userID: userId,
@@ -95,6 +99,7 @@ class _SplashScreenState extends State<SplashScreen> {
                           devicetoken: deviceToken,
                         ),
                       );
+                      return;
                 }
               } catch (e) {
                 debugPrint('Device token error: $e');
@@ -142,12 +147,49 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return  Scaffold(
-      body: Center(
-        child: Image.asset(
-          'assets/splashscreen.png',
-          width: 350.w,
-          height: 70.h,)
+    return BlocListener<DevicetokenBloc, DevicetokenState>(
+      listener: (context, state) {
+        if (!_waitingForDeviceToken) return;
+
+        if (state is DeviceTokenLoaded) {
+          _waitingForDeviceToken = false;
+
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(
+              builder: (_) => const Bottomnav(),
+            ),
+          );
+        }
+
+        if (state is DeviceTokenError) {
+          _waitingForDeviceToken = false;
+
+          // Optional: continue anyway
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(
+              builder: (_) => const Bottomnav(),
+            ),
+          );
+        }
+      },
+      child: Scaffold(
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.asset(
+                'assets/splashscreen.png',
+                width: 350.w,
+                height: 70.h,
+              ),
+
+              if (_waitingForDeviceToken) ...[
+                SizedBox(height: 30.h),
+                const CircularProgressIndicator(),
+              ],
+            ],
+          ),
+        ),
       ),
     );
   }

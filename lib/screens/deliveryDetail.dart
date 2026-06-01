@@ -962,11 +962,12 @@ class _DeliverydetailState extends State<Deliverydetail> {
                                       FetchDeliveryStatusEvent(
                                         companyCode: companyCode ?? '',
                                         token: token ?? '',
-                                        deliveryassgnId:
-                                            deliveryItems
-                                                .deliveryassgn![0]
-                                                .deliveryassgnId ??
-                                            0,
+                                        deliveryassgnId: deliveryItems.deliveryassgn
+                                                          ?.firstWhere(
+                                                            (item) => item.trash == false,
+                                                          )
+                                                          .deliveryassgnId ??
+                                                      0,
                                         paymentMode:
                                             deliveryItems.paymentMode ?? '',
                                         paymentstatus: 'Paid',
@@ -984,10 +985,12 @@ class _DeliverydetailState extends State<Deliverydetail> {
                                     final result = await DeliveryDialog.show(
                                       context,
                                       payModes: payModes,
-                                      deliveryassgnId:
-                                          deliveryItems
-                                              .deliveryassgn![0]
-                                              .deliveryassgnId,
+                                      deliveryassgnId: deliveryItems.deliveryassgn
+                                                      ?.firstWhere(
+                                                        (item) => item.trash == false,
+                                                      )
+                                                      .deliveryassgnId ??
+                                                  0,
                                     );
 
                                     //  If dialog returns success, pop back to list and trigger reload

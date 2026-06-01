@@ -52,8 +52,12 @@ class _ProfileState extends State<Profile> {
   Future<void> _signOut(BuildContext context) async {
     const storage = FlutterSecureStorage();
 
-    // Clear stored user data
-    await storage.deleteAll();
+     // Delete only session data
+    await storage.delete(key: 'login_id');
+    await storage.delete(key: 'access_Token');
+    await storage.delete(key: 'user_name');
+    await storage.delete(key: 'refresh_token');
+    await storage.delete(key: 'user_Type');
 
     // Optional: show confirmation toast
     ScaffoldMessenger.of(context).showSnackBar(

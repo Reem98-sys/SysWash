@@ -23,10 +23,11 @@ class _LoginState extends State<Login> {
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   TextEditingController companyCode = TextEditingController();
-  bool? checkValue = false;
+  bool checkValue = false;
   bool _obscurePassword = true; // Track password visibility
   late LoginModel loginModel;
   final storage = FlutterSecureStorage();
+
 
   bool isValidEmail(String email) {
     return RegExp(
@@ -46,7 +47,7 @@ class _LoginState extends State<Login> {
 
   Future<void> saveLoginId(
     String userId,
-    String companyCode,
+    String companyCodeValue,
     String token,
     String username,
     String refreshtoken,
@@ -54,11 +55,39 @@ class _LoginState extends State<Login> {
   ) async {
     try{
     await storage.write(key: 'login_id', value: userId);
-    await storage.write(key: 'company_Code', value: companyCode);
+    // await storage.write(key: 'company_Code', value: companyCode);
     await storage.write(key: 'access_Token', value: token);
     await storage.write(key: 'user_name', value: username);
-    await storage.write(key: 'email', value: emailController.text);
-    // await storage.write(key: 'password', value: passwordController.text);
+    if (checkValue) {
+          await storage.write(
+            key: 'remember_me',
+            value: 'true',
+          );
+
+          await storage.write(
+            key: 'email',
+            value: emailController.text.trim(),
+          );
+
+          await storage.write(
+            key: 'password',
+            value: passwordController.text.trim(),
+          );
+
+          await storage.write(
+            key: 'company_Code',
+            value: companyCode.text.trim(),
+          );
+        } else {
+          await storage.write(
+            key: 'remember_me',
+            value: 'false',
+          );
+
+          await storage.delete(key: 'email');
+          await storage.delete(key: 'password');
+          await storage.delete(key: 'company_Code');
+        }
     await storage.write(key: 'refresh_token', value: refreshtoken);
     await storage.write(key: 'user_Type', value: userType);
     } catch (e) {
@@ -96,17 +125,30 @@ class _LoginState extends State<Login> {
 }
 
   Future<void> _loadSavedLogin() async {
-    try{
-    const storage = FlutterSecureStorage();
-    final savedEmail = await storage.read(key: 'email');
-    final savedPassword = await storage.read(key: 'password');
+    try {
+      final rememberMe = await storage.read(key: 'remember_me');
 
-    if (savedEmail != null) {
-      emailController.text = savedEmail;
-    }
-    if (savedPassword != null) {
-      passwordController.text = savedPassword;
-    }
+      if (rememberMe == 'true') {
+        final savedEmail = await storage.read(key: 'email');
+        final savedPassword = await storage.read(key: 'password');
+        final savedCompanyCode = await storage.read(
+        key: 'company_Code',
+      );
+        setState(() {
+          checkValue = true;
+        });
+
+        if (savedEmail != null) {
+          emailController.text = savedEmail;
+        }
+
+        if (savedPassword != null) {
+          passwordController.text = savedPassword;
+        }
+        if (savedCompanyCode != null) {
+        companyCode.text = savedCompanyCode;
+      }
+      }
     } catch (e) {
       await storage.deleteAll();
     }
@@ -190,11 +232,15 @@ class _LoginState extends State<Login> {
       body: SingleChildScrollView(
         child: BlocListener<DevicetokenBloc, DevicetokenState>(
           listener: (context, state) {
-            if (state is DeviceTokenLoaded) {
-              print(state.message);
-            }
+            // if (state is DeviceTokenLoaded) {
+            //   Navigator.pop(context);
+              
+            // }
             if (state is DeviceTokenError) {
-              print(state.message);
+              Navigator.pop(context); // close loader
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(state.message)),
+              );
             }
           },
           child: Column(
@@ -427,23 +473,23 @@ class _LoginState extends State<Login> {
                 padding: EdgeInsets.symmetric(horizontal: 30),
                 child: Row(
                   children: [
-                    // Checkbox(
-                    //   value: checkValue,
-                    //   onChanged: (bool? value) {
-                    //     setState(() {
-                    //       checkValue = value;
-                    //     });
-                    //   },
-                    // ),
-                    // Text(
-                    //   'Remember me',
-                    //   style: TextStyle(
-                    //     color: const Color(0xFFA9A5B8),
-                    //     fontSize: 12.sp,
-                    //     fontFamily: 'DM Sans',
-                    //     fontWeight: FontWeight.w400,
-                    //   ),
-                    // ),
+                    Checkbox(
+                      value: checkValue,
+                      onChanged: (bool? value) {
+                        setState(() {
+                          checkValue = value ?? false;
+                        });
+                      },
+                    ),
+                    Text(
+                      'Remember me',
+                      style: TextStyle(
+                        color: const Color(0xFFA9A5B8),
+                        fontSize: 12.sp,
+                        fontFamily: 'DM Sans',
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
                     Spacer(),
                     TextButton(
                       onPressed: () {
@@ -495,7 +541,7 @@ class _LoginState extends State<Login> {
                     //   );
                     // } else {
                       print(loginModel.id.toString());
-                      saveLoginId(
+                      await saveLoginId(
                         loginModel.id.toString(),
                         companyCode.text.trim(),
                         loginModel.access.toString(),
@@ -503,26 +549,37 @@ class _LoginState extends State<Login> {
                         loginModel.refresh.toString(),
                         loginModel.userType.toString()
                       );
-                      //  Initialize and sync device token
-                      await initializeDeviceTokenUpdates(
-                        context,
-                        loginModel.id.toString(),
-                        companyCode.text.trim(),
-                        loginModel.access.toString(),
-                        loginModel.userType.toString()
-                      );
                       if (loginModel.userType == 'Driver') {
+                        showDialog(
+                          context: context,
+                          barrierDismissible: false,
+                          builder: (_) => const Center(
+                            child: CircularProgressIndicator(),
+                          ),
+                        );
+
+                        await initializeDeviceTokenUpdates(
+                          context,
+                          loginModel.id.toString(),
+                          companyCode.text.trim(),
+                          loginModel.access.toString(),
+                          loginModel.userType.toString(),
+                        );
                         Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(builder: (context) => Bottomnav()),
-                      );
-                      }
-                      else {
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => Bottomnav(),
+                          ),
+                        );
+                      } else {
                         Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(builder: (context) => Bottomnavadmin()),
-                      );
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => Bottomnavadmin(),
+                          ),
+                        );
                       }
+                      
                       
                     // }
                   }

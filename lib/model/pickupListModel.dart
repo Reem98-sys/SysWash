@@ -17,8 +17,9 @@ class PickUpListModel {
     String? remarks;
     String? notes;
     String? pickuptime;
+    String? orderStatus;
 
-    PickUpListModel({this.pickupassgnId, this.pickupassgn, this.pickupDate, this.pickupCustomerId, this.pickupCustomerName, this.pickupCustomerArea, this.pickupCustomerCode, this.pickupCustomerPhno, this.pickupDriverid, this.pickupDrivername, this.pickupstatus, this.assignedFrom, this.pickupOrderId, this.trash, this.remarks, this.notes, this.pickuptime});
+    PickUpListModel({this.pickupassgnId, this.pickupassgn, this.pickupDate, this.pickupCustomerId, this.pickupCustomerName, this.pickupCustomerArea, this.pickupCustomerCode, this.pickupCustomerPhno, this.pickupDriverid, this.pickupDrivername, this.pickupstatus, this.assignedFrom, this.pickupOrderId, this.trash, this.remarks, this.notes, this.pickuptime, this.orderStatus});
 
     PickUpListModel.fromJson(Map<String, dynamic> json) {
         if(json["pickupassgnId"] is num) {
@@ -72,6 +73,9 @@ class PickUpListModel {
         if(json["pickuptime"] is String) {
             pickuptime = json["pickuptime"];
         }
+        if(json["orderStatus"] is String) {
+            orderStatus = json["orderStatus"];
+        }
     }
 
     static List<PickUpListModel> fromList(List<Map<String, dynamic>> list) {
@@ -99,6 +103,7 @@ class PickUpListModel {
         _data["remarks"] = remarks;
         _data["notes"] = notes;
         _data["pickuptime"] = pickuptime;
+        _data["orderStatus"] = orderStatus;
         return _data;
     }
 
@@ -120,6 +125,7 @@ class PickUpListModel {
         String? remarks,
         String? notes,
         String? pickuptime,
+        String? orderStatus,
     }) => PickUpListModel(
         pickupassgnId: pickupassgnId ?? this.pickupassgnId,
         pickupassgn: pickupassgn ?? this.pickupassgn,
@@ -138,5 +144,6 @@ class PickUpListModel {
         remarks: remarks ?? this.remarks,
         notes: notes ?? this.notes,
         pickuptime: pickuptime ?? this.pickuptime,
+        orderStatus: orderStatus ?? this.orderStatus,
     );
 }

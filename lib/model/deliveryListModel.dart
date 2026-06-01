@@ -15,8 +15,10 @@ class DeliveryListModel {
     String? paymentMode;
     bool? trash;
     int? deliveryInvoiceNo;
+    String? paymentremarks;
+    String? orderStatus;
 
-    DeliveryListModel({this.deliveryassgnId, this.deliveryDate, this.deliveryTime, this.deliveryCustomerId, this.deliveryCustomerName, this.deliveryCustomerArea, this.deliveryCustomerCode, this.deliveryCustomerPhno, this.deliveryDriverid, this.deliveryDrivername, this.status, this.paymentstatus, this.paymentMode, this.trash, this.deliveryInvoiceNo});
+    DeliveryListModel({this.deliveryassgnId, this.deliveryDate, this.deliveryTime, this.deliveryCustomerId, this.deliveryCustomerName, this.deliveryCustomerArea, this.deliveryCustomerCode, this.deliveryCustomerPhno, this.deliveryDriverid, this.deliveryDrivername, this.status, this.paymentstatus, this.paymentMode, this.trash, this.deliveryInvoiceNo, this.paymentremarks, this.orderStatus});
 
     DeliveryListModel.fromJson(Map<String, dynamic> json) {
         if(json["deliveryassgnId"] is num) {
@@ -64,6 +66,12 @@ class DeliveryListModel {
         if(json["deliveryInvoiceNo"] is num) {
             deliveryInvoiceNo = (json["deliveryInvoiceNo"] as num).toInt();
         }
+        if(json["paymentremarks"] is String) {
+            paymentremarks = json["paymentremarks"];
+        }
+        if(json["orderStatus"] is String) {
+            orderStatus = json["orderStatus"];
+        }
     }
 
     static List<DeliveryListModel> fromList(List<Map<String, dynamic>> list) {
@@ -87,6 +95,8 @@ class DeliveryListModel {
         _data["paymentMode"] = paymentMode;
         _data["trash"] = trash;
         _data["deliveryInvoiceNo"] = deliveryInvoiceNo;
+        _data["paymentremarks"] = paymentremarks;
+        _data["orderStatus"] = orderStatus;
         return _data;
     }
 
@@ -106,6 +116,8 @@ class DeliveryListModel {
         String? paymentMode,
         bool? trash,
         int? deliveryInvoiceNo,
+        String? paymentremarks,
+        String? orderStatus,
     }) => DeliveryListModel(
         deliveryassgnId: deliveryassgnId ?? this.deliveryassgnId,
         deliveryDate: deliveryDate ?? this.deliveryDate,
@@ -122,5 +134,7 @@ class DeliveryListModel {
         paymentMode: paymentMode ?? this.paymentMode,
         trash: trash ?? this.trash,
         deliveryInvoiceNo: deliveryInvoiceNo ?? this.deliveryInvoiceNo,
+        paymentremarks: paymentremarks ?? this.paymentremarks,
+        orderStatus: orderStatus ?? this.orderStatus,
     );
 }

@@ -179,7 +179,11 @@ class TokenStorage {
     await _storage.write(key: 'refresh_token', value: refreshToken);
   }
   static Future<void> clear() async {
-    await _storage.deleteAll();
+    await _storage.delete(key: 'login_id');
+    await _storage.delete(key: 'access_Token');
+    await _storage.delete(key: 'refresh_token');
+    await _storage.delete(key: 'user_name');
+    await _storage.delete(key: 'user_Type');
   }
   
 }

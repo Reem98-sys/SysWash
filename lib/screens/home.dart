@@ -625,7 +625,7 @@ class _HomeState extends State<Home> {
                         final deliveryOrdersList = state.deliveryListModel?.data ?? [];
                         final deliveryOrders = deliveryOrdersList
                             .where(
-                              (order) => order.status?.toString().toLowerCase() != "delivered",
+                              (order) => order.status?.toString().toLowerCase() != "delivered"
                             )
                             .toList();
                             
@@ -697,6 +697,9 @@ class _HomeState extends State<Home> {
                             final time = isPickup
                                 ? order.pickuptime ?? ''
                                 : (order as DeliveryListModel).deliveryTime;
+                            final orderStatus = isPickup
+                                ? order.orderStatus ?? ''
+                                : (order as DeliveryListModel).orderStatus;
 
                             return Padding(
                               padding: const EdgeInsets.only(bottom: 8.0),
@@ -763,7 +766,26 @@ class _HomeState extends State<Home> {
                                                 fontWeight: FontWeight.w500,
                                               ),
                                             ),
-                                            
+                                            if (orderStatus != null && orderStatus.isNotEmpty)
+                                            Container(
+                                                      decoration: BoxDecoration(
+                                                        color: Colors.grey,
+                                                        borderRadius: BorderRadius.circular(10.r),
+                                                      ),
+                                                      padding: EdgeInsets.symmetric(
+                                                        horizontal: 15.w,
+                                                        vertical: 8.h,
+                                                      ),
+                                                      child: Text(
+                                                        orderStatus ?? '',
+                                                        style: TextStyle(
+                                                          color: Colors.white,
+                                                          fontSize: 10.sp,
+                                                          fontFamily: 'Poppins',
+                                                          fontWeight: FontWeight.w500,
+                                                        ),
+                                                      ),
+                                                    ),
                                           ],
                                         ),
                                         Row(
