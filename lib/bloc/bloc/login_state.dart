@@ -10,3 +10,7 @@ class LoginBlocError extends LoginState {
   final String message;
   LoginBlocError(this.message);
 } 
+class LoginAlreadyLoggedInState extends LoginState {
+  final String message;
+  LoginAlreadyLoggedInState (this.message);
+} 

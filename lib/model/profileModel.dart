@@ -5,7 +5,7 @@ class ProfileModel {
     String? name;
     String? gender;
     String? email;
-    int? mobile;
+    String? mobile;
     String? nationalId;
     String? address;
     String? password;
@@ -30,8 +30,8 @@ class ProfileModel {
         if(json["email"] is String) {
             email = json["email"];
         }
-        if(json["mobile"] is num) {
-            mobile = (json["mobile"] as num).toInt();
+        if(json["mobile"] is String) {
+            mobile = json["mobile"];
         }
         if(json["nationalId"] is String) {
             nationalId = json["nationalId"];
@@ -76,7 +76,7 @@ class ProfileModel {
         String? name,
         String? gender,
         String? email,
-        int? mobile,
+        String? mobile,
         String? nationalId,
         String? address,
         String? password,

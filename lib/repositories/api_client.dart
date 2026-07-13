@@ -60,7 +60,7 @@ class ApiClient {
             body: body);
         break;
       case "DELETE":
-        response = await delete(Uri.parse(url), headers: {}, body: body);
+        response = await delete(Uri.parse(url), headers: headers, body: body);
         break;
       case "POST_":
         response = await post(
@@ -105,11 +105,29 @@ class ApiClient {
 
 //  ACCESS TOKEN EXPIRED
   if ((response.statusCode == 401 || response.statusCode == 403) && retry) {
-    final refreshed = await _refreshToken();
+    try {
+      final errorBody = jsonDecode(response.body);
 
-    if (refreshed) {
-      return invokeAPI(path, method, body, retry: false);
-    } else {
+      // USER NOT FOUND
+      if (errorBody["code"] == "user_not_found") {
+        await TokenStorage.clear();
+
+        throw ApiException(
+          "User not found. Please login again.",
+          401,
+        );
+      }
+
+      // TOKEN EXPIRED
+      final refreshed = await _refreshToken();
+
+      if (refreshed) {
+        return invokeAPI(path, method, body, retry: false);
+      }
+
+      await TokenStorage.clear();
+      throw ApiException('Session expired', 401);
+    } catch (_) {
       await TokenStorage.clear();
       throw ApiException('Session expired', 401);
     }

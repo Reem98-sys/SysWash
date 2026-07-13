@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:syswash/bloc/bloc/pickupcustdetails_bloc.dart';
 import 'package:syswash/helper/customerdetail_helper.dart';
+import 'package:syswash/model/pickupOrderItemsModel.dart';
 
 class Historypickupdetail extends StatefulWidget {
   final String customerId;
@@ -13,6 +14,7 @@ class Historypickupdetail extends StatefulWidget {
   final String remarks;
   final String status;
   final statusColor;
+  final String AssignedFrom;
   const Historypickupdetail({
     super.key,
     required this.customerId,
@@ -22,6 +24,7 @@ class Historypickupdetail extends StatefulWidget {
     required this.remarks,
     required this.status,
     required this.statusColor,
+    required this.AssignedFrom
   });
 
   @override
@@ -33,6 +36,10 @@ class _HistorypickupdetailState extends State<Historypickupdetail> {
   String? companyCode;
   String? token;
   final storage = const FlutterSecureStorage();
+  List<dynamic> clothData = [];
+  int quantity = 0;
+  String totalAmount = '0';
+  String status = '';
 
   @override
   void initState() {
@@ -44,14 +51,27 @@ class _HistorypickupdetailState extends State<Historypickupdetail> {
     final companyCode = await storage.read(key: 'company_Code');
     final token = await storage.read(key: 'access_Token');
     if (companyCode != null && token != null) {
-      context.read<PickupcustdetailsBloc>().add(
+      if (widget.AssignedFrom == 'orderList') {
+        context.read<PickupcustdetailsBloc>().add(
         FetchFullPickupDetailsEvent(
+          customerId: widget.customerId,
+          pickupOrderId: widget.pickupOrderId,
+          token: token,
+          companyCode: companyCode,
+        ));
+
+      }
+      else {
+        context.read<PickupcustdetailsBloc>().add(
+        FetchHistoryPickupDetailsEvent(
           customerId: widget.customerId,
           pickupOrderId: widget.pickupOrderId,
           token: token,
           companyCode: companyCode,
         ),
       );
+      }
+      
     } else {
       debugPrint('Missing token or companyCode in storage');
     }
@@ -89,23 +109,46 @@ class _HistorypickupdetailState extends State<Historypickupdetail> {
                 );
                 Navigator.pop(context);
               }
-              if (state is PickupCustDetailsLoaded) {
-                final customerDetailsModel = state.customerDetailsModel;
-                final pickupOrderItems = state.pickupOrderItemsModel;
-                final gridItems = [
-                  {'label': 'Area', 'value': customerDetailsModel.area},
-                  {'label': 'Zone', 'value': customerDetailsModel.zone},
-                  {'label': 'Street No', 'value': customerDetailsModel.streetNo},
-                  {'label': 'Villa No', 'value': customerDetailsModel.villaNumber},
-                  {'label': 'Hotel', 'value': customerDetailsModel.hotel},
-                  {'label': 'Room No', 'value': customerDetailsModel.roomNo},
-                  {'label': 'Fragrance', 'value': customerDetailsModel.fragrance},
-                  {'label': 'Reference No', 'value': customerDetailsModel.refNo},
-                  {'label': 'Note', 'value': widget.notes},
-                  {'label': 'Remark', 'value': widget.remarks},
+               dynamic customerDetailsModel;
+               dynamic pickupOrderItems;
+ 
+               if (state is PickupHistoryCustDetailsLoaded) {
+                 customerDetailsModel = state.customerDetailsModel;
+                 pickupOrderItems = state.pickupOrderItemsModel;
+                 final assign = pickupOrderItems.pickup?[0].pickupassgn?[0];
+
+                 clothData = assign?.clothData ?? [];
+                 quantity = assign?.quantity ?? 0;
+                 totalAmount = assign?.totalAmount?.toString() ?? '0';
+                 status = pickupOrderItems.pickup?[0].orderStatus?.toString() ?? '';
+               } 
+               else if (state is PickupCustDetailsLoaded) {
+                 customerDetailsModel = state.customerDetailsModel;
+                 pickupOrderItems = state.pickupOrderItemsModel;
+                 clothData = pickupOrderItems.clothData ?? [];
+                 quantity = pickupOrderItems.quantity ?? 0;
+                 totalAmount = pickupOrderItems.totalAmount?.toString() ?? '0';
+                 status = pickupOrderItems.status ?? '';
+               } 
+               else {
+                 return const SizedBox();
+               }
+
+                final List<Map<String, String?>> gridItems = [
+                  {'label': 'Area', 'value': customerDetailsModel.area ?? ''},
+                  {'label': 'Zone', 'value': customerDetailsModel.zone ?? ''},
+                  {'label': 'Street No', 'value': customerDetailsModel.streetNo ?? ''},
+                  {'label': 'Villa No', 'value': customerDetailsModel.villaNumber ?? ''},
+                  {'label': 'Hotel', 'value': customerDetailsModel.hotel ?? ''},
+                  {'label': 'Room No', 'value': customerDetailsModel.roomNo ?? ''},
+                  {'label': 'Fragrance', 'value': customerDetailsModel.fragrance ?? ''},
+                  {'label': 'Reference No', 'value': customerDetailsModel.refNo ?? ''},
+                  {'label': 'Note', 'value': widget.notes ?? ''},
+                  {'label': 'Remark', 'value': widget.remarks ?? ''},
                   {'label': 'Order No', 'value': widget.pickupOrderId?.toString() ?? ''},
-                  {'label': 'Pickup Id', 'value': widget.pickupAssignId.toString()},
+                  {'label': 'Pickup Id', 'value': widget.pickupAssignId.toString() ?? ''},
                 ];
+                
                 return Column(
                   children: [
                     Container(
@@ -208,7 +251,7 @@ class _HistorypickupdetailState extends State<Historypickupdetail> {
                                   widget.pickupOrderId.toString().trim().isNotEmpty &&
                                   widget.pickupOrderId.toString().toLowerCase() != 'null')
                                                         Text(
-                                  pickupOrderItems.status.toString(),
+                                  status,
                                   style: TextStyle(
                                     color: Colors.green,
                                     fontSize: 16.sp,
@@ -585,10 +628,12 @@ class _HistorypickupdetailState extends State<Historypickupdetail> {
                       ],
                     ),
                     SizedBox(height: 17.h),
-                    if (pickupOrderItems.clothData!.isNotEmpty)
+
+                    if (clothData != null &&
+                        clothData!.isNotEmpty)
                       Expanded(
                         child: ListView.builder(
-                          itemCount: pickupOrderItems.clothData!.length,
+                          itemCount: clothData!.length,
                           itemBuilder: (context, index) {
                             return Padding(
                               padding: const EdgeInsets.only(bottom: 10.0),
@@ -606,10 +651,9 @@ class _HistorypickupdetailState extends State<Historypickupdetail> {
                                   child: Row(
                                     children: [
                                       Image.network(
-                                        pickupOrderItems
-                                            .clothData![index]
+                                        clothData![index]
                                             .clothImg
-                                            .toString(),
+                                            .toString() ?? '',
                                         width: 46.w,
                                         height: 44.h,
                                         fit: BoxFit.cover,
@@ -643,10 +687,9 @@ class _HistorypickupdetailState extends State<Historypickupdetail> {
                                         children: [
                                           SizedBox(height: 2.h),
                                           Text(
-                                            pickupOrderItems
-                                                .clothData![index]
+                                            clothData![index]
                                                 .clothName
-                                                .toString(),
+                                                .toString() ?? '',
                                             style: TextStyle(
                                               color: const Color(0xFF150B3D),
                                               fontSize: 16.sp,
@@ -655,7 +698,8 @@ class _HistorypickupdetailState extends State<Historypickupdetail> {
                                             ),
                                           ),
                                           Text(
-                                            '${pickupOrderItems.clothData![index].qnty} QTY',
+                                            '${clothData![index]
+                                            .qnty} QTY' ?? '',
                                             style: TextStyle(
                                               color: Colors.black,
                                               fontSize: 14.sp,
@@ -672,10 +716,9 @@ class _HistorypickupdetailState extends State<Historypickupdetail> {
                                         children: [
                                           SizedBox(height: 2.h),
                                           Text(
-                                            pickupOrderItems
-                                                .clothData![index]
+                                            clothData![index]
                                                 .service
-                                                .toString(),
+                                                .toString() ?? '',
                                             style: TextStyle(
                                               color: const Color(0xFF150B3D),
                                               fontSize: 16.sp,
@@ -684,10 +727,9 @@ class _HistorypickupdetailState extends State<Historypickupdetail> {
                                             ),
                                           ),
                                           Text(
-                                            pickupOrderItems
-                                                .clothData![index]
+                                            clothData![index]
                                                 .billing
-                                                .toString(),
+                                                .toString() ?? '',
                                             style: TextStyle(
                                               color: const Color(0xFF68188B),
                                               fontSize: 14.sp,
@@ -708,9 +750,7 @@ class _HistorypickupdetailState extends State<Historypickupdetail> {
                     
                   ],
                 );
-              } else {
-                return SizedBox();
-              }
+              
             },
           ),
         ),
@@ -733,11 +773,29 @@ class _HistorypickupdetailState extends State<Historypickupdetail> {
             ),
             child: BlocBuilder<PickupcustdetailsBloc, PickupcustdetailsState>(
               builder: (context, state) {
-                if (state is! PickupCustDetailsLoaded) {
-                  return const SizedBox();
-                }
+              dynamic pickupOrderItems;
 
-                final pickupOrderItems = state.pickupOrderItemsModel;
+              if (state is PickupHistoryCustDetailsLoaded) {
+                pickupOrderItems = state.pickupOrderItemsModel;
+                final assign = pickupOrderItems.pickup?[0].pickupassgn?[0];
+                quantity = assign?.quantity ?? 0;
+                totalAmount = double.tryParse(
+                  assign?.totalAmount?.toString() ?? '0',
+                )?.toStringAsFixed(2) ??
+                '0.00';
+              }
+              else if (state is PickupCustDetailsLoaded) {
+                pickupOrderItems = state.pickupOrderItemsModel;
+                quantity = pickupOrderItems.quantity ?? 0;
+                totalAmount = double.tryParse(
+                  pickupOrderItems.totalAmount?.toString() ?? '0',
+                )?.toStringAsFixed(2) ??
+                '0.00';
+              }
+              else {
+                return const SizedBox();
+              }
+
 return LayoutBuilder(
   builder: (context, constraints) {
     final isSmallScreen = constraints.maxWidth < 360;
@@ -766,7 +824,7 @@ return LayoutBuilder(
                                   ),
                                 ),
                                 Text(
-                                  pickupOrderItems.quantity.toString(),
+                                  quantity.toString(),
                                   style: TextStyle(
                                     color: const Color(0xFF68188B),
                                     fontSize: 16.sp,
@@ -788,11 +846,7 @@ return LayoutBuilder(
                                   ),
                                 ),
                                 Text(
-                                  (double.tryParse(
-                                            pickupOrderItems.totalAmount ?? '0',
-                                          ) ??
-                                          0.0)
-                                      .toStringAsFixed(2),
+                                  totalAmount,
                                   style: TextStyle(
                                     color: const Color(0xFF68188B),
                                     fontSize: 16.sp,
@@ -815,7 +869,7 @@ return LayoutBuilder(
                           Row(
                             children: [
                               Text(
-                                'Status : ',
+                                'Pickup Status : ',
                                 style: TextStyle(
                                   color: Colors.black,
                                   fontSize: 15.sp,

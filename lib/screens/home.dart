@@ -12,11 +12,14 @@ import 'package:syswash/helper/date_helper.dart';
 import 'package:syswash/model/deliveryListModel.dart';
 import 'package:syswash/model/pickupListModel.dart';
 import 'package:syswash/model/totalOrder.dart';
+import 'package:syswash/repositories/api_exception.dart';
 import 'package:syswash/screens/bottomnav.dart';
 import 'package:syswash/screens/deliveryDetail.dart';
+import 'package:syswash/screens/login.dart';
 import 'package:syswash/screens/notificationList.dart';
 import 'package:syswash/screens/pickup.dart';
 import 'package:syswash/screens/pickupDetails.dart';
+import 'package:syswash/screens/qrscannerpage.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -35,9 +38,22 @@ class _HomeState extends State<Home> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    try {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadUserAndFetchData();
     });
+    } on ApiException catch (e) {
+      if (e.statusCode == 401) {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(
+            builder: (_) => Login(),
+          ),
+          (route) => false,
+        );
+      }
+    }
+    
   }
 
   Future<void> _selectFromDate() async {
@@ -110,25 +126,7 @@ class _HomeState extends State<Home> {
   }
 
   Future<void> _onRefresh() async {
-    final userId = await storage.read(key: 'login_id');
-    final companyCode = await storage.read(key: 'company_Code');
-    final token = await storage.read(key: 'access_Token');
-
-    if (userId != null && companyCode != null && token != null) {
-      context.read<HomeBloc>().add(
-        FetchHomeEvent(userId: userId, companyCode: companyCode, token: token),
-      );
-      context.read<PickuplistBloc>().add(
-        FetchAllOrdersEvent(
-          userId: userId,
-          companyCode: companyCode,
-          token: token,
-        ),
-      );
-      context.read<AdminhomeBloc>().add(
-        FetchcompanyEvent(token: token, companyCode: companyCode),
-      );
-    }
+    await _loadUserAndFetchData();
   }
 
   DateTime _getOrderDateTime(dynamic order) {
@@ -153,6 +151,7 @@ class _HomeState extends State<Home> {
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
         centerTitle: false,
+        automaticallyImplyLeading: false,
         leading: null,
         title: BlocBuilder<AdminhomeBloc, AdminhomeState>(
           builder: (context, state) {
@@ -173,6 +172,11 @@ class _HomeState extends State<Home> {
           },
         ),
         actions: [
+          GestureDetector(
+            onTap: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) => QrScannerPage()));
+            },
+            child: Icon(Icons.qr_code_scanner_sharp)),
           GestureDetector(
             onTap: () {
               Navigator.push(
@@ -199,7 +203,7 @@ class _HomeState extends State<Home> {
         child: RefreshIndicator(
           onRefresh: _onRefresh,
           child: CustomScrollView(
-            physics: const BouncingScrollPhysics(),
+            physics: const AlwaysScrollableScrollPhysics(),
             slivers: [
               SliverToBoxAdapter(
                 child: Padding(

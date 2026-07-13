@@ -13,10 +13,12 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     on<FetchLoginEvent>((event, emit) async {
       emit(LoginBlocLoading());
       try {
-        loginModel = await sysRepository.loginIn(event.email, event.password, event.companyCode);
+        loginModel = await sysRepository.loginIn(event.email, event.password, event.companyCode,event.force);
         emit(LoginBlocLoaded());
+      } on AlreadyLoggedInException catch (e) {
+        emit(LoginAlreadyLoggedInState(e.message));
       } catch (e) {
-        emit(LoginBlocError(e.toString()));
+        emit(LoginBlocError(e.toString().replaceFirst("Exception: ", "")));
       }
     });
   }

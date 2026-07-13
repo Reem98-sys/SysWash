@@ -14,6 +14,8 @@ import 'package:syswash/model/closingReport.dart';
 import 'package:syswash/model/companydetailsModel.dart';
 import 'package:syswash/model/expensecategorymodel.dart';
 import 'package:syswash/model/totalCountModel.dart';
+import 'package:syswash/repositories/api_exception.dart';
+import 'package:syswash/screens/login.dart';
 
 class Adminhome extends StatefulWidget {
   const Adminhome({super.key});
@@ -39,9 +41,22 @@ class _AdminhomeState extends State<Adminhome> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    try {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
     _loadAndFetchData();
   });
+    } on ApiException catch (e) {
+      if (e.statusCode == 401) {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(
+            builder: (_) => Login(),
+          ),
+          (route) => false,
+        );
+      }
+    }
+    
   }
 
   Map<String, String> getDateRange(String type) {
@@ -121,6 +136,7 @@ class _AdminhomeState extends State<Adminhome> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
+        automaticallyImplyLeading: false,
         centerTitle: false,
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

@@ -150,7 +150,7 @@ class _HistoryState extends State<History> with SingleTickerProviderStateMixin {
                     fontWeight: FontWeight.w600,
                     fontFamily: 'Poppins',
                   ),
-                  tabs: const [Tab(text: "Pickup"), Tab(text: "Delivery")],
+                  tabs:  [Tab(text: "Pickup"), Tab(text: "Delivery")],
                 ),
               ],
             ),

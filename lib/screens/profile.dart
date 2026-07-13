@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:syswash/bloc/bloc/logout_bloc.dart';
 import 'package:syswash/bloc/bloc/profile_bloc.dart';
 import 'package:syswash/screens/bottomnav.dart';
 import 'package:syswash/screens/editProfile.dart';
@@ -49,474 +50,497 @@ class _ProfileState extends State<Profile> {
     getUserData();
   }
 
-  Future<void> _signOut(BuildContext context) async {
+  Future<void> _signOut() async {
     const storage = FlutterSecureStorage();
 
-     // Delete only session data
-    await storage.delete(key: 'login_id');
-    await storage.delete(key: 'access_Token');
-    await storage.delete(key: 'user_name');
-    await storage.delete(key: 'refresh_token');
-    await storage.delete(key: 'user_Type');
+    final token = await storage.read(key: 'access_Token');
+    final companyCode = await storage.read(key: 'company_Code');
+    final userId = await storage.read(key: 'login_id');
 
-    // Optional: show confirmation toast
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Signed out successfully!'),
-        backgroundColor: Colors.green,
-      ),
-    );
-
-    // Navigate back to login screen
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(builder: (context) => const Login()),
-      (route) => false,
-    );
+    if (userId != null && companyCode != null && token != null) {
+      context.read<LogoutBloc>().add(
+        FetchLogoutEvent(
+          id: userId,
+          companyCode: companyCode,
+          token: token,
+        ),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        leading: GestureDetector(
-          onTap: () {
-            Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder:
-                                        (context) =>
-                                            const Bottomnav(currentIndex: 3)
-                                  ),
-                                );
-          },
-          child: Icon(Icons.arrow_back_sharp),
-        ),
-        centerTitle: true,
-        title: Text(
-          'Profile',
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: 22,
-            fontFamily: 'Poppins',
-            fontWeight: FontWeight.w600,
+    return BlocListener<LogoutBloc, LogoutState>(
+      listener: (context, state) async {
+        if (state is LogoutBlocLoaded) {
+          const storage = FlutterSecureStorage();
+
+          await storage.delete(key: 'login_id');
+          await storage.delete(key: 'access_Token');
+          await storage.delete(key: 'user_name');
+          await storage.delete(key: 'refresh_token');
+          await storage.delete(key: 'user_Type');
+
+          ScaffoldMessenger.of(context).showSnackBar(
+             SnackBar(
+              content: Text(state.message),
+            ),
+          );
+
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (_) => const Login()),
+            (route) => false,
+          );
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          leading: GestureDetector(
+            onTap: () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const Bottomnav(currentIndex: 3),
+                ),
+              );
+            },
+            child: Icon(Icons.arrow_back_sharp),
+          ),
+          centerTitle: true,
+          title: Text(
+            'Profile',
+            style: TextStyle(
+              color: Colors.black,
+              fontSize: 22,
+              fontFamily: 'Poppins',
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ),
-      ),
-      body: SingleChildScrollView(
-        child: Center(
-          child: BlocBuilder<ProfileBloc, ProfileState>(
-            builder: (context, state) {
-              if (state is ProfileBlocLoading) {
-                return const Center(child: CircularProgressIndicator());
-              }
-              if (state is ProfileBlocError) {
-                return Center(
-                  child: Text(
-                    'Failed to load orders\n',
-                    style: TextStyle(color: Colors.red, fontSize: 14.sp),
-                  ),
-                );
-              }
-              if (state is ProfileBlocLoaded) {
-                final profileData = state.profileModel;
-                return Column(
-                  children: [
-                    SizedBox(height: 39.h),
-                    Container(
-                      width: 106,
-                      height: 106,
-                      decoration: ShapeDecoration(
-                        image: DecorationImage(
-                          image: AssetImage('assets/icon.png'),
-                          fit: BoxFit.cover,
+        body: SingleChildScrollView(
+          child: Column(
+            children: [
+              Center(
+                child: BlocBuilder<ProfileBloc, ProfileState>(
+                  builder: (context, state) {
+                    if (state is ProfileBlocLoading) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                    if (state is ProfileBlocError) {
+                      return Center(
+                        child: Text(
+                          'Failed to load orders\n',
+                          style: TextStyle(color: Colors.red, fontSize: 14.sp),
                         ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 19.h),
-                    Text(
-                      profileData.name.toString(),
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 22.sp,
-                        fontFamily: 'Poppins',
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    Text(
-                      profileData.mobile.toString(),
-                      style: TextStyle(
-                        color: const Color(0xFF6E6F79),
-                        fontSize: 16.sp,
-                        fontFamily: 'Poppins',
-                        fontWeight: FontWeight.w400,
-                      ),
-                    ),
-                    SizedBox(height: 16.h),
-                    GestureDetector(
-                      onTap: () async {
-                        final result = await Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder:
-                                (context) => Editprofile(
-                                  name: profileData.name.toString(),
-                                  email: profileData.email.toString(),
-                                  phoneno: profileData.mobile.toString(),
-                                  gender: profileData.gender.toString(),
-                                  location: profileData.address.toString(),
-                                  password: profileData.password.toString(),
-                                ),
-                          ),
-                        );
-                        if (result == true) {
-                          getUserData();
-                        }
-                      },
-                      child: Container(
-                        width: 168.w,
-                        height: 60.h,
-                        decoration: ShapeDecoration(
-                          color: const Color(0xFFE2E5F4),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20.r),
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.edit_outlined,
-                              color: const Color(0xFF68188B),
-                            ),
-                            SizedBox(width: 8.w),
-                            Text(
-                              'Edit Profile',
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontSize: 16.sp,
-                                fontFamily: 'Poppins',
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 16.h),
-                    Container(
-                      width: 362.w,
-                      height: 60.h,
-                      decoration: ShapeDecoration(
-                        color: Colors.grey[100],
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                      child: Row(
+                      );
+                    }
+                    if (state is ProfileBlocLoaded) {
+                      final profileData = state.profileModel;
+                      return Column(
                         children: [
-                          Padding(
-                            padding: const EdgeInsets.all(10.0),
-                            child: Container(
-                              width: 42.w,
-                              height: 42.h,
-                              decoration: ShapeDecoration(
-                                color: const Color(0xFFE2E5F4),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
+                          SizedBox(height: 39.h),
+                          Container(
+                            width: 106,
+                            height: 106,
+                            decoration: ShapeDecoration(
+                              image: DecorationImage(
+                                image: AssetImage('assets/icon.png'),
+                                fit: BoxFit.cover,
                               ),
-                              child: Icon(
-                                Icons.mail,
-                                color: const Color(0xFF68188B),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30),
                               ),
+                            ),
+                          ),
+                          SizedBox(height: 19.h),
+                          Text(
+                            profileData.name.toString(),
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 22.sp,
+                              fontFamily: 'Poppins',
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
                           Text(
-                            profileData.email.toString(),
+                            profileData.mobile != null
+                                ? profileData.mobile.toString()
+                                : '',
                             style: TextStyle(
-                              color: Colors.black,
+                              color: const Color(0xFF6E6F79),
                               fontSize: 16.sp,
                               fontFamily: 'Poppins',
                               fontWeight: FontWeight.w400,
                             ),
                           ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(height: 8.h),
-                    Container(
-                      width: 362.w,
-                      height: 60.h,
-                      decoration: ShapeDecoration(
-                        color: Colors.grey[100],
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                      child: Row(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.all(10.0),
-                            child: Container(
-                              width: 42.w,
-                              height: 42.h,
-                              decoration: ShapeDecoration(
-                                color: const Color(0xFFE2E5F4),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                              ),
-                              child: Icon(
-                                Icons.phone_in_talk,
-                                color: const Color(0xFF68188B),
-                              ),
-                            ),
-                          ),
-                          Text(
-                            profileData.mobile.toString(),
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 16.sp,
-                              fontFamily: 'Poppins',
-                              fontWeight: FontWeight.w400,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(height: 8.h),
-                    Container(
-                      width: 362.w,
-                      height: 60.h,
-                      decoration: ShapeDecoration(
-                        color: Colors.grey[100],
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                      child: Row(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.all(10.0),
-                            child: Container(
-                              width: 42.w,
-                              height: 42.h,
-                              decoration: ShapeDecoration(
-                                color: const Color(0xFFE2E5F4),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                              ),
-                              child: Icon(
-                                Icons.person_rounded,
-                                color: const Color(0xFF68188B),
-                              ),
-                            ),
-                          ),
-                          Text(
-                            profileData.gender.toString(),
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 16.sp,
-                              fontFamily: 'Poppins',
-                              fontWeight: FontWeight.w400,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(height: 8.h),
-                    Container(
-                      width: 362.w,
-                      height: 60.h,
-                      decoration: ShapeDecoration(
-                        color: Colors.grey[100],
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                      child: Row(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.all(10.0),
-                            child: Container(
-                              width: 42.w,
-                              height: 42.h,
-                              decoration: ShapeDecoration(
-                                color: const Color(0xFFE2E5F4),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                              ),
-                              child: Icon(
-                                Icons.location_on,
-                                color: const Color(0xFF68188B),
-                              ),
-                            ),
-                          ),
-                          Text(
-                            profileData.address.toString(),
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 16.sp,
-                              fontFamily: 'Poppins',
-                              fontWeight: FontWeight.w400,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(height: 8.h),
-                    Container(
-                      width: 362.w,
-                      height: 60.h,
-                      decoration: ShapeDecoration(
-                        color: Colors.grey[100],
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                      child: Row(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.all(10.0),
-                            child: Container(
-                              width: 42.w,
-                              height: 42.h,
-                              decoration: ShapeDecoration(
-                                color: const Color(0xFFE2E5F4),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                              ),
-                              child: Icon(
-                                Icons.visibility_rounded,
-                                color: const Color(0xFF68188B),
-                              ),
-                            ),
-                          ),
-                          Text(
-                            '********',
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 16.sp,
-                              fontFamily: 'Poppins',
-                              fontWeight: FontWeight.w400,
-                            ),
-                          ),
-                          Spacer(),
+                          SizedBox(height: 16.h),
                           GestureDetector(
                             onTap: () async {
-                              final result = await showEditPasswordDialog(
+                              final result = await Navigator.push(
                                 context,
-                                profileData.password!,
+                                MaterialPageRoute(
+                                  builder:
+                                      (context) => Editprofile(
+                                        name: profileData.name.toString(),
+                                        email: profileData.email.toString(),
+                                        phoneno: profileData.mobile.toString(),
+                                        gender: profileData.gender.toString(),
+                                        location:
+                                            profileData.address.toString(),
+                                        password:
+                                            profileData.password.toString(),
+                                      ),
+                                ),
                               );
                               if (result == true) {
-                                // Only refresh if password updated successfully
                                 getUserData();
                               }
                             },
-                            child: Icon(
-                              Icons.edit_outlined,
-                              color: const Color(0xFF68188B),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(height: 8.h),
-                    GestureDetector(
-                      onTap: () async {
-                        final confirm = await showDialog<bool>(
-                          context: context,
-                          builder:
-                              (context) => AlertDialog(
+                            child: Container(
+                              width: 168.w,
+                              height: 60.h,
+                              decoration: ShapeDecoration(
+                                color: const Color(0xFFE2E5F4),
                                 shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
+                                  borderRadius: BorderRadius.circular(20.r),
                                 ),
-                                title: const Text(
-                                  'Sign Out',
-                                  style: TextStyle(fontWeight: FontWeight.bold),
-                                ),
-                                content: const Text(
-                                  'Are you sure you want to sign out?',
-                                ),
-                                actions: [
-                                  TextButton(
-                                    onPressed:
-                                        () => Navigator.pop(context, false),
-                                    child: const Text('Cancel'),
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.edit_outlined,
+                                    color: const Color(0xFF68188B),
                                   ),
-                                  TextButton(
-                                    onPressed:
-                                        () => Navigator.pop(context, true),
-                                    child: const Text(
-                                      'Sign Out',
-                                      style: TextStyle(color: Colors.red),
+                                  SizedBox(width: 8.w),
+                                  Text(
+                                    'Edit Profile',
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 16.sp,
+                                      fontFamily: 'Poppins',
+                                      fontWeight: FontWeight.w600,
                                     ),
                                   ),
                                 ],
                               ),
-                        );
-
-                        if (confirm == true) {
-                          await _signOut(context);
-                        }
-                      },
-                      child: Container(
-                        width: 362.w,
-                        height: 60.h,
-                        decoration: ShapeDecoration(
-                          color: Colors.grey[100],
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
+                            ),
                           ),
-                        ),
-                        child: Row(
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.all(10.0),
-                              child: Container(
-                                width: 42.w,
-                                height: 42.h,
-                                decoration: ShapeDecoration(
-                                  color: const Color(0xFFE2E5F4),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
+                          SizedBox(height: 16.h),
+                          Container(
+                            width: 362.w,
+                            height: 60.h,
+                            decoration: ShapeDecoration(
+                              color: Colors.grey[100],
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                            child: Row(
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.all(10.0),
+                                  child: Container(
+                                    width: 42.w,
+                                    height: 42.h,
+                                    decoration: ShapeDecoration(
+                                      color: const Color(0xFFE2E5F4),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                    ),
+                                    child: Icon(
+                                      Icons.mail,
+                                      color: const Color(0xFF68188B),
+                                    ),
                                   ),
                                 ),
-                                child: Icon(
-                                  Icons.login_outlined,
-                                  color: const Color(0xFF68188B),
+                                Text(
+                                  profileData.email.toString(),
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 16.sp,
+                                    fontFamily: 'Poppins',
+                                    fontWeight: FontWeight.w400,
+                                  ),
                                 ),
+                              ],
+                            ),
+                          ),
+                          SizedBox(height: 8.h),
+                          Container(
+                            width: 362.w,
+                            height: 60.h,
+                            decoration: ShapeDecoration(
+                              color: Colors.grey[100],
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
                               ),
                             ),
-                            Text(
-                              'Sign Out',
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontSize: 16.sp,
-                                fontFamily: 'Poppins',
-                                fontWeight: FontWeight.w400,
+                            child: Row(
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.all(10.0),
+                                  child: Container(
+                                    width: 42.w,
+                                    height: 42.h,
+                                    decoration: ShapeDecoration(
+                                      color: const Color(0xFFE2E5F4),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                    ),
+                                    child: Icon(
+                                      Icons.phone_in_talk,
+                                      color: const Color(0xFF68188B),
+                                    ),
+                                  ),
+                                ),
+                                Text(
+                                  profileData.mobile != null
+                                      ? profileData.mobile.toString()
+                                      : '',
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 16.sp,
+                                    fontFamily: 'Poppins',
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          SizedBox(height: 8.h),
+                          Container(
+                            width: 362.w,
+                            height: 60.h,
+                            decoration: ShapeDecoration(
+                              color: Colors.grey[100],
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
                               ),
                             ),
-                            Spacer(),
-                            Icon(Icons.arrow_forward_ios_sharp),
+                            child: Row(
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.all(10.0),
+                                  child: Container(
+                                    width: 42.w,
+                                    height: 42.h,
+                                    decoration: ShapeDecoration(
+                                      color: const Color(0xFFE2E5F4),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                    ),
+                                    child: Icon(
+                                      Icons.person_rounded,
+                                      color: const Color(0xFF68188B),
+                                    ),
+                                  ),
+                                ),
+                                Text(
+                                  profileData.gender.toString(),
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 16.sp,
+                                    fontFamily: 'Poppins',
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          SizedBox(height: 8.h),
+                          Container(
+                            width: 362.w,
+                            height: 60.h,
+                            decoration: ShapeDecoration(
+                              color: Colors.grey[100],
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                            child: Row(
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.all(10.0),
+                                  child: Container(
+                                    width: 42.w,
+                                    height: 42.h,
+                                    decoration: ShapeDecoration(
+                                      color: const Color(0xFFE2E5F4),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                    ),
+                                    child: Icon(
+                                      Icons.location_on,
+                                      color: const Color(0xFF68188B),
+                                    ),
+                                  ),
+                                ),
+                                Text(
+                                  profileData.address.toString(),
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 16.sp,
+                                    fontFamily: 'Poppins',
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          SizedBox(height: 8.h),
+                          Container(
+                            width: 362.w,
+                            height: 60.h,
+                            decoration: ShapeDecoration(
+                              color: Colors.grey[100],
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                            child: Row(
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.all(10.0),
+                                  child: Container(
+                                    width: 42.w,
+                                    height: 42.h,
+                                    decoration: ShapeDecoration(
+                                      color: const Color(0xFFE2E5F4),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                    ),
+                                    child: Icon(
+                                      Icons.visibility_rounded,
+                                      color: const Color(0xFF68188B),
+                                    ),
+                                  ),
+                                ),
+                                Text(
+                                  '********',
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 16.sp,
+                                    fontFamily: 'Poppins',
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                ),
+                                Spacer(),
+                                GestureDetector(
+                                  onTap: () async {
+                                    final result = await showEditPasswordDialog(
+                                      context,
+                                      profileData.password!,
+                                    );
+                                    if (result == true) {
+                                      // Only refresh if password updated successfully
+                                      getUserData();
+                                    }
+                                  },
+                                  child: Icon(
+                                    Icons.edit_outlined,
+                                    color: const Color(0xFF68188B),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      );
+                    } else {
+                      return SizedBox();
+                    }
+                  },
+                ),
+              ),
+              SizedBox(height: 8.h),
+              GestureDetector(
+                onTap: () async {
+                  final confirm = await showDialog<bool>(
+                    context: context,
+                    builder:
+                        (context) => AlertDialog(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          title: const Text(
+                            'Sign Out',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          content: const Text(
+                            'Are you sure you want to sign out?',
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context, false),
+                              child: const Text('Cancel'),
+                            ),
+                            TextButton(
+                              onPressed: () => Navigator.pop(context, true),
+                              child: const Text(
+                                'Sign Out',
+                                style: TextStyle(color: Colors.red),
+                              ),
+                            ),
                           ],
                         ),
-                      ),
+                  );
+
+                  if (confirm == true) {
+                    await _signOut();
+                  }
+                },
+                child: Container(
+                  width: 362.w,
+                  height: 60.h,
+                  decoration: ShapeDecoration(
+                    color: Colors.grey[100],
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
                     ),
-                    SizedBox(height: 8.h),
-                  ],
-                );
-              } else {
-                return SizedBox();
-              }
-            },
+                  ),
+                  child: Row(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(10.0),
+                        child: Container(
+                          width: 42.w,
+                          height: 42.h,
+                          decoration: ShapeDecoration(
+                            color: const Color(0xFFE2E5F4),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          child: Icon(
+                            Icons.login_outlined,
+                            color: const Color(0xFF68188B),
+                          ),
+                        ),
+                      ),
+                      Text(
+                        'Sign Out',
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 16.sp,
+                          fontFamily: 'Poppins',
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
+                      Spacer(),
+                      Icon(Icons.arrow_forward_ios_sharp),
+                    ],
+                  ),
+                ),
+              ),
+              SizedBox(height: 8.h),
+            ],
           ),
         ),
       ),

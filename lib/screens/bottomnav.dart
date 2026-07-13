@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:syswash/bloc/bloc/home_bloc.dart';
 import 'package:syswash/screens/delivery.dart';
 import 'package:syswash/screens/history.dart';
 import 'package:syswash/screens/home.dart';
@@ -17,6 +20,9 @@ class Bottomnav extends StatefulWidget {
 
 class _BottomnavState extends State<Bottomnav> {
   late int _selectedScreen;
+  String? token;
+  String? companyCode;
+  String? userId;
 
   final List<Widget> _screens = [
     const Home(),
@@ -25,6 +31,14 @@ class _BottomnavState extends State<Bottomnav> {
     const History(),
     const Profile(),
   ];
+
+  Future<void> getUserData() async {
+  const storage = FlutterSecureStorage();
+
+  token = await storage.read(key: 'access_Token');
+  companyCode = await storage.read(key: 'company_Code');
+  userId = await storage.read(key: 'login_id');
+}
 
   final List<Map<String, dynamic>> _items = [
     {'icon': 'assets/home.svg', 'label': 'Home'},
@@ -38,6 +52,7 @@ class _BottomnavState extends State<Bottomnav> {
   void initState() {
     super.initState();
     _selectedScreen = widget.currentIndex;
+    getUserData();
   }
 
   @override
@@ -77,6 +92,18 @@ class _BottomnavState extends State<Bottomnav> {
                 return GestureDetector(
                   onTap: () {
                     setState(() => _selectedScreen = index);
+                    if (index == 3 && // History tab
+                        token != null &&
+                        companyCode != null &&
+                        userId != null) {
+                      context.read<HomeBloc>().add(
+                        FetchHomeEvent(
+                          userId: userId!,
+                          companyCode: companyCode!,
+                          token: token!,
+                        ),
+                      );
+                    }
                   },
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 250),

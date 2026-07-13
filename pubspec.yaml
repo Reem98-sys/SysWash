@@ -50,6 +50,8 @@ dependencies:
   overlay_support: ^2.1.0
   flutter_local_notifications: ^17.0.0
   fl_chart: ^0.63.0
+  mobile_scanner: ^5.0.0
+  html: ^0.15.4
   
 
 dev_dependencies:

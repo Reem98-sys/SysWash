@@ -2,6 +2,7 @@ import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
 import 'package:syswash/model/customerDetailsModel.dart';
 import 'package:syswash/model/pickupOrderItemsModel.dart';
+import 'package:syswash/model/pickuphistorydetailModel.dart';
 import 'package:syswash/model/settingsModel.dart';
 import 'package:syswash/repositories/sys_repository.dart';
 
@@ -11,6 +12,7 @@ part 'pickupcustdetails_state.dart';
 class PickupcustdetailsBloc
     extends Bloc<PickupcustdetailsEvent, PickupcustdetailsState> {
   SysRepository sysRepository = SysRepository();
+  late PickupHistoryDetailModel historyitems;
   PickupcustdetailsBloc() : super(PickupcustdetailsInitial()) {
     on<FetchFullPickupDetailsEvent>((event, emit) async {
       emit(PickupCustDetailsLoading());
@@ -118,7 +120,37 @@ class PickupcustdetailsBloc
       }
     });
   
+    on<FetchHistoryPickupDetailsEvent>((event, emit) async {
+      emit(PickupCustDetailsLoading());
+      try {
+        final customer = await sysRepository.pickupcustomerdetails(
+          event.customerId,
+          event.token,
+          event.companyCode,
+        );
+        final settings = await sysRepository.settingsData(event.companyCode, event.token);
+        
 
+        
+          historyitems = await sysRepository.pickuphistorydetail(
+            event.pickupOrderId,
+            event.token,
+            event.companyCode,
+          );
+        
+        emit(
+          PickupHistoryCustDetailsLoaded(
+            customerDetailsModel: customer,
+            pickupOrderItemsModel: historyitems, settingsModel: settings,
+          ),
+        );
+        
+      } catch (e, stackTrace) {
+        print("❌ Error in FetchFullPickupDetailsEvent: $e");
+        print("📜 StackTrace: $stackTrace");
+        emit(PickupCustDetailsError(message: e.toString()));
+      }
+    });
   
   }
 }

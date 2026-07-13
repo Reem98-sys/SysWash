@@ -121,3 +121,17 @@ class FetchSettingsLoaded extends PickupcustdetailsState {
   final String token;
   FetchSettingsLoaded({required this.companyCode,required this.token});
 }
+
+class FetchHistoryPickupDetailsEvent extends PickupcustdetailsEvent {
+  final String customerId;
+  final String pickupOrderId;
+  final String token;
+  final String companyCode;
+
+  FetchHistoryPickupDetailsEvent({
+    required this.customerId,
+    required this.pickupOrderId,
+    required this.token,
+    required this.companyCode,
+  });
+}

@@ -84,9 +84,10 @@ class _LoginState extends State<Login> {
             value: 'false',
           );
 
-          await storage.delete(key: 'email');
-          await storage.delete(key: 'password');
-          await storage.delete(key: 'company_Code');
+          await storage.write(
+            key: 'company_Code',
+            value: companyCode.text.trim(),
+          );
         }
     await storage.write(key: 'refresh_token', value: refreshtoken);
     await storage.write(key: 'user_Type', value: userType);
@@ -529,6 +530,36 @@ class _LoginState extends State<Login> {
                       ),
                     );
                   }
+                  if (state is LoginAlreadyLoggedInState) {
+                    final continueLogin = await showDialog<bool>(
+                      context: context,
+                      builder: (_) => AlertDialog(
+                        title: const Text("Already Logged In"),
+                        content: Text(state.message),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context, false),
+                            child: const Text("Cancel"),
+                          ),
+                          ElevatedButton(
+                            onPressed: () => Navigator.pop(context, true),
+                            child: const Text("Continue"),
+                          ),
+                        ],
+                      ),
+                    );
+
+                    if (continueLogin == true) {
+                      BlocProvider.of<LoginBloc>(context).add(
+                        FetchLoginEvent(
+                          email: emailController.text.trim(),
+                          password: passwordController.text.trim(),
+                          companyCode: companyCode.text.trim(),
+                          force: true, // resend with force=true
+                        ),
+                      );
+                    }
+                  }
                   if (state is LoginBlocLoaded) {
                     Navigator.pop(context);
                     loginModel = BlocProvider.of<LoginBloc>(context).loginModel;
@@ -565,18 +596,20 @@ class _LoginState extends State<Login> {
                           loginModel.access.toString(),
                           loginModel.userType.toString(),
                         );
-                        Navigator.pushReplacement(
+                        Navigator.pushAndRemoveUntil(
                           context,
                           MaterialPageRoute(
                             builder: (_) => Bottomnav(),
                           ),
+                          (route) => false,
                         );
                       } else {
-                        Navigator.pushReplacement(
+                        Navigator.pushAndRemoveUntil(
                           context,
                           MaterialPageRoute(
                             builder: (_) => Bottomnavadmin(),
                           ),
+                          (route) => false,
                         );
                       }
                       
@@ -609,6 +642,7 @@ class _LoginState extends State<Login> {
                         email: emailController.text.trim(),
                         password: passwordController.text.trim(),
                         companyCode: companyCode.text.trim(),
+                        force: false
                       ),
                     );
                   },

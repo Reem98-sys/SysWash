@@ -32,3 +32,18 @@ String formatDate(String input) {
   final date = DateTime.parse(input); // 2025-11-25
   return DateFormat('dd-MM-yyyy').format(date);
 }
+
+
+String formatDateTime(String? dateString) {
+  if (dateString == null || dateString.isEmpty) {
+    return '';
+  }
+
+  try {
+    final dateTime = DateTime.parse(dateString);
+
+    return DateFormat('dd-MM-yyyy HH:mm:ss').format(dateTime);
+  } catch (e) {
+    return dateString;
+  }
+}

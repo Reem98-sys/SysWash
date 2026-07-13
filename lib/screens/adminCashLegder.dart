@@ -183,6 +183,7 @@ class _AdmincashlegderState extends State<Admincashlegder> {
               }
               if (state is CashLedgerReportLoaded) {
                 cashLedger = state.cashLedger;
+                totalAmount = 0.0;
                 for (final item in cashLedger ?? []) {
                   totalAmount += item.paidAmount;
                 }

@@ -18,7 +18,7 @@ class PickupOrderItemsModel {
     String? customerId;
     String? customerCode;
     String? customerName;
-    int? customerPhno;
+    String? customerPhno;
     String? customerAddress;
     String? customerStreet;
     String? customerReffrNo;
@@ -122,8 +122,8 @@ class PickupOrderItemsModel {
         if(json["customerName"] is String) {
             customerName = json["customerName"];
         }
-        if(json["customerPhno"] is num) {
-            customerPhno = (json["customerPhno"] as num).toInt();
+        if(json["customerPhno"] is String) {
+            customerPhno = json["customerPhno"];
         }
         if(json["customerAddress"] is String) {
             customerAddress = json["customerAddress"];
@@ -358,7 +358,7 @@ class PickupOrderItemsModel {
         String? customerId,
         String? customerCode,
         String? customerName,
-        int? customerPhno,
+        String? customerPhno,
         String? customerAddress,
         String? customerStreet,
         String? customerReffrNo,

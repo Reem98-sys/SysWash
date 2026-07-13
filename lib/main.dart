@@ -19,12 +19,16 @@ import 'package:syswash/bloc/bloc/devicetoken_bloc.dart';
 import 'package:syswash/bloc/bloc/forgotpass_bloc.dart';
 import 'package:syswash/bloc/bloc/home_bloc.dart';
 import 'package:syswash/bloc/bloc/login_bloc.dart';
+import 'package:syswash/bloc/bloc/logout_bloc.dart';
 import 'package:syswash/bloc/bloc/notificationlist_bloc.dart';
 import 'package:syswash/bloc/bloc/pickupcustdetails_bloc.dart';
 import 'package:syswash/bloc/bloc/pickuplist_bloc.dart';
 import 'package:syswash/bloc/bloc/profile_bloc.dart';
+import 'package:syswash/bloc/bloc/qrgetdata_bloc.dart';
+import 'package:syswash/bloc/bloc/qrputdata_bloc.dart';
 import 'package:syswash/bloc/bloc/report_bloc.dart';
 import 'package:syswash/bloc/bloc/reportlist_bloc.dart';
+import 'package:syswash/bloc/bloc/resheduleorder_bloc.dart';
 import 'package:syswash/bloc/bloc/servicedetails_bloc.dart';
 import 'package:syswash/bloc/bloc/settings_bloc.dart';
 import 'package:syswash/bloc/bloc/uploadpickup_bloc.dart';
@@ -94,6 +98,10 @@ void main() async {
           BlocProvider(create: (context) => AdminprofileBloc()),
           BlocProvider(create: (context) => AdminbranchBloc()),
           BlocProvider(create: (context) => NotificationlistBloc()),
+          BlocProvider(create: (context) => QrgetdataBloc()),
+          BlocProvider(create: (context) => QrputdataBloc()),
+          BlocProvider(create: (context) => LogoutBloc()),
+          BlocProvider(create: (context) => ResheduleorderBloc()),
         ],
         child: const MyApp(),
       ),

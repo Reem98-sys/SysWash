@@ -132,8 +132,8 @@ class _HistorydetailState extends State<Historydetail> {
                     
 
                     // If filteredList is empty (first load or cleared search)
-                    if (filteredList.isEmpty && searchData.text.isEmpty) {
-                      filteredList = fullList;
+                    if (searchData.text.isEmpty) {
+                      filteredList = List.from(fullList);
                     }
 
                     if (filteredList.isEmpty) {
@@ -145,6 +145,16 @@ class _HistorydetailState extends State<Historydetail> {
                       itemBuilder: (context, index) {
                         String status;
                         var statusColor;
+                         final deliveryAssgn = filteredList[index]['deliveryassgn'];
+                        final delivereddate = filteredList[index]['deliveredDateTime'];
+
+                          if (deliveryAssgn != null &&
+                              deliveryAssgn is List &&
+                              deliveryAssgn.isNotEmpty) {
+                            status = deliveryAssgn[0]['paymentstatus']?.toString() ?? 'Unknown';
+                          } else {
+                            status = 'Unknown';
+                          }
                         if (widget.historyType == 'pickup') {
                           status = filteredList[index]['pickupstatus'].toString();
                           if (status == 'Collected') {
@@ -155,7 +165,7 @@ class _HistorydetailState extends State<Historydetail> {
                           }
                         }
                         else {
-                          status = filteredList[index]['deliveryassgn'][0]['paymentstatus'].toString();
+                         
                           if (status == 'Unpaid') {
                             statusColor = Colors.red;
                           }
@@ -170,12 +180,35 @@ class _HistorydetailState extends State<Historydetail> {
                         return Padding(
                           padding: const EdgeInsets.fromLTRB(20,0,20,8),
                           child:  GestureDetector(
-                            onTap: () {
+                            onTap: () async {
                               if (widget.historyType == 'pickup') {
-                                Navigator.push(context, MaterialPageRoute(builder: (context) => Historypickupdetail(customerId: filteredList[index]['pickupCustomerId'], pickupOrderId: filteredList[index]['pickupOrderId'] != null ? filteredList[index]['pickupOrderId'] : filteredList[index]['pickupassgn'][0]['pickuporderId'].toString() , pickupAssignId: filteredList[index]['pickupassgnId'], notes: filteredList[index]['notes'] ?? '', remarks: filteredList[index]['remarks'] ?? '', status: status, statusColor: statusColor)));
+                                final result = await Navigator.push(context, MaterialPageRoute(builder: (context) => Historypickupdetail(customerId: filteredList[index]['pickupCustomerId'], pickupOrderId: filteredList[index]['pickupOrderId'] ?? filteredList[index]['pickupassgn'][0]['pickuporderId'].toString() , pickupAssignId: filteredList[index]['pickupassgnId'], notes: filteredList[index]['notes'] ?? '', remarks: filteredList[index]['remarks'] ?? '', status: status, statusColor: statusColor,
+                                AssignedFrom :filteredList[index]['AssignedFrom'] ?? '')));
+                                if (result == true) {
+                                  context.read<HomeBloc>().add(
+                                    FetchHomeEvent(
+                                      userId: userId!,
+                                      companyCode: companyCode!,
+                                      token: token!,
+                                    ),
+                                  );
+                                }
                               }
                               else {
-                                Navigator.push(context, MaterialPageRoute(builder: (context) => Historyviewdetails(customerId: filteredList[index]['customerId'], deliveryOrderId: filteredList[index]['orderId'], deliveryAssgnId: filteredList[index]['deliveryassgn'][0]['deliveryassgnId'], notes: '', remarks: filteredList[index]['remarks'],status: status,statusColor : statusColor,)));
+                                final result = await Navigator.push(context, MaterialPageRoute(builder: (context) => Historyviewdetails(customerId: filteredList[index]['customerId'], deliveryOrderId: filteredList[index]['orderId'], deliveryAssgnId: deliveryAssgn != null &&
+        deliveryAssgn is List &&
+        deliveryAssgn.isNotEmpty
+    ? deliveryAssgn[0]['deliveryassgnId']
+    : 0, notes: '', remarks: filteredList[index]['remarks'],status: status,statusColor : statusColor,)));
+                                if (result == true) {
+                                  context.read<HomeBloc>().add(
+                                    FetchHomeEvent(
+                                      userId: userId!,
+                                      companyCode: companyCode!,
+                                      token: token!,
+                                    ),
+                                  );
+                                }
                               }
                               
                             },
@@ -243,7 +276,7 @@ class _HistorydetailState extends State<Historydetail> {
                                         ),
                                         Text(
                                           widget.historyType == 'pickup'? '${formatDate(filteredList[index]['pickupDate'])} ''${filteredList[index]['pickuptime'] ?? ''}'
-                                              : '${formatDate(filteredList[index]['deliveryDate'])} ${filteredList[index]['deliveryTime']}'
+                                              : formatDateTime(delivereddate)
                                           .toString(),
                                           style: TextStyle(
                                             color: Colors.black,

@@ -11,6 +11,12 @@ class PickupCustDetailsLoaded extends PickupcustdetailsState {
   final SettingsModel settingsModel;
   PickupCustDetailsLoaded({ required this.customerDetailsModel,required this.pickupOrderItemsModel, required this.settingsModel});
 }
+class PickupHistoryCustDetailsLoaded extends PickupcustdetailsState {
+  final CustomerDetailsModel customerDetailsModel;
+  final PickupHistoryDetailModel pickupOrderItemsModel;
+  final SettingsModel settingsModel;
+  PickupHistoryCustDetailsLoaded({ required this.customerDetailsModel,required this.pickupOrderItemsModel, required this.settingsModel});
+}
 class PickupCustDetailsError extends PickupcustdetailsState {
   final String message;
   PickupCustDetailsError({required this.message});

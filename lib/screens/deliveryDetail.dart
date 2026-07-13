@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:syswash/bloc/bloc/deliverystatus_bloc.dart';
 import 'package:syswash/bloc/bloc/pickupcustdetails_bloc.dart';
+import 'package:syswash/bloc/bloc/resheduleorder_bloc.dart';
 import 'package:syswash/bloc/bloc/settings_bloc.dart';
 import 'package:syswash/helper/customerdetail_helper.dart';
 import 'package:syswash/helper/gis_qatar_service.dart';
@@ -82,6 +83,56 @@ class _DeliverydetailState extends State<Deliverydetail> {
     }
   }
 
+  void _showRescheduleDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+          ),
+          title: const Row(children: [Text("Reschedule Delivery")]),
+          content: const Text(
+            "Are you sure you want to reschedule this delivery order?",
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text("Cancel"),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.deepPurple,
+              ),
+              onPressed: () async {
+                Navigator.pop(context);
+                final companyCode = await storage.read(key: 'company_Code');
+                final token = await storage.read(key: 'access_Token');
+
+                if (token != null && companyCode != null) {
+                  context.read<ResheduleorderBloc>().add(
+                    FetchResheduleOrderDeliveryEvent(
+                      id: widget.deliveryAssgnId.toString(),
+                      token: token,
+                      companyCode: companyCode,
+                    ),
+                  );
+                }
+              },
+              child: const Text(
+                "Yes, Reschedule",
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -99,308 +150,177 @@ class _DeliverydetailState extends State<Deliverydetail> {
             fontWeight: FontWeight.w700,
           ),
         ),
+        actions: [
+          SizedBox(
+            width: 130.w,
+            child: OutlinedButton.icon(
+              onPressed: () {
+                _showRescheduleDialog();
+              },
+              label: const Text("Reschedule"),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: Colors.deepPurple,
+                side: const BorderSide(color: Colors.deepPurple),
+              ),
+            ),
+          ),
+        ],
       ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(15.0),
-          child: BlocListener<DeliverystatusBloc, DeliverystatusState>(
-            listener: (context, state) {
-              if (state is DeliverySuccess) {
-
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Delivery completed successfully'),
-                    backgroundColor: Colors.green,
-                  ),
-                );
-
-                // Navigator.pop(context, true);
-
-              }
-            },
-            child: BlocConsumer<PickupcustdetailsBloc, PickupcustdetailsState>(
-              listener: (context, state) async {
-                if (state is PickupCustDetailsError) {
-                  Navigator.pop(context);
-                  print('❌ Bloc Error: ${state.message}');
+          child: MultiBlocListener(
+            listeners: [
+              BlocListener<ResheduleorderBloc,ResheduleorderState>(
+                listener: (context, state) {
+                  if (state is ResheduleOrderDeliveryLoaded) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Failed to load data')),
+                     SnackBar(
+                      content: Text(state.message),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
+
+                  Navigator.pop(context, true);
+                }
+
+                if (state is ResheduleOrderError) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Unable to Reshedule')),
                   );
                 }
-              },
-              builder: (context, state) {
-                if (state is PickupCustDetailsLoading) {
-                  return const Center(child: CircularProgressIndicator());
+                },)
+            ],
+            child: BlocListener<DeliverystatusBloc, DeliverystatusState>(
+              listener: (context, state) {
+                if (state is DeliverySuccess) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Delivery completed successfully'),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
+
+                  // Navigator.pop(context, true);
                 }
-                if (state is PickupCustDetailsLoaded) {
-                  final customerDetailsModel = state.customerDetailsModel;
-                  final deliveryItems = state.pickupOrderItemsModel;
-                  final settingsData = state.settingsModel;
-                  final gridItems = [
-                    {'label': 'Area', 'value': customerDetailsModel.area},
-                    {'label': 'Zone', 'value': customerDetailsModel.zone},
-                    {
-                      'label': 'Street No',
-                      'value': customerDetailsModel.streetNo,
-                    },
-                    {
-                      'label': 'Villa No',
-                      'value': customerDetailsModel.villaNumber,
-                    },
-                    {'label': 'Hotel', 'value': customerDetailsModel.hotel},
-                    {'label': 'Room No', 'value': customerDetailsModel.roomNo},
-                    {
-                      'label': 'Fragrance',
-                      'value': customerDetailsModel.fragrance,
-                    },
-                    {
-                      'label': 'Reference No',
-                      'value': customerDetailsModel.refNo,
-                    },
-                    {'label': 'Note', 'value': widget.notes},
-                    {'label': 'Remark', 'value': widget.remarks},
-                    {
-                      'label': 'Order No',
-                      'value': deliveryItems.orderId.toString(),
-                    },
-                    {
-                      'label': 'Pickup Id',
-                      'value': widget.deliveryAssgnId.toString(),
-                    },
-                  ];
-                  return Column(
-                    children: [
-                      Container(
-                        width: 384.w,
+              },
+              child: BlocConsumer<
+                PickupcustdetailsBloc,
+                PickupcustdetailsState
+              >(
+                listener: (context, state) async {
+                  if (state is PickupCustDetailsError) {
+                    Navigator.pop(context);
+                    print('❌ Bloc Error: ${state.message}');
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Failed to load data')),
+                    );
+                  }
+                },
+                builder: (context, state) {
+                  if (state is PickupCustDetailsLoading) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  if (state is PickupCustDetailsLoaded) {
+                    final customerDetailsModel = state.customerDetailsModel;
+                    final deliveryItems = state.pickupOrderItemsModel;
+                    final settingsData = state.settingsModel;
+                    final gridItems = [
+                      {'label': 'Area', 'value': customerDetailsModel.area},
+                      {'label': 'Zone', 'value': customerDetailsModel.zone},
+                      {
+                        'label': 'Street No',
+                        'value': customerDetailsModel.streetNo,
+                      },
+                      {
+                        'label': 'Villa No',
+                        'value': customerDetailsModel.villaNumber,
+                      },
+                      {'label': 'Hotel', 'value': customerDetailsModel.hotel},
+                      {
+                        'label': 'Room No',
+                        'value': customerDetailsModel.roomNo,
+                      },
+                      {
+                        'label': 'Fragrance',
+                        'value': customerDetailsModel.fragrance,
+                      },
+                      {
+                        'label': 'Reference No',
+                        'value': customerDetailsModel.refNo,
+                      },
+                      {'label': 'Note', 'value': widget.notes},
+                      {'label': 'Remark', 'value': widget.remarks},
+                      {
+                        'label': 'Order No',
+                        'value': deliveryItems.orderId.toString(),
+                      },
+                      {
+                        'label': 'Pickup Id',
+                        'value': widget.deliveryAssgnId.toString(),
+                      },
+                    ];
+                    return Column(
+                      children: [
+                        Container(
+                          width: 384.w,
 
-                        decoration: ShapeDecoration(
-                          color: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10.r),
+                          decoration: ShapeDecoration(
+                            color: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10.r),
+                            ),
                           ),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(12.0),
-                          child: Row(
-                            children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  if (widget.deliveryOrderId != null &&
-                                      widget.deliveryOrderId
-                                          .toString()
-                                          .trim()
-                                          .isNotEmpty &&
-                                      widget.deliveryOrderId
-                                              .toString()
-                                              .toLowerCase() !=
-                                          'null')
-                                    Text(
-                                      '# ${widget.deliveryOrderId}',
-                                      style: TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 16.sp,
-                                        fontFamily: 'DM Sans',
-                                        // fontWeight: FontWeight.w700,
-                                      ),
-                                    ),
-                                  Text(
-                                    '${customerDetailsModel.name} [${customerDetailsModel.cusCode}]',
-                                    style: TextStyle(
-                                      color: const Color(0xFF0A0A0A),
-                                      fontSize: 16.sp,
-                                      fontFamily: 'DM Sans',
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                  ),
-                                  Row(
-                                    children: [
+                          child: Padding(
+                            padding: const EdgeInsets.all(12.0),
+                            child: Row(
+                              children: [
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    if (widget.deliveryOrderId != null &&
+                                        widget.deliveryOrderId
+                                            .toString()
+                                            .trim()
+                                            .isNotEmpty &&
+                                        widget.deliveryOrderId
+                                                .toString()
+                                                .toLowerCase() !=
+                                            'null')
                                       Text(
-                                        'Discount: ',
+                                        '# ${widget.deliveryOrderId}',
                                         style: TextStyle(
                                           color: Colors.black,
-                                          fontSize: 12.sp,
-                                          fontFamily: 'Poppins',
-                                          fontWeight: FontWeight.w400,
-                                          height: 1.17,
-                                          letterSpacing: 0.20,
-                                        ),
-                                      ),
-                                      Text(
-                                        customerDetailsModel.discount
-                                            .toString(),
-                                        style: TextStyle(
-                                          color: const Color(0xFF68188B),
-                                          fontSize: 12.sp,
-                                          fontFamily: 'Poppins',
-                                          fontWeight: FontWeight.w600,
-                                          height: 1.17,
-                                          letterSpacing: 0.20,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  SizedBox(height: 5.h),
-                                  Row(
-                                    children: [
-                                      Icon(Icons.phone_in_talk, size: 18.sp),
-                                      Text(
-                                        customerDetailsModel.mobile.toString(),
-                                        style: TextStyle(
-                                          color: const Color(0xFF0A0A0A),
-                                          fontSize: 14.sp,
+                                          fontSize: 16.sp,
                                           fontFamily: 'DM Sans',
-                                          fontWeight: FontWeight.w400,
+                                          // fontWeight: FontWeight.w700,
                                         ),
                                       ),
-                                      SizedBox(width: 10.w),
-                                      Icon(
-                                        Icons.location_on_sharp,
-                                        size: 18.sp,
-                                      ),
-                                      Text(
-                                        customerDetailsModel.area.toString(),
-                                        style: TextStyle(
-                                          color: Colors.black,
-                                          fontSize: 12.sp,
-                                          fontFamily: 'Poppins',
-                                          fontWeight: FontWeight.w400,
-                                          height: 1.17,
-                                          letterSpacing: 0.20,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                              Spacer(),
-                              Column(
-                                children: [
-                                  if (widget.deliveryOrderId != null &&
-                                      widget.deliveryOrderId
-                                          .toString()
-                                          .trim()
-                                          .isNotEmpty &&
-                                      widget.deliveryOrderId
-                                              .toString()
-                                              .toLowerCase() !=
-                                          'null')
                                     Text(
-                                      deliveryItems.status.toString(),
+                                      '${customerDetailsModel.name} [${customerDetailsModel.cusCode}]',
                                       style: TextStyle(
-                                        color: Colors.green,
+                                        color: const Color(0xFF0A0A0A),
                                         fontSize: 16.sp,
                                         fontFamily: 'DM Sans',
-                                        // fontWeight: FontWeight.w700,
+                                        fontWeight: FontWeight.w700,
                                       ),
                                     ),
-                                  SizedBox(height: 5.h),
-                                  GestureDetector(
-                                    onTap: () async {
-                                      final zone =
-                                          customerDetailsModel.zone?.toString();
-                                      final street =
-                                          customerDetailsModel.streetNo
-                                              ?.toString();
-                                      final villano =
-                                          customerDetailsModel.villaNumber
-                                              ?.toString();
-
-                                      if (zone == null ||
-                                          street == null ||
-                                          villano == null) {
-                                        ScaffoldMessenger.of(
-                                          context,
-                                        ).showSnackBar(
-                                          const SnackBar(
-                                            content: Text(
-                                              'Address details incomplete',
-                                            ),
-                                          ),
-                                        );
-                                        return;
-                                      }
-                                      final coords =
-                                          await GisQatarService.getLatLng(
-                                            zone: zone,
-                                            street: street,
-                                            building: villano,
-                                          );
-                                      if (coords == null) {
-                                        final fullAddress = buildFullAddress(
-                                          hotel: customerDetailsModel.hotel,
-                                          area: customerDetailsModel.area,
-                                          zone: customerDetailsModel.zone,
-                                          street: customerDetailsModel.streetNo,
-                                          villano:
-                                              customerDetailsModel.villaNumber,
-                                        );
-                                        if (fullAddress.isNotEmpty) {
-                                          openRoute(fullAddress);
-                                        } else {
-                                          ScaffoldMessenger.of(
-                                            context,
-                                          ).showSnackBar(
-                                            const SnackBar(
-                                              content: Text(
-                                                'Address not available',
-                                              ),
-                                            ),
-                                          );
-                                        }
-                                      } else {
-                                        await openRouteLatLng(
-                                          coords['lat']!,
-                                          coords['lng']!,
-                                        );
-                                      }
-                                    },
-                                    child: Container(
-                                      width: 100.w,
-                                      height: 30.h,
-                                      decoration: ShapeDecoration(
-                                        color: const Color(0xFF68188B),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            3,
-                                          ),
-                                        ),
-                                        shadows: [
-                                          BoxShadow(
-                                            color: Color(0x3F000000),
-                                            blurRadius: 4,
-                                            offset: Offset(0, 4),
-                                            spreadRadius: 0,
-                                          ),
-                                        ],
-                                      ),
-                                      child: Center(
-                                        child: Text(
-                                          'Route',
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 14.sp,
-                                            fontFamily: 'DM Sans',
-                                            fontWeight: FontWeight.w700,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  SizedBox(height: 10.h),
-                                  GestureDetector(
-                                    onTap: () {
-                                      setState(() {
-                                        showDetails = !showDetails;
-                                      });
-                                    },
-                                    child: Row(
+                                    Row(
                                       children: [
                                         Text(
-                                          showDetails
-                                              ? 'Close Details'
-                                              : 'View Details',
-                                          textAlign: TextAlign.center,
+                                          'Discount: ',
+                                          style: TextStyle(
+                                            color: Colors.black,
+                                            fontSize: 12.sp,
+                                            fontFamily: 'Poppins',
+                                            fontWeight: FontWeight.w400,
+                                            height: 1.17,
+                                            letterSpacing: 0.20,
+                                          ),
+                                        ),
+                                        Text(
+                                          customerDetailsModel.discount
+                                              .toString(),
                                           style: TextStyle(
                                             color: const Color(0xFF68188B),
                                             fontSize: 12.sp,
@@ -410,627 +330,815 @@ class _DeliverydetailState extends State<Deliverydetail> {
                                             letterSpacing: 0.20,
                                           ),
                                         ),
+                                      ],
+                                    ),
+                                    SizedBox(height: 5.h),
+                                    Row(
+                                      children: [
+                                        Icon(Icons.phone_in_talk, size: 18.sp),
+                                        Text(
+                                          customerDetailsModel.mobile
+                                              .toString(),
+                                          style: TextStyle(
+                                            color: const Color(0xFF0A0A0A),
+                                            fontSize: 14.sp,
+                                            fontFamily: 'DM Sans',
+                                            fontWeight: FontWeight.w400,
+                                          ),
+                                        ),
+                                        SizedBox(width: 10.w),
                                         Icon(
-                                          showDetails
-                                              ? Icons.keyboard_arrow_up_sharp
-                                              : Icons.keyboard_arrow_down_sharp,
-                                          color: const Color(0xFF68188B),
-                                          size: 22.sp,
+                                          Icons.location_on_sharp,
+                                          size: 18.sp,
+                                        ),
+                                        Text(
+                                          customerDetailsModel.area.toString(),
+                                          style: TextStyle(
+                                            color: Colors.black,
+                                            fontSize: 12.sp,
+                                            fontFamily: 'Poppins',
+                                            fontWeight: FontWeight.w400,
+                                            height: 1.17,
+                                            letterSpacing: 0.20,
+                                          ),
                                         ),
                                       ],
                                     ),
-                                  ),
-                                ],
-                              ),
-                            ],
+                                  ],
+                                ),
+                                Spacer(),
+                                Column(
+                                  children: [
+                                    if (widget.deliveryOrderId != null &&
+                                        widget.deliveryOrderId
+                                            .toString()
+                                            .trim()
+                                            .isNotEmpty &&
+                                        widget.deliveryOrderId
+                                                .toString()
+                                                .toLowerCase() !=
+                                            'null')
+                                      Text(
+                                        deliveryItems.status.toString(),
+                                        style: TextStyle(
+                                          color: Colors.green,
+                                          fontSize: 16.sp,
+                                          fontFamily: 'DM Sans',
+                                          // fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                    SizedBox(height: 5.h),
+                                    GestureDetector(
+                                      onTap: () async {
+                                        final zone =
+                                            customerDetailsModel.zone
+                                                ?.toString();
+                                        final street =
+                                            customerDetailsModel.streetNo
+                                                ?.toString();
+                                        final villano =
+                                            customerDetailsModel.villaNumber
+                                                ?.toString();
+
+                                        if (zone == null ||
+                                            street == null ||
+                                            villano == null) {
+                                          ScaffoldMessenger.of(
+                                            context,
+                                          ).showSnackBar(
+                                            const SnackBar(
+                                              content: Text(
+                                                'Address details incomplete',
+                                              ),
+                                            ),
+                                          );
+                                          return;
+                                        }
+                                        final coords =
+                                            await GisQatarService.getLatLng(
+                                              zone: zone,
+                                              street: street,
+                                              building: villano,
+                                            );
+                                        if (coords == null) {
+                                          final fullAddress = buildFullAddress(
+                                            hotel: customerDetailsModel.hotel,
+                                            area: customerDetailsModel.area,
+                                            zone: customerDetailsModel.zone,
+                                            street:
+                                                customerDetailsModel.streetNo,
+                                            villano:
+                                                customerDetailsModel
+                                                    .villaNumber,
+                                          );
+                                          if (fullAddress.isNotEmpty) {
+                                            openRoute(fullAddress);
+                                          } else {
+                                            ScaffoldMessenger.of(
+                                              context,
+                                            ).showSnackBar(
+                                              const SnackBar(
+                                                content: Text(
+                                                  'Address not available',
+                                                ),
+                                              ),
+                                            );
+                                          }
+                                        } else {
+                                          await openRouteLatLng(
+                                            coords['lat']!,
+                                            coords['lng']!,
+                                          );
+                                        }
+                                      },
+                                      child: Container(
+                                        width: 100.w,
+                                        height: 30.h,
+                                        decoration: ShapeDecoration(
+                                          color: const Color(0xFF68188B),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              3,
+                                            ),
+                                          ),
+                                          shadows: [
+                                            BoxShadow(
+                                              color: Color(0x3F000000),
+                                              blurRadius: 4,
+                                              offset: Offset(0, 4),
+                                              spreadRadius: 0,
+                                            ),
+                                          ],
+                                        ),
+                                        child: Center(
+                                          child: Text(
+                                            'Route',
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 14.sp,
+                                              fontFamily: 'DM Sans',
+                                              fontWeight: FontWeight.w700,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    SizedBox(height: 10.h),
+                                    GestureDetector(
+                                      onTap: () {
+                                        setState(() {
+                                          showDetails = !showDetails;
+                                        });
+                                      },
+                                      child: Row(
+                                        children: [
+                                          Text(
+                                            showDetails
+                                                ? 'Close Details'
+                                                : 'View Details',
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(
+                                              color: const Color(0xFF68188B),
+                                              fontSize: 12.sp,
+                                              fontFamily: 'Poppins',
+                                              fontWeight: FontWeight.w600,
+                                              height: 1.17,
+                                              letterSpacing: 0.20,
+                                            ),
+                                          ),
+                                          Icon(
+                                            showDetails
+                                                ? Icons.keyboard_arrow_up_sharp
+                                                : Icons
+                                                    .keyboard_arrow_down_sharp,
+                                            color: const Color(0xFF68188B),
+                                            size: 22.sp,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
                           ),
                         ),
-                      ),
-                      SizedBox(height: 8.h),
-                      // Expandable details container
-                      AnimatedCrossFade(
-                        firstChild: const SizedBox.shrink(),
-                        secondChild: Container(
-                          width: 384.w,
+                        SizedBox(height: 8.h),
+                        // Expandable details container
+                        AnimatedCrossFade(
+                          firstChild: const SizedBox.shrink(),
+                          secondChild: Container(
+                            width: 384.w,
+                            decoration: ShapeDecoration(
+                              color: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10.r),
+                              ),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(15.0),
+                              child: Table(
+                                columnWidths: const {
+                                  0: FlexColumnWidth(1),
+                                  1: FlexColumnWidth(1),
+                                  2: FlexColumnWidth(1),
+                                },
+                                children: buildDetailsTableRows(gridItems),
+                              ),
+                            ),
+                          ),
+                          // secondChild: Container(
+                          //   width: 384.w,
+                          //   decoration: ShapeDecoration(
+                          //     color: Colors.white,
+                          //     shape: RoundedRectangleBorder(
+                          //       borderRadius: BorderRadius.circular(10.r),
+                          //     ),
+                          //   ),
+                          //   child: Padding(
+                          //     padding: const EdgeInsets.all(15.0),
+                          //     child: Row(
+                          //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          //       children: [
+                          //         Column(
+                          //           crossAxisAlignment: CrossAxisAlignment.start,
+                          //           children: [
+                          //             Text(
+                          //               'Area',
+                          //               style: TextStyle(
+                          //                 color: const Color(0xFFA9A5B8),
+                          //                 fontSize: 14.sp,
+                          //                 fontFamily: 'DM Sans',
+                          //                 fontWeight: FontWeight.w500,
+                          //                 height: 1.17,
+                          //               ),
+                          //             ),
+                          //             Text(
+                          //               customerDetailsModel.area.toString(),
+                          //               style: TextStyle(
+                          //                 color: Colors.black,
+                          //                 fontSize: 12.sp,
+                          //                 fontFamily: 'DM Sans',
+                          //                 fontWeight: FontWeight.w500,
+                          //                 height: 1.17,
+                          //               ),
+                          //             ),
+                          //             SizedBox(height: 17.h),
+                          //             Text(
+                          //               'Villa No',
+                          //               style: TextStyle(
+                          //                 color: const Color(0xFFA9A5B8),
+                          //                 fontSize: 14.sp,
+                          //                 fontFamily: 'DM Sans',
+                          //                 fontWeight: FontWeight.w500,
+                          //                 height: 1.17,
+                          //               ),
+                          //             ),
+                          //             Text(
+                          //               customerDetailsModel.villaNumber.toString(),
+                          //               style: TextStyle(
+                          //                 color: Colors.black,
+                          //                 fontSize: 12.sp,
+                          //                 fontFamily: 'DM Sans',
+                          //                 fontWeight: FontWeight.w500,
+                          //                 height: 1.17,
+                          //               ),
+                          //             ),
+                          //             SizedBox(height: 17.h),
+                          //             Text(
+                          //               'Fragrance',
+                          //               style: TextStyle(
+                          //                 color: const Color(0xFFA9A5B8),
+                          //                 fontSize: 14.sp,
+                          //                 fontFamily: 'DM Sans',
+                          //                 fontWeight: FontWeight.w500,
+                          //                 height: 1.17,
+                          //               ),
+                          //             ),
+                          //             Text(
+                          //               customerDetailsModel.fragrance.toString(),
+                          //               style: TextStyle(
+                          //                 color: Colors.black,
+                          //                 fontSize: 12.sp,
+                          //                 fontFamily: 'DM Sans',
+                          //                 fontWeight: FontWeight.w500,
+                          //                 height: 1.17,
+                          //               ),
+                          //             ),
+                          //             SizedBox(height: 17.h),
+                          //             Text(
+                          //               'Remark',
+                          //               style: TextStyle(
+                          //                 color: const Color(0xFFA9A5B8),
+                          //                 fontSize: 14.sp,
+                          //                 fontFamily: 'DM Sans',
+                          //                 fontWeight: FontWeight.w500,
+                          //                 height: 1.17,
+                          //               ),
+                          //             ),
+                          //             Text(
+                          //               widget.remarks,
+                          //               style: TextStyle(
+                          //                 color: Colors.black,
+                          //                 fontSize: 12.sp,
+                          //                 fontFamily: 'DM Sans',
+                          //                 fontWeight: FontWeight.w500,
+                          //                 height: 1.17,
+                          //               ),
+                          //             ),
+                          //           ],
+                          //         ),
+                          //         Column(
+                          //           crossAxisAlignment: CrossAxisAlignment.start,
+                          //           children: [
+                          //             Text(
+                          //               'Zone',
+                          //               style: TextStyle(
+                          //                 color: const Color(0xFFA9A5B8),
+                          //                 fontSize: 14.sp,
+                          //                 fontFamily: 'DM Sans',
+                          //                 fontWeight: FontWeight.w500,
+                          //                 height: 1.17,
+                          //               ),
+                          //             ),
+                          //             Text(
+                          //               customerDetailsModel.zone.toString(),
+                          //               style: TextStyle(
+                          //                 color: Colors.black,
+                          //                 fontSize: 12.sp,
+                          //                 fontFamily: 'DM Sans',
+                          //                 fontWeight: FontWeight.w500,
+                          //                 height: 1.17,
+                          //               ),
+                          //             ),
+                          //             SizedBox(height: 17.h),
+                          //             Text(
+                          //               'Hotel',
+                          //               style: TextStyle(
+                          //                 color: const Color(0xFFA9A5B8),
+                          //                 fontSize: 14.sp,
+                          //                 fontFamily: 'DM Sans',
+                          //                 fontWeight: FontWeight.w500,
+                          //                 height: 1.17,
+                          //               ),
+                          //             ),
+                          //             Text(
+                          //               customerDetailsModel.hotel.toString(),
+                          //               style: TextStyle(
+                          //                 color: Colors.black,
+                          //                 fontSize: 12.sp,
+                          //                 fontFamily: 'DM Sans',
+                          //                 fontWeight: FontWeight.w500,
+                          //                 height: 1.17,
+                          //               ),
+                          //             ),
+                          //             SizedBox(height: 17.h),
+                          //             Text(
+                          //               'Reference No',
+                          //               style: TextStyle(
+                          //                 color: const Color(0xFFA9A5B8),
+                          //                 fontSize: 14.sp,
+                          //                 fontFamily: 'DM Sans',
+                          //                 fontWeight: FontWeight.w500,
+                          //                 height: 1.17,
+                          //               ),
+                          //             ),
+                          //             Text(
+                          //               customerDetailsModel.refNo.toString(),
+                          //               style: TextStyle(
+                          //                 color: Colors.black,
+                          //                 fontSize: 12.sp,
+                          //                 fontFamily: 'DM Sans',
+                          //                 fontWeight: FontWeight.w500,
+                          //                 height: 1.17,
+                          //               ),
+                          //             ),
+                          //             SizedBox(height: 17.h),
+                          //             Text(
+                          //               'Order No',
+                          //               style: TextStyle(
+                          //                 color: const Color(0xFFA9A5B8),
+                          //                 fontSize: 14.sp,
+                          //                 fontFamily: 'DM Sans',
+                          //                 fontWeight: FontWeight.w500,
+                          //                 height: 1.17,
+                          //               ),
+                          //             ),
+                          //             Text(
+                          //               deliveryItems.orderId.toString(),
+                          //               style: TextStyle(
+                          //                 color: Colors.black,
+                          //                 fontSize: 12.sp,
+                          //                 fontFamily: 'DM Sans',
+                          //                 fontWeight: FontWeight.w500,
+                          //                 height: 1.17,
+                          //               ),
+                          //             ),
+                          //           ],
+                          //         ),
+                          //         Column(
+                          //           crossAxisAlignment: CrossAxisAlignment.start,
+                          //           children: [
+                          //             Text(
+                          //               'Street No',
+                          //               style: TextStyle(
+                          //                 color: const Color(0xFFA9A5B8),
+                          //                 fontSize: 14.sp,
+                          //                 fontFamily: 'DM Sans',
+                          //                 fontWeight: FontWeight.w500,
+                          //                 height: 1.17,
+                          //               ),
+                          //             ),
+                          //             Text(
+                          //               customerDetailsModel.streetNo.toString(),
+                          //               style: TextStyle(
+                          //                 color: Colors.black,
+                          //                 fontSize: 12.sp,
+                          //                 fontFamily: 'DM Sans',
+                          //                 fontWeight: FontWeight.w500,
+                          //                 height: 1.17,
+                          //               ),
+                          //             ),
+                          //             SizedBox(height: 17.h),
+                          //             Text(
+                          //               'Room No',
+                          //               style: TextStyle(
+                          //                 color: const Color(0xFFA9A5B8),
+                          //                 fontSize: 14.sp,
+                          //                 fontFamily: 'DM Sans',
+                          //                 fontWeight: FontWeight.w500,
+                          //                 height: 1.17,
+                          //               ),
+                          //             ),
+                          //             Text(
+                          //               customerDetailsModel.roomNo.toString(),
+                          //               style: TextStyle(
+                          //                 color: Colors.black,
+                          //                 fontSize: 12.sp,
+                          //                 fontFamily: 'DM Sans',
+                          //                 fontWeight: FontWeight.w500,
+                          //                 height: 1.17,
+                          //               ),
+                          //             ),
+                          //             SizedBox(height: 17.h),
+                          //             Text(
+                          //               'Note',
+                          //               style: TextStyle(
+                          //                 color: const Color(0xFFA9A5B8),
+                          //                 fontSize: 14.sp,
+                          //                 fontFamily: 'DM Sans',
+                          //                 fontWeight: FontWeight.w500,
+                          //                 height: 1.17,
+                          //               ),
+                          //             ),
+                          //             Text(
+                          //               widget.notes,
+                          //               style: TextStyle(
+                          //                 color: Colors.black,
+                          //                 fontSize: 12.sp,
+                          //                 fontFamily: 'DM Sans',
+                          //                 fontWeight: FontWeight.w500,
+                          //                 height: 1.17,
+                          //               ),
+                          //             ),
+                          //             SizedBox(height: 17.h),
+                          //             Text(
+                          //               'Pickup Id',
+                          //               style: TextStyle(
+                          //                 color: const Color(0xFFA9A5B8),
+                          //                 fontSize: 14.sp,
+                          //                 fontFamily: 'DM Sans',
+                          //                 fontWeight: FontWeight.w500,
+                          //                 height: 1.17,
+                          //               ),
+                          //             ),
+                          //             Text(
+                          //               widget.deliveryAssgnId.toString(),
+                          //               style: TextStyle(
+                          //                 color: Colors.black,
+                          //                 fontSize: 12.sp,
+                          //                 fontFamily: 'DM Sans',
+                          //                 fontWeight: FontWeight.w500,
+                          //                 height: 1.17,
+                          //               ),
+                          //             ),
+                          //           ],
+                          //         ),
+                          //       ],
+                          //     ),
+                          //   ),
+                          // ),
+                          crossFadeState:
+                              showDetails
+                                  ? CrossFadeState.showSecond
+                                  : CrossFadeState.showFirst,
+                          duration: const Duration(milliseconds: 300),
+                        ),
+
+                        SizedBox(height: 21.h),
+                        Row(
+                          children: [
+                            Text(
+                              'Delivery Items',
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 18,
+                                fontFamily: 'DM Sans',
+                                fontWeight: FontWeight.w700,
+                                height: 0.87,
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 17.h),
+                        if (deliveryItems.deliveryassgn != null &&
+                            deliveryItems.deliveryassgn!.isNotEmpty)
+                          Expanded(
+                            child: ListView.builder(
+                              itemCount: deliveryItems.clothData!.length,
+                              itemBuilder: (context, index) {
+                                return Padding(
+                                  padding: const EdgeInsets.only(bottom: 10.0),
+                                  child: Container(
+                                    width: 364.w,
+                                    // height: 64.h,
+                                    decoration: ShapeDecoration(
+                                      color: Colors.white,
+                                      shape: RoundedRectangleBorder(
+                                        // borderRadius: BorderRadius.circular(10.r),
+                                      ),
+                                    ),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(6.0),
+                                      child: Row(
+                                        children: [
+                                          Image.network(
+                                            deliveryItems
+                                                .clothData![index]
+                                                .clothImg
+                                                .toString(),
+                                            width: 46.w,
+                                            height: 44.h,
+                                            fit: BoxFit.cover,
+                                            loadingBuilder: (
+                                              context,
+                                              child,
+                                              loadingProgress,
+                                            ) {
+                                              if (loadingProgress == null)
+                                                return child;
+                                              return const Center(
+                                                child:
+                                                    CircularProgressIndicator(),
+                                              );
+                                            },
+                                            errorBuilder: (
+                                              context,
+                                              error,
+                                              stackTrace,
+                                            ) {
+                                              return const Icon(
+                                                Icons.broken_image,
+                                                color: Colors.grey,
+                                                size: 40,
+                                              );
+                                            },
+                                          ),
+                                          SizedBox(width: 10.w),
+                                          Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              SizedBox(height: 2.h),
+                                              Text(
+                                                deliveryItems
+                                                    .clothData![index]
+                                                    .clothName
+                                                    .toString(),
+                                                style: TextStyle(
+                                                  color: const Color(
+                                                    0xFF150B3D,
+                                                  ),
+                                                  fontSize: 16.sp,
+                                                  fontFamily: 'DM Sans',
+                                                  fontWeight: FontWeight.w700,
+                                                ),
+                                              ),
+                                              Text(
+                                                '${deliveryItems.clothData![index].qnty} QTY',
+                                                style: TextStyle(
+                                                  color: Colors.black,
+                                                  fontSize: 14.sp,
+                                                  fontFamily: 'DM Sans',
+                                                  fontWeight: FontWeight.w700,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          Spacer(),
+                                          Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.end,
+                                            children: [
+                                              SizedBox(height: 2.h),
+                                              Text(
+                                                deliveryItems
+                                                    .clothData![index]
+                                                    .service
+                                                    .toString(),
+                                                style: TextStyle(
+                                                  color: const Color(
+                                                    0xFF150B3D,
+                                                  ),
+                                                  fontSize: 16.sp,
+                                                  fontFamily: 'DM Sans',
+                                                  fontWeight: FontWeight.w700,
+                                                ),
+                                              ),
+                                              Text(
+                                                deliveryItems
+                                                    .clothData![index]
+                                                    .billing
+                                                    .toString(),
+                                                style: TextStyle(
+                                                  color: const Color(
+                                                    0xFF68188B,
+                                                  ),
+                                                  fontSize: 14.sp,
+                                                  fontFamily: 'DM Sans',
+                                                  fontWeight: FontWeight.w700,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        Container(
+                          // width: 380.w,
+                          // height: 76.h,
                           decoration: ShapeDecoration(
                             color: Colors.white,
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10.r),
+                              // borderRadius: BorderRadius.circular(10.r),
                             ),
                           ),
                           child: Padding(
-                            padding: const EdgeInsets.all(15.0),
-                            child: Table(
-                              columnWidths: const {
-                                0: FlexColumnWidth(1),
-                                1: FlexColumnWidth(1),
-                                2: FlexColumnWidth(1),
-                              },
-                              children: buildDetailsTableRows(gridItems),
-                            ),
-                          ),
-                        ),
-                        // secondChild: Container(
-                        //   width: 384.w,
-                        //   decoration: ShapeDecoration(
-                        //     color: Colors.white,
-                        //     shape: RoundedRectangleBorder(
-                        //       borderRadius: BorderRadius.circular(10.r),
-                        //     ),
-                        //   ),
-                        //   child: Padding(
-                        //     padding: const EdgeInsets.all(15.0),
-                        //     child: Row(
-                        //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        //       children: [
-                        //         Column(
-                        //           crossAxisAlignment: CrossAxisAlignment.start,
-                        //           children: [
-                        //             Text(
-                        //               'Area',
-                        //               style: TextStyle(
-                        //                 color: const Color(0xFFA9A5B8),
-                        //                 fontSize: 14.sp,
-                        //                 fontFamily: 'DM Sans',
-                        //                 fontWeight: FontWeight.w500,
-                        //                 height: 1.17,
-                        //               ),
-                        //             ),
-                        //             Text(
-                        //               customerDetailsModel.area.toString(),
-                        //               style: TextStyle(
-                        //                 color: Colors.black,
-                        //                 fontSize: 12.sp,
-                        //                 fontFamily: 'DM Sans',
-                        //                 fontWeight: FontWeight.w500,
-                        //                 height: 1.17,
-                        //               ),
-                        //             ),
-                        //             SizedBox(height: 17.h),
-                        //             Text(
-                        //               'Villa No',
-                        //               style: TextStyle(
-                        //                 color: const Color(0xFFA9A5B8),
-                        //                 fontSize: 14.sp,
-                        //                 fontFamily: 'DM Sans',
-                        //                 fontWeight: FontWeight.w500,
-                        //                 height: 1.17,
-                        //               ),
-                        //             ),
-                        //             Text(
-                        //               customerDetailsModel.villaNumber.toString(),
-                        //               style: TextStyle(
-                        //                 color: Colors.black,
-                        //                 fontSize: 12.sp,
-                        //                 fontFamily: 'DM Sans',
-                        //                 fontWeight: FontWeight.w500,
-                        //                 height: 1.17,
-                        //               ),
-                        //             ),
-                        //             SizedBox(height: 17.h),
-                        //             Text(
-                        //               'Fragrance',
-                        //               style: TextStyle(
-                        //                 color: const Color(0xFFA9A5B8),
-                        //                 fontSize: 14.sp,
-                        //                 fontFamily: 'DM Sans',
-                        //                 fontWeight: FontWeight.w500,
-                        //                 height: 1.17,
-                        //               ),
-                        //             ),
-                        //             Text(
-                        //               customerDetailsModel.fragrance.toString(),
-                        //               style: TextStyle(
-                        //                 color: Colors.black,
-                        //                 fontSize: 12.sp,
-                        //                 fontFamily: 'DM Sans',
-                        //                 fontWeight: FontWeight.w500,
-                        //                 height: 1.17,
-                        //               ),
-                        //             ),
-                        //             SizedBox(height: 17.h),
-                        //             Text(
-                        //               'Remark',
-                        //               style: TextStyle(
-                        //                 color: const Color(0xFFA9A5B8),
-                        //                 fontSize: 14.sp,
-                        //                 fontFamily: 'DM Sans',
-                        //                 fontWeight: FontWeight.w500,
-                        //                 height: 1.17,
-                        //               ),
-                        //             ),
-                        //             Text(
-                        //               widget.remarks,
-                        //               style: TextStyle(
-                        //                 color: Colors.black,
-                        //                 fontSize: 12.sp,
-                        //                 fontFamily: 'DM Sans',
-                        //                 fontWeight: FontWeight.w500,
-                        //                 height: 1.17,
-                        //               ),
-                        //             ),
-                        //           ],
-                        //         ),
-                        //         Column(
-                        //           crossAxisAlignment: CrossAxisAlignment.start,
-                        //           children: [
-                        //             Text(
-                        //               'Zone',
-                        //               style: TextStyle(
-                        //                 color: const Color(0xFFA9A5B8),
-                        //                 fontSize: 14.sp,
-                        //                 fontFamily: 'DM Sans',
-                        //                 fontWeight: FontWeight.w500,
-                        //                 height: 1.17,
-                        //               ),
-                        //             ),
-                        //             Text(
-                        //               customerDetailsModel.zone.toString(),
-                        //               style: TextStyle(
-                        //                 color: Colors.black,
-                        //                 fontSize: 12.sp,
-                        //                 fontFamily: 'DM Sans',
-                        //                 fontWeight: FontWeight.w500,
-                        //                 height: 1.17,
-                        //               ),
-                        //             ),
-                        //             SizedBox(height: 17.h),
-                        //             Text(
-                        //               'Hotel',
-                        //               style: TextStyle(
-                        //                 color: const Color(0xFFA9A5B8),
-                        //                 fontSize: 14.sp,
-                        //                 fontFamily: 'DM Sans',
-                        //                 fontWeight: FontWeight.w500,
-                        //                 height: 1.17,
-                        //               ),
-                        //             ),
-                        //             Text(
-                        //               customerDetailsModel.hotel.toString(),
-                        //               style: TextStyle(
-                        //                 color: Colors.black,
-                        //                 fontSize: 12.sp,
-                        //                 fontFamily: 'DM Sans',
-                        //                 fontWeight: FontWeight.w500,
-                        //                 height: 1.17,
-                        //               ),
-                        //             ),
-                        //             SizedBox(height: 17.h),
-                        //             Text(
-                        //               'Reference No',
-                        //               style: TextStyle(
-                        //                 color: const Color(0xFFA9A5B8),
-                        //                 fontSize: 14.sp,
-                        //                 fontFamily: 'DM Sans',
-                        //                 fontWeight: FontWeight.w500,
-                        //                 height: 1.17,
-                        //               ),
-                        //             ),
-                        //             Text(
-                        //               customerDetailsModel.refNo.toString(),
-                        //               style: TextStyle(
-                        //                 color: Colors.black,
-                        //                 fontSize: 12.sp,
-                        //                 fontFamily: 'DM Sans',
-                        //                 fontWeight: FontWeight.w500,
-                        //                 height: 1.17,
-                        //               ),
-                        //             ),
-                        //             SizedBox(height: 17.h),
-                        //             Text(
-                        //               'Order No',
-                        //               style: TextStyle(
-                        //                 color: const Color(0xFFA9A5B8),
-                        //                 fontSize: 14.sp,
-                        //                 fontFamily: 'DM Sans',
-                        //                 fontWeight: FontWeight.w500,
-                        //                 height: 1.17,
-                        //               ),
-                        //             ),
-                        //             Text(
-                        //               deliveryItems.orderId.toString(),
-                        //               style: TextStyle(
-                        //                 color: Colors.black,
-                        //                 fontSize: 12.sp,
-                        //                 fontFamily: 'DM Sans',
-                        //                 fontWeight: FontWeight.w500,
-                        //                 height: 1.17,
-                        //               ),
-                        //             ),
-                        //           ],
-                        //         ),
-                        //         Column(
-                        //           crossAxisAlignment: CrossAxisAlignment.start,
-                        //           children: [
-                        //             Text(
-                        //               'Street No',
-                        //               style: TextStyle(
-                        //                 color: const Color(0xFFA9A5B8),
-                        //                 fontSize: 14.sp,
-                        //                 fontFamily: 'DM Sans',
-                        //                 fontWeight: FontWeight.w500,
-                        //                 height: 1.17,
-                        //               ),
-                        //             ),
-                        //             Text(
-                        //               customerDetailsModel.streetNo.toString(),
-                        //               style: TextStyle(
-                        //                 color: Colors.black,
-                        //                 fontSize: 12.sp,
-                        //                 fontFamily: 'DM Sans',
-                        //                 fontWeight: FontWeight.w500,
-                        //                 height: 1.17,
-                        //               ),
-                        //             ),
-                        //             SizedBox(height: 17.h),
-                        //             Text(
-                        //               'Room No',
-                        //               style: TextStyle(
-                        //                 color: const Color(0xFFA9A5B8),
-                        //                 fontSize: 14.sp,
-                        //                 fontFamily: 'DM Sans',
-                        //                 fontWeight: FontWeight.w500,
-                        //                 height: 1.17,
-                        //               ),
-                        //             ),
-                        //             Text(
-                        //               customerDetailsModel.roomNo.toString(),
-                        //               style: TextStyle(
-                        //                 color: Colors.black,
-                        //                 fontSize: 12.sp,
-                        //                 fontFamily: 'DM Sans',
-                        //                 fontWeight: FontWeight.w500,
-                        //                 height: 1.17,
-                        //               ),
-                        //             ),
-                        //             SizedBox(height: 17.h),
-                        //             Text(
-                        //               'Note',
-                        //               style: TextStyle(
-                        //                 color: const Color(0xFFA9A5B8),
-                        //                 fontSize: 14.sp,
-                        //                 fontFamily: 'DM Sans',
-                        //                 fontWeight: FontWeight.w500,
-                        //                 height: 1.17,
-                        //               ),
-                        //             ),
-                        //             Text(
-                        //               widget.notes,
-                        //               style: TextStyle(
-                        //                 color: Colors.black,
-                        //                 fontSize: 12.sp,
-                        //                 fontFamily: 'DM Sans',
-                        //                 fontWeight: FontWeight.w500,
-                        //                 height: 1.17,
-                        //               ),
-                        //             ),
-                        //             SizedBox(height: 17.h),
-                        //             Text(
-                        //               'Pickup Id',
-                        //               style: TextStyle(
-                        //                 color: const Color(0xFFA9A5B8),
-                        //                 fontSize: 14.sp,
-                        //                 fontFamily: 'DM Sans',
-                        //                 fontWeight: FontWeight.w500,
-                        //                 height: 1.17,
-                        //               ),
-                        //             ),
-                        //             Text(
-                        //               widget.deliveryAssgnId.toString(),
-                        //               style: TextStyle(
-                        //                 color: Colors.black,
-                        //                 fontSize: 12.sp,
-                        //                 fontFamily: 'DM Sans',
-                        //                 fontWeight: FontWeight.w500,
-                        //                 height: 1.17,
-                        //               ),
-                        //             ),
-                        //           ],
-                        //         ),
-                        //       ],
-                        //     ),
-                        //   ),
-                        // ),
-                        crossFadeState:
-                            showDetails
-                                ? CrossFadeState.showSecond
-                                : CrossFadeState.showFirst,
-                        duration: const Duration(milliseconds: 300),
-                      ),
-
-                      SizedBox(height: 21.h),
-                      Row(
-                        children: [
-                          Text(
-                            'Delivery Items',
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 18,
-                              fontFamily: 'DM Sans',
-                              fontWeight: FontWeight.w700,
-                              height: 0.87,
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 17.h),
-                      if (deliveryItems.deliveryassgn != null &&
-                          deliveryItems.deliveryassgn!.isNotEmpty)
-                        Expanded(
-                          child: ListView.builder(
-                            itemCount: deliveryItems.clothData!.length,
-                            itemBuilder: (context, index) {
-                              return Padding(
-                                padding: const EdgeInsets.only(bottom: 10.0),
-                                child: Container(
-                                  width: 364.w,
-                                  // height: 64.h,
-                                  decoration: ShapeDecoration(
-                                    color: Colors.white,
-                                    shape: RoundedRectangleBorder(
-                                      // borderRadius: BorderRadius.circular(10.r),
-                                    ),
-                                  ),
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(6.0),
-                                    child: Row(
+                            padding: const EdgeInsets.all(12.0),
+                            child: Row(
+                              children: [
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
                                       children: [
-                                        Image.network(
-                                          deliveryItems
-                                              .clothData![index]
-                                              .clothImg
-                                              .toString(),
-                                          width: 46.w,
-                                          height: 44.h,
-                                          fit: BoxFit.cover,
-                                          loadingBuilder: (
-                                            context,
-                                            child,
-                                            loadingProgress,
-                                          ) {
-                                            if (loadingProgress == null)
-                                              return child;
-                                            return const Center(
-                                              child:
-                                                  CircularProgressIndicator(),
-                                            );
-                                          },
-                                          errorBuilder: (
-                                            context,
-                                            error,
-                                            stackTrace,
-                                          ) {
-                                            return const Icon(
-                                              Icons.broken_image,
-                                              color: Colors.grey,
-                                              size: 40,
-                                            );
-                                          },
+                                        Text(
+                                          'Total Quantity :',
+                                          style: TextStyle(
+                                            color: Colors.black,
+                                            fontSize: 17.sp,
+                                            fontFamily: 'DM Sans',
+                                            fontWeight: FontWeight.w700,
+                                            height: 1,
+                                          ),
                                         ),
-                                        SizedBox(width: 10.w),
-                                        Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            SizedBox(height: 2.h),
-                                            Text(
-                                              deliveryItems
-                                                  .clothData![index]
-                                                  .clothName
-                                                  .toString(),
-                                              style: TextStyle(
-                                                color: const Color(0xFF150B3D),
-                                                fontSize: 16.sp,
-                                                fontFamily: 'DM Sans',
-                                                fontWeight: FontWeight.w700,
-                                              ),
-                                            ),
-                                            Text(
-                                              '${deliveryItems.clothData![index].qnty} QTY',
-                                              style: TextStyle(
-                                                color: Colors.black,
-                                                fontSize: 14.sp,
-                                                fontFamily: 'DM Sans',
-                                                fontWeight: FontWeight.w700,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        Spacer(),
-                                        Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.end,
-                                          children: [
-                                            SizedBox(height: 2.h),
-                                            Text(
-                                              deliveryItems
-                                                  .clothData![index]
-                                                  .service
-                                                  .toString(),
-                                              style: TextStyle(
-                                                color: const Color(0xFF150B3D),
-                                                fontSize: 16.sp,
-                                                fontFamily: 'DM Sans',
-                                                fontWeight: FontWeight.w700,
-                                              ),
-                                            ),
-                                            Text(
-                                              deliveryItems
-                                                  .clothData![index]
-                                                  .billing
-                                                  .toString(),
-                                              style: TextStyle(
-                                                color: const Color(0xFF68188B),
-                                                fontSize: 14.sp,
-                                                fontFamily: 'DM Sans',
-                                                fontWeight: FontWeight.w700,
-                                              ),
-                                            ),
-                                          ],
+                                        Text(
+                                          deliveryItems.quantity != null
+                                              ? deliveryItems.quantity
+                                                  .toString()
+                                              : '0',
+                                          style: TextStyle(
+                                            color: const Color(0xFF68188B),
+                                            fontSize: 15.sp,
+                                            fontFamily: 'DM Sans',
+                                            fontWeight: FontWeight.w700,
+                                            height: 1,
+                                            letterSpacing: 1.20,
+                                          ),
                                         ),
                                       ],
                                     ),
-                                  ),
+                                    SizedBox(height: 10.h),
+                                    Row(
+                                      children: [
+                                        Text(
+                                          'Total Amount : ',
+                                          style: TextStyle(
+                                            color: Colors.black,
+                                            fontSize: 17.sp,
+                                            fontFamily: 'DM Sans',
+                                            fontWeight: FontWeight.w700,
+                                            height: 1,
+                                          ),
+                                        ),
+                                        Text(
+                                          (double.tryParse(
+                                                    deliveryItems.totalAmount ??
+                                                        '0',
+                                                  ) ??
+                                                  0.0)
+                                              .toStringAsFixed(2),
+                                          style: TextStyle(
+                                            color: const Color(0xFF68188B),
+                                            fontSize: 15.sp,
+                                            fontFamily: 'DM Sans',
+                                            fontWeight: FontWeight.w700,
+                                            height: 1,
+                                            letterSpacing: 1.20,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
                                 ),
-                              );
-                            },
-                          ),
-                        ),
-                      Container(
-                        // width: 380.w,
-                        // height: 76.h,
-                        decoration: ShapeDecoration(
-                          color: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            // borderRadius: BorderRadius.circular(10.r),
-                          ),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(12.0),
-                          child: Row(
-                            children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    children: [
-                                      Text(
-                                        'Total Quantity :',
-                                        style: TextStyle(
-                                          color: Colors.black,
-                                          fontSize: 17.sp,
-                                          fontFamily: 'DM Sans',
-                                          fontWeight: FontWeight.w700,
-                                          height: 1,
+                                Spacer(),
+                                GestureDetector(
+                                  onTap: () async {
+                                    // Check bill status
+                                    if (deliveryItems.balance == "0.000") {
+                                      // Directly call bloc
+                                      context.read<DeliverystatusBloc>().add(
+                                        FetchDeliveryStatusEvent(
+                                          companyCode: companyCode ?? '',
+                                          token: token ?? '',
+                                          deliveryassgnId:
+                                              deliveryItems.deliveryassgn
+                                                  ?.firstWhere(
+                                                    (item) =>
+                                                        item.trash == false,
+                                                  )
+                                                  .deliveryassgnId ??
+                                              0,
+                                          paymentMode:
+                                              deliveryItems.paymentMode ?? '',
+                                          paymentstatus: 'Paid',
+                                          remark: '',
                                         ),
-                                      ),
-                                      Text(
-                                        deliveryItems.quantity != null
-                                            ? deliveryItems.quantity.toString()
-                                            : '0',
-                                        style: TextStyle(
-                                          color: const Color(0xFF68188B),
-                                          fontSize: 15.sp,
-                                          fontFamily: 'DM Sans',
-                                          fontWeight: FontWeight.w700,
-                                          height: 1,
-                                          letterSpacing: 1.20,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  SizedBox(height: 10.h),
-                                  Row(
-                                    children: [
-                                      Text(
-                                        'Total Amount : ',
-                                        style: TextStyle(
-                                          color: Colors.black,
-                                          fontSize: 17.sp,
-                                          fontFamily: 'DM Sans',
-                                          fontWeight: FontWeight.w700,
-                                          height: 1,
-                                        ),
-                                      ),
-                                      Text(
-                                        (double.tryParse(
-                                                  deliveryItems.totalAmount ??
-                                                      '0',
-                                                ) ??
-                                                0.0)
-                                            .toStringAsFixed(2),
-                                        style: TextStyle(
-                                          color: const Color(0xFF68188B),
-                                          fontSize: 15.sp,
-                                          fontFamily: 'DM Sans',
-                                          fontWeight: FontWeight.w700,
-                                          height: 1,
-                                          letterSpacing: 1.20,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                              Spacer(),
-                              GestureDetector(
-                                onTap: () async {
-                                  // Check bill status
-                                  if (deliveryItems.balance == "0.000") {
-                                    // Directly call bloc
-                                    context.read<DeliverystatusBloc>().add(
-                                      FetchDeliveryStatusEvent(
-                                        companyCode: companyCode ?? '',
-                                        token: token ?? '',
-                                        deliveryassgnId: deliveryItems.deliveryassgn
-                                                          ?.firstWhere(
-                                                            (item) => item.trash == false,
-                                                          )
-                                                          .deliveryassgnId ??
-                                                      0,
-                                        paymentMode:
-                                            deliveryItems.paymentMode ?? '',
-                                        paymentstatus: 'Paid',
-                                        remark: '',
-                                      ),
-                                    );
-                                  } else {
-                                    final payModes = {
-                                      "PaymodeCash": settingsData.paymodeCash,
-                                      "PaymodeBank": settingsData.paymodeBank,
-                                      "PaymodeCard": settingsData.paymodeCard,
-                                      "PaymodeWallet":
-                                          settingsData.paymodeWallet,
-                                    };
-                                    final result = await DeliveryDialog.show(
-                                      context,
-                                      payModes: payModes,
-                                      deliveryassgnId: deliveryItems.deliveryassgn
-                                                      ?.firstWhere(
-                                                        (item) => item.trash == false,
-                                                      )
-                                                      .deliveryassgnId ??
-                                                  0,
-                                    );
+                                      );
+                                    } else {
+                                      final payModes = {
+                                        "PaymodeCash": settingsData.paymodeCash,
+                                        "PaymodeBank": settingsData.paymodeBank,
+                                        "PaymodeCard": settingsData.paymodeCard,
+                                        "PaymodeWallet":
+                                            settingsData.paymodeWallet,
+                                      };
+                                      final result = await DeliveryDialog.show(
+                                        context,
+                                        payModes: payModes,
+                                        deliveryassgnId:
+                                            deliveryItems.deliveryassgn
+                                                ?.firstWhere(
+                                                  (item) => item.trash == false,
+                                                )
+                                                .deliveryassgnId ??
+                                            0,
+                                      );
 
-                                    //  If dialog returns success, pop back to list and trigger reload
-                                    if (result == true) {
-                                      Navigator.pop(context, true);
+                                      //  If dialog returns success, pop back to list and trigger reload
+                                      if (result == true) {
+                                        Navigator.pop(context, true);
+                                      }
                                     }
-                                  }
-                                },
-                                child: Container(
-                                  width: 125.w,
-                                  height: 40.h,
-                                  decoration: ShapeDecoration(
-                                    color: const Color(0xFF68188B),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(3),
+                                  },
+                                  child: Container(
+                                    width: 125.w,
+                                    height: 40.h,
+                                    decoration: ShapeDecoration(
+                                      color: const Color(0xFF68188B),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(3),
+                                      ),
                                     ),
-                                  ),
-                                  child: Center(
-                                    child: Text(
-                                      'Delivery now',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 15.sp,
-                                        fontFamily: 'DM Sans',
-                                        fontWeight: FontWeight.w700,
+                                    child: Center(
+                                      child: Text(
+                                        'Delivery now',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 15.sp,
+                                          fontFamily: 'DM Sans',
+                                          fontWeight: FontWeight.w700,
+                                        ),
                                       ),
                                     ),
                                   ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
-                      ),
-                    ],
-                  );
-                } else {
-                  return SizedBox();
-                }
-              },
+                      ],
+                    );
+                  } else {
+                    return SizedBox();
+                  }
+                },
+              ),
             ),
           ),
         ),

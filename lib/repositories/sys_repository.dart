@@ -26,6 +26,7 @@ import 'package:syswash/model/outstandingModel.dart';
 import 'package:syswash/model/pickupListModel.dart';
 import 'package:syswash/model/pickupOrderItemsModel.dart';
 import 'package:syswash/model/pickup_list_response.dart';
+import 'package:syswash/model/pickuphistorydetailModel.dart';
 import 'package:syswash/model/profileModel.dart';
 import 'package:syswash/model/salesReport.dart';
 import 'package:syswash/model/salesgraph.dart';
@@ -41,6 +42,15 @@ import 'package:http/http.dart';
 import 'package:syswash/model/loginModel.dart';
 import 'package:syswash/repositories/api_client.dart';
 
+class AlreadyLoggedInException implements Exception {
+  final String message;
+
+  AlreadyLoggedInException(this.message);
+
+  @override
+  String toString() => message;
+} 
+
 class SysRepository {
   ApiClient apiClient = ApiClient();
   var body = {};
@@ -48,19 +58,67 @@ class SysRepository {
     String email,
     String password,
     String companyCode,
+    bool force
   ) async {
     String url = "https://be.syswash.net/api/syswash/login?code=${companyCode}";
-    var body = {"email": email, "password": password};
+    var body = {
+      "email": email, 
+      "password": password,
+      "force" : force};
     Response response = await apiClient.invokeAPI(
       url,
       "POST",
       jsonEncode(body),
     );
     final decoded = jsonDecode(response.body);
-    if (decoded is Map && decoded.containsKey('status')) {
-      throw Exception(decoded['Message']);
+    if (response.statusCode == 401) {
+      throw Exception(decoded["error"] ?? "Incorrect login credentials");
+    }
+    if (decoded["already_logged_in"] == true) {
+      throw AlreadyLoggedInException(
+        decoded["message"] ?? "Already logged in",
+      );
+    }
+    if (decoded.containsKey("status") && decoded["status"] == 404) {
+      throw Exception(decoded["Message"] ?? "User does not exist");
     }
     return LoginModel.fromJson(jsonDecode(response.body));
+  }
+
+  Future<String> logout(
+    String id,
+    String companyCode,
+    String token
+  ) async {
+    String url = "https://be.syswash.net/api/syswash/Driverlogout/$id?code=$companyCode";
+    var body = {};
+    Response response = await apiClient.invokeAPI(
+      url,
+      "PUT",
+      jsonEncode(body),
+    );
+
+    final Map<String, dynamic> data = jsonDecode(response.body);
+
+    return data['detail'];
+  }
+
+  Future<String> logoutadmin(
+    String id,
+    String companyCode,
+    String token
+  ) async {
+    String url = "https://be.syswash.net/api/syswash/userlogout/$id?code=$companyCode";
+    var body = {};
+    Response response = await apiClient.invokeAPI(
+      url,
+      "PUT",
+      jsonEncode(body),
+    );
+
+    final Map<String, dynamic> data = jsonDecode(response.body);
+
+    return data['detail'];
   }
 
   // API FOR DRIVERS
@@ -269,6 +327,23 @@ class SysRepository {
       token: token,
     );
     return PickupOrderItemsModel.fromJson(jsonDecode(response.body));
+  }
+
+  Future<List<PickupOrderItemsModel>> qrpickuporderitem(
+    String pickupOrderId,
+    String token,
+    String companyCode,
+  ) async {
+    String url =
+        "https://be.syswash.net/api/syswash/order/${pickupOrderId}?code=${companyCode}";
+    Response response = await apiClient.invokeAPI(
+      url,
+      "GET",
+      jsonEncode({}),
+      token: token,
+    );
+    final List data = jsonDecode(response.body);
+    return data.map((e) => PickupOrderItemsModel.fromJson(e)).toList();
   }
 
   Future<SettingsModel> settingsData(String companyCode, String token) async {
@@ -1153,5 +1228,132 @@ class SysRepository {
       token: token,
     );
     return AdminBranch.fromJson(jsonDecode(response.body));
+  }
+
+  Future<PickupHistoryDetailModel> pickuphistorydetail(
+    String pickupOrderId,
+    String token,
+    String companyCode,
+  ) async {
+    String url =
+        "https://be.syswash.net/api/syswash/pickuporder/$pickupOrderId?code=$companyCode";
+    Response response = await apiClient.invokeAPI(
+      url,
+      "GET",
+      jsonEncode({}),
+      token: token,
+    );
+    return PickupHistoryDetailModel.fromJson(jsonDecode(response.body));
+  }
+
+  Future<bool> qrdelivery(
+    String companyCode,
+    String token,
+    String deliveryCustomerArea,
+    String deliveryCustomerCode,
+    String deliveryCustomerId,
+    String deliveryCustomerName,
+    String deliveryCustomerPhno,
+    String deliveryDate,
+    String deliveryDriverid,
+    String deliveryDrivername,
+    String deliveryInvoiceNo,
+    String deliveryTime
+  ) async {
+    String url =
+        "https://be.syswash.net/api/syswash/delivery?code=TRAIL";
+    body = {
+      "deliveryCustomerArea": deliveryCustomerArea,
+      "deliveryCustomerCode": deliveryCustomerCode,
+      "deliveryCustomerId": deliveryCustomerId,
+      "deliveryCustomerName": deliveryCustomerName,
+      "deliveryCustomerPhno": deliveryCustomerPhno,
+      "deliveryDate": deliveryDate,
+      "deliveryDriverid": int.tryParse(deliveryDriverid) ?? 0,
+      "deliveryDrivername": deliveryDrivername,
+      "deliveryInvoiceNo_id": int.tryParse(deliveryInvoiceNo) ?? 0,
+      "deliveryTime": deliveryTime,
+      "orderStatus": "Received"
+    };
+    Response response = await apiClient.invokeAPI(
+      url,
+      "POST",
+      jsonEncode(body),
+      token: token,
+    );
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  Future<bool> qrorder(
+    String companyCode,
+    String token,
+    String driverId,
+    String driverName,
+    String userType,
+    String orderId
+  ) async {
+    String url =
+        "https://be.syswash.net/api/syswash/order/$orderId?code=TRAIL";
+    body = {
+      "driverId" : int.tryParse(driverId) ?? 0,
+      "driverName" : driverName,
+      "userName" :  userType,
+      "status": "OutFordelivery"
+    };
+    Response response = await apiClient.invokeAPI(
+      url,
+      "PUT",
+      jsonEncode(body),
+      token: token,
+    );
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+  Future<String> pickupreshedule(
+    String id,
+    String token,
+    String companyCode,
+  ) async {
+   
+    String url = "https://be.syswash.net/api/syswash/pickup/$id?code=$companyCode";
+    body = {};
+    Response response = await apiClient.invokeAPI(
+      url,
+      "DELETE",
+      jsonEncode(body),
+      token: token,
+    );
+    if (response.statusCode == 200) {
+      return 'Reshedule Successfully';
+    } else {
+      return '';
+    }
+  }
+  Future<String> deliveryreshedule(
+    String id,
+    String token,
+    String companyCode,
+  ) async {
+   
+    String url = "https://be.syswash.net/api/syswash/delivery/$id?code=$companyCode";
+    body = {};
+    Response response = await apiClient.invokeAPI(
+      url,
+      "DELETE",
+      jsonEncode(body),
+      token: token,
+    );
+    if (response.statusCode == 200) {
+      return 'Reshedule Successfully';
+    } else {
+      return '';
+    }
   }
 }

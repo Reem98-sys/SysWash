@@ -882,7 +882,7 @@ class _HistoryviewdetailsState extends State<Historyviewdetails> {
 
                 return LayoutBuilder(
   builder: (context, constraints) {
-    final isSmallScreen = constraints.maxWidth < 360;
+    final isSmallScreen = constraints.maxWidth < 450;
     final itemWidth = isSmallScreen
         ? constraints.maxWidth
         : (constraints.maxWidth - 16) / 2;
@@ -948,7 +948,7 @@ class _HistoryviewdetailsState extends State<Historyviewdetails> {
                       ),
                     ),
 
-                    SizedBox(width: 5.w,),
+                    // SizedBox(width: 2.w,),
                     SizedBox(
                       width: itemWidth,
                       child: Column(
@@ -958,20 +958,23 @@ class _HistoryviewdetailsState extends State<Historyviewdetails> {
                           Row(
                             children: [
                               Text(
-                                'Status : ',
+                                'Payment Status : ',
                                 style: TextStyle(
                                   color: Colors.black,
                                   fontSize: 15.sp,
                                   fontWeight: FontWeight.w700,
                                 ),
                               ),
-                              SizedBox(height: 10.h),
-                              Text(
-                                widget.status,
-                                style: TextStyle(
-                                  color: widget.statusColor,
-                                  fontSize: 16.sp,
-                                  fontWeight: FontWeight.w700,
+                              
+                              Expanded(
+                                child: Text(
+                                  widget.status,
+                                  maxLines: 1,
+                                  style: TextStyle(
+                                    color: widget.statusColor,
+                                    fontSize: 16.sp,
+                                    fontWeight: FontWeight.w700,
+                                  ),
                                 ),
                               ),
                             ],
@@ -990,14 +993,17 @@ class _HistoryviewdetailsState extends State<Historyviewdetails> {
                                     fontWeight: FontWeight.w700,
                                   ),
                                 ),
-                                SizedBox(height: 10.h),
-                                Text(
-                                  deliveryItems.deliveryassgn![0].paymentMode
-                                      .toString(),
-                                  style: TextStyle(
-                                    color: widget.statusColor,
-                                    fontSize: 16.sp,
-                                    fontWeight: FontWeight.w700,
+                                
+                                Expanded(
+                                  child: Text(
+                                    deliveryItems.deliveryassgn![0].paymentMode
+                                        .toString(),
+                                        maxLines: 1,
+                                    style: TextStyle(
+                                      color: widget.statusColor,
+                                      fontSize: 16.sp,
+                                      fontWeight: FontWeight.w700,
+                                    ),
                                   ),
                                 ),
                               ],
