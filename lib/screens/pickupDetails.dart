@@ -272,7 +272,7 @@ class _PickupdetailsState extends State<Pickupdetails> {
         ),
         actions: [
           SizedBox(
-            width: 130.w,
+            // width: 130.w,
             child: OutlinedButton.icon(
               onPressed: () {
                 _showRescheduleDialog();
@@ -1204,7 +1204,12 @@ class _PickupdetailsState extends State<Pickupdetails> {
                                         ),
                                       ),
                                       Text(
-                                        totalAmount.toStringAsFixed(2),
+                                        (totalAmount -
+                                            (double.tryParse(
+                                                  state.pickupOrderItemsModel.discount?.toString() ?? '0',
+                                                ) ??
+                                                0.0))
+                                        .toStringAsFixed(2),
                                         style: TextStyle(
                                           color: const Color(0xFF68188B),
                                           fontSize: 15.sp,

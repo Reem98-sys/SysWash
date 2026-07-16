@@ -152,7 +152,7 @@ class _DeliverydetailState extends State<Deliverydetail> {
         ),
         actions: [
           SizedBox(
-            width: 130.w,
+            // width: 130.w,
             child: OutlinedButton.icon(
               onPressed: () {
                 _showRescheduleDialog();
