@@ -222,9 +222,9 @@ class _HomeState extends State<Home> {
                       SizedBox(height: 10.h),
                       CarouselSlider(
                         items: [
-                          Image.asset('assets/sys.png'),
-                          Image.asset('assets/sys.png'),
-                          Image.asset('assets/sys.png'),
+                          Image.asset('assets/sysad1.png'),
+                          Image.asset('assets/sysad2.png'),
+                          Image.asset('assets/sysad3.png'),
                         ],
                         options: CarouselOptions(
                           height: 180.h,

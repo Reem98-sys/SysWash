@@ -55,6 +55,8 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   print("📨 Background message: ${message.notification?.title}");
 }
 
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   try {
@@ -209,6 +211,7 @@ class _MyAppState extends State<MyApp> {
     return ScreenUtilInit(
       designSize: Size(430, 932),
       child: MaterialApp(
+        navigatorKey: navigatorKey,
         debugShowCheckedModeBanner: false,
         title: 'SysWash',
         

@@ -399,51 +399,105 @@ Future<Map<String, dynamic>?> showAddItemDialog(
                         ),
                         Spacer(),
                         Container(
-                          width: 140.w,
-                          // height: 70.h,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Quantity',
-                                style: TextStyle(
-                                  color: const Color(0xFF150B3D),
-                                  fontSize: 12.sp,
-                                  fontFamily: 'DM Sans',
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                              SizedBox(height: 10.h),
-                              Container(
-                                width: 140.w,
-                                // height: 40.h,
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(8.r),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(0.06),
-                                      blurRadius: 10,
-                                      offset: const Offset(0, 4),
-                                    ),
-                                  ],
-                                ),
-                                child: TextFormField(
-                                  controller: quantityController,
-                                  keyboardType: TextInputType.number,
-                                  maxLength: 4,
-                                  decoration: const InputDecoration(
-                                    counterText: '', // hides the "0/4" counter
-                                    border: InputBorder.none,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
+      width: 140.w,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Quantity',
+            style: TextStyle(
+              color: const Color(0xFF150B3D),
+              fontSize: 12.sp,
+              fontFamily: 'DM Sans',
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          SizedBox(height: 10.h),
+          Container(
+            width: 140.w,
+            height: 48.h, // Explicit height helps align horizontal contents neatly
+            padding: EdgeInsets.symmetric(horizontal: 8.w),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(8.r),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.06),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                // Decrease Button
+                GestureDetector(
+                  onTap: () {
+                    int currentVal = int.tryParse(quantityController.text) ?? 1;
+                    if (currentVal > 1) { // Prevents going below 1
+                      setState(() {
+                        quantityController.text = (currentVal - 1).toString();
+                      });
+                    }
+                  },
+                  child: Padding(
+                    padding: EdgeInsets.all(4.w),
+                    child: Icon(
+                      Icons.remove,
+                      size: 18.sp,
+                      color: const Color(0xFF150B3D),
+                    ),
+                  ),
+                ),
+
+                // Display Current Quantity
+                SizedBox(
+                  width: 50.w,
+                  child: TextField(
+                    controller: quantityController,
+                    textAlign: TextAlign.center,
+                    keyboardType: TextInputType.number,
+                    maxLength: 4,
+                    style: TextStyle(
+                      color: const Color(0xFF150B3D),
+                      fontSize: 14.sp,
+                      fontFamily: 'DM Sans',
+                      fontWeight: FontWeight.w600,
+                    ),
+                    decoration: const InputDecoration(
+                      counterText: '',
+                      border: InputBorder.none,
+                      isDense: true,
+                      contentPadding: EdgeInsets.zero,
+                    ),
+                  ),
+                ),
+
+                // Increase Button
+                GestureDetector(
+                  onTap: () {
+                    int currentVal = int.tryParse(quantityController.text) ?? 0;
+                    if (currentVal < 9999) { // Keeps under 4 digits
+                      setState(() {
+                        quantityController.text = (currentVal + 1).toString();
+                      });
+                    }
+                  },
+                  child: Padding(
+                    padding: EdgeInsets.all(4.w),
+                    child: Icon(
+                      Icons.add,
+                      size: 18.sp,
+                      color: const Color(0xFF150B3D),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ))
                       ],
                     ),
                     SizedBox(height: 30.h),

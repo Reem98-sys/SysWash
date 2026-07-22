@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart' show BlocBuilder, ReadContext;
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -30,6 +32,19 @@ class _AdminclosingreportState extends State<Adminclosingreport> {
   void initState() {
     super.initState();
     _loadAndFetchData();
+  }
+
+  List<TableRow> buildRow(String title, num? value) {
+    if (value == null || value == 0) return [];
+
+    return [
+      TableRow(
+        children: [
+          _tableText(title),
+          _tableValue(value.toStringAsFixed(2)),
+        ],
+      ),
+    ];
   }
 
   String _apiDateFromUI(String uiDate) {
@@ -245,156 +260,30 @@ class _AdminclosingreportState extends State<Adminclosingreport> {
                                       width: 1,
                                     ),
                                     children: [
-                                      TableRow(
-                                        children: [
-                                          _tableText('Total Sale'),
-                                          _tableValue(
-                                            adminClosingReport.totalGrossSale
-                                                .toString(),
-                                          ),
-                                        ],
-                                      ),
-                                      TableRow(
-                                        children: [
-                                          _tableText('Total Cash Sale'),
-                                          _tableValue(
-                                            adminClosingReport.totalCashSale
-                                                .toString(),
-                                          ),
-                                        ],
-                                      ),
-                                      TableRow(
-                                        children: [
-                                          _tableText('Total Bank Sale'),
-                                          _tableValue(
-                                            adminClosingReport.totalBankSale
-                                                .toString(),
-                                          ),
-                                        ],
-                                      ),
-                                      TableRow(
-                                        children: [
-                                          _tableText('Total Card Sale'),
-                                          _tableValue(
-                                            adminClosingReport.totalCardSale
-                                                .toString(),
-                                          ),
-                                        ],
-                                      ),
-                                      TableRow(
-                                        children: [
-                                          _tableText('Wallet In Amount'),
-                                          _tableValue(
-                                            adminClosingReport.walletaddamount
-                                                .toString(),
-                                          ),
-                                        ],
-                                      ),
-                                      TableRow(
-                                        children: [
-                                          _tableText('Wallet Balance'),
-                                          _tableValue(
-                                            adminClosingReport.walletBalance
-                                                .toString(),
-                                          ),
-                                        ],
-                                      ),
-                                      TableRow(
-                                        children: [
-                                          _tableText('Total Discount'),
-                                          _tableValue(
-                                            adminClosingReport.totalDiscount
-                                                .toString(),
-                                          ),
-                                        ],
-                                      ),
-                                      TableRow(
-                                        children: [
-                                          _tableText('Total Commission'),
-                                          _tableValue(
-                                            adminClosingReport.totalCommission
-                                                .toString(),
-                                          ),
-                                        ],
-                                      ),
-                                      TableRow(
-                                        children: [
-                                          _tableText('Other Expenses'),
-                                          _tableValue(
-                                            (adminClosingReport.totalExpense! -
+                                      ...buildRow('Total Sale', adminClosingReport.totalGrossSale),
+                                      ...buildRow('Total Cash Sale', adminClosingReport.totalCashSale),
+                                      ...buildRow('Total Bank Sale', adminClosingReport.totalBankSale),
+                                      ...buildRow('Total Card Sale', adminClosingReport.totalCardSale),
+                                      ...buildRow('Wallet In Amount', adminClosingReport.walletaddamount),
+                                      ...buildRow('Wallet Balance', adminClosingReport.walletBalance),
+                                      ...buildRow('Total Discount', adminClosingReport.totalDiscount),
+                                      ...buildRow('Total Commission', adminClosingReport.totalCommission),
+                                      ...buildRow('Other Expenses', max((adminClosingReport.totalExpense! -
                                                     adminClosingReport
-                                                        .totalCommission!)
-                                                .toString(),
-                                          ),
-                                        ],
-                                      ),
-                                      TableRow(
-                                        children: [
-                                          _tableText('Cash In'),
-                                          _tableValue(
-                                            adminClosingReport.cashIn
-                                                .toString(),
-                                          ),
-                                        ],
-                                      ),
-                                      TableRow(
-                                        children: [
-                                          _tableText('Cash Out'),
-                                          _tableValue(
-                                            adminClosingReport.cashOut
-                                                .toString(),
-                                          ),
-                                        ],
-                                      ),
-                                      TableRow(
-                                        children: [
-                                          _tableText('Cash in Hand'),
-                                          _tableValue(
-                                            (adminClosingReport.totalCashSale! -
+                                                        .totalCommission!),0.00)),
+                                      ...buildRow('Cash In', adminClosingReport.cashIn),
+                                      ...buildRow('Cash Out', adminClosingReport.cashOut),
+                                      ...buildRow('Cash in Hand', (adminClosingReport.totalCashSale! -
                                                     adminClosingReport
                                                         .cashexpense! +
                                                     adminClosingReport
-                                                        .walletBalance!)
-                                                .toString(),
-                                          ),
-                                        ],
-                                      ),
-                                      TableRow(
-                                        children: [
-                                          _tableText('Bank Balance'),
-                                          _tableValue(
-                                            adminClosingReport.bankbalance
-                                                .toString(),
-                                          ),
-                                        ],
-                                      ),
-                                      TableRow(
-                                        children: [
-                                          _tableText('Card Balance'),
-                                          _tableValue(
-                                            adminClosingReport.cardbalance
-                                                .toString(),
-                                          ),
-                                        ],
-                                      ),
-                                      TableRow(
-                                        children: [
-                                          _tableText('Outstanding Amount'),
-                                          _tableValue(
-                                            adminClosingReport.outstandingamount
-                                                .toString(),
-                                          ),
-                                        ],
-                                      ),
-                                      TableRow(
-                                        children: [
-                                          _tableText('Pending Amount'),
-                                          _tableValue(
-                                            adminClosingReport.debtamount
-                                                .toString(),
-                                          ),
-                                        ],
-                                      ),
+                                                        .walletBalance!)),
+
+                                      ...buildRow('Bank Balance', adminClosingReport.bankbalance),
+                                      ...buildRow('Card Balance', adminClosingReport.cardbalance),
+                                      ...buildRow('Outstanding Amount', adminClosingReport.outstandingamount),
+                                      ...buildRow('Pending Amount', adminClosingReport.debtamount),
+                                      
                                     ],
                                   ),
                                 ),

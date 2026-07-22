@@ -96,9 +96,19 @@ class SettingsModel {
     bool? companyName;
     bool? outFordelivery;
     bool? customerCode;
+    bool? addRemarks;
+    bool? paymodeonline;
+    String? onlinemodetype;
+    bool? totalwithvat;
+    bool? customprintnote;
+    bool? expenseedit;
+    bool? expensedelete;
+    bool? whatsappsend;
+    bool? subContract;
+    bool? walletinclsrpt;
     bool? trash;
 
-    SettingsModel({this.settingsId, this.labelType, this.logoInvoice, this.accountType, this.deliveryType, this.outletCopy, this.deliveryCopy, this.editingEmail, this.autoStatus, this.orderType, this.deliveryDate, this.orderDate, this.customerAddress, this.deliverySet, this.billDueCustomer, this.billDueOutlet, this.billDueDelivery, this.tendReceipt, this.tendCustomer, this.tendOutlet, this.tendDelivery, this.biginOutlet, this.biginDelivery, this.fontSizeOutlet, this.cusCodeEntry, this.qrcode, this.barcode, this.outletprice, this.outletContctNo, this.starchCustomer, this.starchOutlet, this.starchDelivery, this.nashaCustomer, this.nashaOutlet, this.nashaDelivery, this.foldCustomer, this.foldOutlet, this.foldDelivery, this.processing, this.orderReady, this.delivered, this.pressing, this.washing, this.customerOldBill, this.vat, this.vatAmount, this.voidMode, this.oldBalance, this.totalAmountPay, this.itemWisedReport, this.serviceWisedReport, this.orderWisePrinting, this.customerEdit, this.customerDelete, this.dailyClosingreport, this.customerTotalduemail, this.orderEdit, this.orderDelete, this.billNoteCustomer, this.billNoteOutlet, this.billNoteDelivery, this.smsnotify, this.cusfragrance, this.whatsappshare, this.outstandingAmount, this.readyfordeliveryPrint, this.pendingAmount, this.customerCopy, this.referenceNo, this.confirmPasswordpopup, this.userLimit, this.employeLimit, this.driverLimit, this.serviceLimit, this.acTypeLimit, this.clothLimit, this.custombillDeclaration, this.cuscodeSearch, this.accessToken, this.instanceId, this.messagetype, this.message, this.messageOnpayment, this.messageOndelivery, this.messageOnorder, this.paymodeCash, this.paymodeBank, this.paymodeCard, this.paymodeWallet, this.paymodeVoid, this.addopeningbalance, this.commission, this.paymentDelete, this.companyName, this.outFordelivery, this.customerCode, this.trash});
+    SettingsModel({this.settingsId, this.labelType, this.logoInvoice, this.accountType, this.deliveryType, this.outletCopy, this.deliveryCopy, this.editingEmail, this.autoStatus, this.orderType, this.deliveryDate, this.orderDate, this.customerAddress, this.deliverySet, this.billDueCustomer, this.billDueOutlet, this.billDueDelivery, this.tendReceipt, this.tendCustomer, this.tendOutlet, this.tendDelivery, this.biginOutlet, this.biginDelivery, this.fontSizeOutlet, this.cusCodeEntry, this.qrcode, this.barcode, this.outletprice, this.outletContctNo, this.starchCustomer, this.starchOutlet, this.starchDelivery, this.nashaCustomer, this.nashaOutlet, this.nashaDelivery, this.foldCustomer, this.foldOutlet, this.foldDelivery, this.processing, this.orderReady, this.delivered, this.pressing, this.washing, this.customerOldBill, this.vat, this.vatAmount, this.voidMode, this.oldBalance, this.totalAmountPay, this.itemWisedReport, this.serviceWisedReport, this.orderWisePrinting, this.customerEdit, this.customerDelete, this.dailyClosingreport, this.customerTotalduemail, this.orderEdit, this.orderDelete, this.billNoteCustomer, this.billNoteOutlet, this.billNoteDelivery, this.smsnotify, this.cusfragrance, this.whatsappshare, this.outstandingAmount, this.readyfordeliveryPrint, this.pendingAmount, this.customerCopy, this.referenceNo, this.confirmPasswordpopup, this.userLimit, this.employeLimit, this.driverLimit, this.serviceLimit, this.acTypeLimit, this.clothLimit, this.custombillDeclaration, this.cuscodeSearch, this.accessToken, this.instanceId, this.messagetype, this.message, this.messageOnpayment, this.messageOndelivery, this.messageOnorder, this.paymodeCash, this.paymodeBank, this.paymodeCard, this.paymodeWallet, this.paymodeVoid, this.addopeningbalance, this.commission, this.paymentDelete, this.companyName, this.outFordelivery, this.customerCode, this.addRemarks, this.paymodeonline, this.onlinemodetype, this.totalwithvat, this.customprintnote, this.expenseedit, this.expensedelete, this.whatsappsend, this.subContract, this.walletinclsrpt, this.trash});
 
     SettingsModel.fromJson(Map<String, dynamic> json) {
         if(json["settingsId"] is num) {
@@ -389,6 +399,36 @@ class SettingsModel {
         if(json["customerCode"] is bool) {
             customerCode = json["customerCode"];
         }
+        if(json["AddRemarks"] is bool) {
+            addRemarks = json["AddRemarks"];
+        }
+        if(json["Paymodeonline"] is bool) {
+            paymodeonline = json["Paymodeonline"];
+        }
+        if(json["onlinemodetype"] is String) {
+            onlinemodetype = json["onlinemodetype"];
+        }
+        if(json["totalwithvat"] is bool) {
+            totalwithvat = json["totalwithvat"];
+        }
+        if(json["customprintnote"] is bool) {
+            customprintnote = json["customprintnote"];
+        }
+        if(json["expenseedit"] is bool) {
+            expenseedit = json["expenseedit"];
+        }
+        if(json["expensedelete"] is bool) {
+            expensedelete = json["expensedelete"];
+        }
+        if(json["whatsappsend"] is bool) {
+            whatsappsend = json["whatsappsend"];
+        }
+        if(json["SubContract"] is bool) {
+            subContract = json["SubContract"];
+        }
+        if(json["walletinclsrpt"] is bool) {
+            walletinclsrpt = json["walletinclsrpt"];
+        }
         if(json["trash"] is bool) {
             trash = json["trash"];
         }
@@ -496,6 +536,16 @@ class SettingsModel {
         _data["companyName"] = companyName;
         _data["outFordelivery"] = outFordelivery;
         _data["customerCode"] = customerCode;
+        _data["AddRemarks"] = addRemarks;
+        _data["Paymodeonline"] = paymodeonline;
+        _data["onlinemodetype"] = onlinemodetype;
+        _data["totalwithvat"] = totalwithvat;
+        _data["customprintnote"] = customprintnote;
+        _data["expenseedit"] = expenseedit;
+        _data["expensedelete"] = expensedelete;
+        _data["whatsappsend"] = whatsappsend;
+        _data["SubContract"] = subContract;
+        _data["walletinclsrpt"] = walletinclsrpt;
         _data["trash"] = trash;
         return _data;
     }
@@ -597,6 +647,16 @@ class SettingsModel {
         bool? companyName,
         bool? outFordelivery,
         bool? customerCode,
+        bool? addRemarks,
+        bool? paymodeonline,
+        String? onlinemodetype,
+        bool? totalwithvat,
+        bool? customprintnote,
+        bool? expenseedit,
+        bool? expensedelete,
+        bool? whatsappsend,
+        bool? subContract,
+        bool? walletinclsrpt,
         bool? trash,
     }) => SettingsModel(
         settingsId: settingsId ?? this.settingsId,
@@ -695,6 +755,16 @@ class SettingsModel {
         companyName: companyName ?? this.companyName,
         outFordelivery: outFordelivery ?? this.outFordelivery,
         customerCode: customerCode ?? this.customerCode,
+        addRemarks: addRemarks ?? this.addRemarks,
+        paymodeonline: paymodeonline ?? this.paymodeonline,
+        onlinemodetype: onlinemodetype ?? this.onlinemodetype,
+        totalwithvat: totalwithvat ?? this.totalwithvat,
+        customprintnote: customprintnote ?? this.customprintnote,
+        expenseedit: expenseedit ?? this.expenseedit,
+        expensedelete: expensedelete ?? this.expensedelete,
+        whatsappsend: whatsappsend ?? this.whatsappsend,
+        subContract: subContract ?? this.subContract,
+        walletinclsrpt: walletinclsrpt ?? this.walletinclsrpt,
         trash: trash ?? this.trash,
     );
 }

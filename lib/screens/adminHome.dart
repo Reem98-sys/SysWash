@@ -191,7 +191,7 @@ class _AdminhomeState extends State<Adminhome> {
               branchList = [
                 branch_model.Data(
                   branchCode: null,
-                  branchName: 'All Branch',
+                  branchName: 'Default Branch',
                 ),
                 ...(state.adminBranch.data ?? []),
               ];

@@ -125,13 +125,16 @@ class _PickupdetailsState extends State<Pickupdetails> {
   ) async {
     final companyCode = await storage.read(key: 'company_Code');
     final token = await storage.read(key: 'access_Token');
+    final now = TimeOfDay.now();
+    final pickupTime =
+        '${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}';
     if (token != null && companyCode != null) {
       context.read<PickupcustdetailsBloc>().add(
         FetchAddNewPickupEvent(
           token: token,
           companyCode: companyCode,
           pickupassgnId: widget.pickupAssignId.toString(),
-          pickupTime: TimeOfDay.now().format(context),
+          pickupTime: pickupTime,
           quantity: totalquantity ?? 0,
           subTotal: subtotal,
           discount: totalDiscount,
@@ -159,6 +162,10 @@ class _PickupdetailsState extends State<Pickupdetails> {
     final now = TimeOfDay.now();
     final formattedTime =
         '${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}';
+    print("totalamt : $totalamt");
+    print("subtotal : $subtotal");
+    print("vatAmount : $vatAmount");    
+    print("totalDiscount : $totalDiscount");
     if (token != null && companyCode != null) {
       context.read<PickupcustdetailsBloc>().add(
         FetchAddPickupOrderEvent(
@@ -1274,6 +1281,9 @@ class _PickupdetailsState extends State<Pickupdetails> {
                                     vatAmount =
                                         subtotal *
                                         ((settingsData.vatAmount ?? 0) / 100);
+                                    if (settingsData.totalwithvat == true) {
+                                      subtotal = subtotal - vatAmount;
+                                    }
                                   }
 
                                   final companyCode = await storage.read(

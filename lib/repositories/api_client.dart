@@ -1,12 +1,15 @@
 import 'dart:convert';
 import 'dart:developer';
 
+import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart';
+import 'package:syswash/main.dart';
 import 'package:syswash/repositories/api_exception.dart';
+import 'package:syswash/screens/login.dart';
 
 
-
+bool _isLoggingOut = false;
 
 class ApiClient {
   Future<bool> _refreshToken() async {
@@ -108,7 +111,19 @@ class ApiClient {
     try {
       final errorBody = jsonDecode(response.body);
 
-      // USER NOT FOUND
+      /// USER LOGGED IN ELSEWHERE
+      if (errorBody["code"] == "session_superseded") {
+        await _forceLogout(
+          errorBody["error"] ?? "Session expired",
+        );
+
+        throw ApiException(
+          errorBody["error"] ?? "Session expired",
+          401,
+        );
+      }
+
+      /// USER NOT FOUND
       if (errorBody["code"] == "user_not_found") {
         await TokenStorage.clear();
 
@@ -118,7 +133,7 @@ class ApiClient {
         );
       }
 
-      // TOKEN EXPIRED
+      /// TOKEN EXPIRED
       final refreshed = await _refreshToken();
 
       if (refreshed) {
@@ -126,10 +141,10 @@ class ApiClient {
       }
 
       await TokenStorage.clear();
-      throw ApiException('Session expired', 401);
-    } catch (_) {
+      throw ApiException("Session expired", 401);
+    } catch (e) {
       await TokenStorage.clear();
-      throw ApiException('Session expired', 401);
+      throw ApiException("Session expired", 401);
     }
   }
   // if (response.statusCode >= 400) {
@@ -204,4 +219,55 @@ class TokenStorage {
     await _storage.delete(key: 'user_Type');
   }
   
+}
+Future<void> _logoutFromServer() async {
+  try {
+    final storage = const FlutterSecureStorage();
+
+    final id = await storage.read(key: 'login_id');
+    final companyCode = await storage.read(key: 'company_Code');
+    final userType = await storage.read(key: 'user_Type');
+    final accessToken = await storage.read(key: 'access_Token');
+
+    if (id == null || companyCode == null) return;
+
+    String url;
+
+    if (userType == "Admin") {
+      url =
+          "https://be.syswash.net/api/syswash/userlogout/$id?code=$companyCode";
+    } else {
+      url =
+          "https://be.syswash.net/api/syswash/Driverlogout/$id?code=$companyCode";
+    }
+
+    await put(
+      Uri.parse(url),
+      headers: {
+        "Authorization": "Bearer $accessToken",
+        "Content-Type": "application/json",
+      },
+      body: jsonEncode({}),
+    );
+  } catch (e) {
+    log("Logout API failed: $e");
+  }
+}
+Future<void> _forceLogout(String message) async {
+   if (_isLoggingOut) return;
+  _isLoggingOut = true;
+  try {
+    await _logoutFromServer();
+  } catch (e) {
+    log("Logout API Error: $e");
+  }
+
+  await TokenStorage.clear();
+
+  navigatorKey.currentState?.pushAndRemoveUntil(
+    MaterialPageRoute(
+      builder: (_) => const Login(),
+    ),
+    (route) => false,
+  );
 }
