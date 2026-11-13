@@ -221,7 +221,7 @@ class _AdminhomeState extends State<Adminhome> {
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
                                 Container(
-                                  width: 150.w,
+                                  width: 180.w,
                                   // height: 30.h,
                                   child: DropdownButtonFormField<String>(
                                     value: selectedBranch,
@@ -266,6 +266,7 @@ class _AdminhomeState extends State<Adminhome> {
                                             value: b.branchCode,
                                             child: Text(
                                               b.branchName ?? '',
+                                              maxLines: 1,
                                               style: TextStyle(
                                                 fontSize: 14.sp,
                                                 height: 1.0,

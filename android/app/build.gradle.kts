@@ -18,8 +18,9 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    namespace = "com.pupa.syswash"
-    compileSdk = flutter.compileSdkVersion
+    namespace = "com.sys.wash"
+    // namespace = "com.pupa.syswash"
+    compileSdk = 36
     ndkVersion = "27.0.12077973"
 
     compileOptions {
@@ -34,14 +35,22 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.pupa.syswash"
+        applicationId = "com.sys.wash"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = 23
-        targetSdk = flutter.targetSdkVersion
+        targetSdk = 36
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+
+        // Pass 16 KB page size alignment flags to native linker if C/C++ builds are triggered
+        externalNativeBuild {
+            cmake {
+                arguments("-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON")
+            }
+        }
     }
+
     signingConfigs {
         create("release") {
             keyAlias = keystoreProperties["keyAlias"]?.toString()
@@ -50,6 +59,7 @@ android {
             storePassword = keystoreProperties["storePassword"]?.toString()
         }
     }
+
     buildTypes {
         release {
             // TODO: Add your own signing config for the release build.
@@ -58,9 +68,11 @@ android {
                         signingConfigs.getByName("release")
                         else
                         signingConfigs.getByName("debug")
-            // shrinkResources false
-            // minifyEnabled false
-            // signingConfig signingConfigs.debug
+
+            // Generates native debug symbol tables for Play Console crash reporting
+            ndk {
+                debugSymbolLevel = "SYMBOL_TABLE"
+            }
         }
     }
 }
@@ -68,7 +80,8 @@ android {
 flutter {
     source = "../.."
 }
+
 dependencies {
-    //  Required for flutter_local_notifications
+    // Required for flutter_local_notifications
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.3")
 }

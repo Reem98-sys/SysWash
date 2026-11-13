@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:overlay_support/overlay_support.dart';
+import 'package:syswash/bloc/bloc/addcustomer_bloc.dart';
 import 'package:syswash/bloc/bloc/adminbranch_bloc.dart';
 import 'package:syswash/bloc/bloc/adminclosereport_bloc.dart';
 import 'package:syswash/bloc/bloc/admingraph_bloc.dart';
@@ -13,6 +14,7 @@ import 'package:syswash/bloc/bloc/adminhome_bloc.dart';
 import 'package:syswash/bloc/bloc/adminprofile_bloc.dart';
 
 import 'package:syswash/bloc/bloc/clothdetails_bloc.dart';
+import 'package:syswash/bloc/bloc/collectionreport_bloc.dart';
 import 'package:syswash/bloc/bloc/customerlist_bloc.dart';
 import 'package:syswash/bloc/bloc/deliverystatus_bloc.dart';
 import 'package:syswash/bloc/bloc/devicetoken_bloc.dart';
@@ -104,6 +106,8 @@ void main() async {
           BlocProvider(create: (context) => QrputdataBloc()),
           BlocProvider(create: (context) => LogoutBloc()),
           BlocProvider(create: (context) => ResheduleorderBloc()),
+          BlocProvider(create: (context) => AddcustomerBloc()),
+          BlocProvider(create: (context) => CollectionreportBloc()),
         ],
         child: const MyApp(),
       ),
@@ -178,7 +182,9 @@ class _MyAppState extends State<MyApp> {
       final body = message.notification?.body ?? "";
 
       print("📩 Foreground message: $title");
-
+      print("📩 Foreground body: $body");
+      // Data payload
+      print("📩 Data: ${message.data}");
       // ---------------------------------------------------------
       // ALSO SHOW SYSTEM NOTIFICATION (OPTIONAL)
       // ---------------------------------------------------------

@@ -1,4 +1,4 @@
-package com.pupa.syswash
+package com.sys.wash
 
 import io.flutter.embedding.android.FlutterActivity
 

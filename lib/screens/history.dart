@@ -5,6 +5,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:syswash/bloc/bloc/adminhome_bloc.dart';
 import 'package:syswash/screens/bottomnav.dart';
+import 'package:syswash/screens/driverReport.dart';
 import 'package:syswash/screens/historyDetail.dart';
 import 'package:syswash/screens/notificationList.dart';
 
@@ -46,7 +47,7 @@ class _HistoryState extends State<History> with SingleTickerProviderStateMixin {
     super.initState();
     // Call it when screen loads
     getUserData();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
   }
 
   @override
@@ -108,30 +109,70 @@ class _HistoryState extends State<History> with SingleTickerProviderStateMixin {
                     horizontal: 20.0,
                     vertical: 8.0,
                   ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  child: Column(
                     children: [
-                      Text(
-                        'History',
-                        style: TextStyle(
-                          color: const Color(0xFF63629C),
-                          fontSize: 16.sp,
-                          fontFamily: 'Poppins',
-                          fontWeight: FontWeight.w600,
-                        ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.pushReplacement(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder:
+                                            (context) =>
+                                                DriverReportPage(),
+                                      ),
+                                    );
+                            },
+                            child: Container(
+                                        padding: EdgeInsets.symmetric(
+                                          horizontal: 12.w,
+                                          vertical: 7.h,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFFEDE2F3),
+                                          borderRadius: BorderRadius.circular(8.r),
+                                        ),
+                                        child: Text(
+                                          'Collection Report',
+                                          style: TextStyle(
+                                            color: Color(0xFF68188B),
+                                            fontSize: 11.sp,
+                                            fontFamily: 'Poppins',
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ),
+                          ),
+                        ],
                       ),
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder:
-                                        (context) =>
-                                            const Bottomnav(currentIndex: 2),
-                                  ),
-                                );
-                        },
-                        child: SvgPicture.asset('assets/Back.svg'),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'History',
+                            style: TextStyle(
+                              color: const Color(0xFF63629C),
+                              fontSize: 16.sp,
+                              fontFamily: 'Poppins',
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.pushReplacement(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder:
+                                            (context) =>
+                                                const Bottomnav(currentIndex: 2),
+                                      ),
+                                    );
+                            },
+                            child: SvgPicture.asset('assets/Back.svg'),
+                          ),
+                        ],
                       ),
                     ],
                   ),
@@ -150,7 +191,7 @@ class _HistoryState extends State<History> with SingleTickerProviderStateMixin {
                     fontWeight: FontWeight.w600,
                     fontFamily: 'Poppins',
                   ),
-                  tabs:  [Tab(text: "Pickup"), Tab(text: "Delivery")],
+                  tabs:  [Tab(text: "Pickup"), Tab(text: "Delivery"), Tab(text: "Self Assigned")],
                 ),
               ],
             ),
@@ -163,6 +204,7 @@ class _HistoryState extends State<History> with SingleTickerProviderStateMixin {
         children: const [
           Center(child: Historydetail(historyType: 'pickup',)),
           Center(child: Historydetail(historyType: 'delivery',)),
+          Center(child: Historydetail(historyType: 'mobapp',)),
         ],
       ),
     );

@@ -15,6 +15,10 @@ class SalesReportLoaded extends ReportState {
   final List<AccountType> accountType;
   SalesReportLoaded({required this.salesReport,required this.accountType});
 }
+class AdminAccountTypeLoaded extends ReportState {
+  final List<AccountType> accountType;
+  AdminAccountTypeLoaded({required this.accountType});
+}
 class CashLedgerReportLoaded extends ReportState {
   final List<CashLedger> cashLedger;
   CashLedgerReportLoaded({required this.cashLedger});

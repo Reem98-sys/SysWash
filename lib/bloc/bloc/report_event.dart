@@ -29,6 +29,12 @@ class FetchCashLedgerEvent extends ReportEvent {
   FetchCashLedgerEvent({required this.token,required this.companyCode,required this.startDate,required this.endDate});
 }
 
+class FetchAdminAccountTypeEvent extends ReportEvent {
+  final String token;
+  final String companyCode;
+  FetchAdminAccountTypeEvent({required this.token,required this.companyCode});
+}
+
 class FetchExpenseReportEvent extends ReportEvent {
   final String token;
   final String companyCode;

@@ -8,6 +8,7 @@ import 'package:syswash/model/totalOrder.dart';
 import 'package:syswash/screens/deliveryDetail.dart';
 import 'package:syswash/screens/historyPickupDetail.dart';
 import 'package:syswash/screens/historyViewDetails.dart';
+import 'package:syswash/screens/historyselfassign.dart';
 import 'package:syswash/screens/pickupDetails.dart';
 
 class Historydetail extends StatefulWidget {
@@ -27,6 +28,9 @@ class _HistorydetailState extends State<Historydetail> {
   String? userId;
   List<dynamic> filteredList = [];
   List<dynamic> fullList = [];
+  bool get isPickupHistory =>
+    widget.historyType == 'pickup' ||
+    widget.historyType == 'mobapp';
   Future<void> getUserData() async {
     const storage = FlutterSecureStorage();
     final name = await storage.read(key: 'user_name');
@@ -52,28 +56,27 @@ class _HistorydetailState extends State<Historydetail> {
   }
 
   void _filterSearchResults(String query) {
-    if (query.isEmpty) {
-      setState(() {
-        filteredList = fullList;
-      });
-      return;
-    }
-
     setState(() {
-      filteredList =
-          fullList.where((item) {
-            final name = widget.historyType == 'pickup'
+      if (query.isEmpty) {
+        filteredList = List.from(fullList);
+        return;
+      }
+
+      filteredList = fullList.where((item) {
+        final name = isPickupHistory
             ? (item['pickupCustomerName']?.toString().toLowerCase() ?? '')
             : (item['customerName']?.toString().toLowerCase() ?? '');
-        
-        final area = widget.historyType == 'pickup'
+
+        final area = isPickupHistory
             ? (item['pickupCustomerArea']?.toString().toLowerCase() ?? '')
             : (item['customerAddress']?.toString().toLowerCase() ?? '');
+
         return name.contains(query.toLowerCase()) ||
             area.contains(query.toLowerCase());
-          }).toList();
+      }).toList();
     });
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -126,6 +129,13 @@ class _HistorydetailState extends State<Historydetail> {
                                   ).totalOrderModel;
                     if (widget.historyType == 'pickup') {
                       fullList = totalOrderModel.pickup!.reversed.toList();
+                    }
+                    else if (widget.historyType == 'mobapp') {
+                      fullList = totalOrderModel.pickup!
+                        .where((item) => item['AssignedFrom']?.toLowerCase() == 'mobapp')
+                        .toList()
+                        .reversed
+                        .toList();
                     } else {
                       fullList = totalOrderModel.delivery!.reversed.toList();
                     }              
@@ -155,7 +165,7 @@ class _HistorydetailState extends State<Historydetail> {
                           } else {
                             status = 'Unknown';
                           }
-                        if (widget.historyType == 'pickup') {
+                        if (isPickupHistory) {
                           status = filteredList[index]['pickupstatus'].toString();
                           if (status == 'Collected') {
                             statusColor = Color(0xFFF38305);
@@ -182,6 +192,19 @@ class _HistorydetailState extends State<Historydetail> {
                           child:  GestureDetector(
                             onTap: () async {
                               if (widget.historyType == 'pickup') {
+                                final result = await Navigator.push(context, MaterialPageRoute(builder: (context) => Historypickupdetail(customerId: filteredList[index]['pickupCustomerId'], pickupOrderId: filteredList[index]['pickupOrderId'] ?? filteredList[index]['pickupassgn'][0]['pickuporderId'].toString() , pickupAssignId: filteredList[index]['pickupassgnId'], notes: filteredList[index]['notes'] ?? '', remarks: filteredList[index]['remarks'] ?? '', status: status, statusColor: statusColor,
+                                AssignedFrom :filteredList[index]['AssignedFrom'] ?? '')));
+                                if (result == true) {
+                                  context.read<HomeBloc>().add(
+                                    FetchHomeEvent(
+                                      userId: userId!,
+                                      companyCode: companyCode!,
+                                      token: token!,
+                                    ),
+                                  );
+                                }
+                              }
+                              else if (widget.historyType == 'mobapp') {
                                 final result = await Navigator.push(context, MaterialPageRoute(builder: (context) => Historypickupdetail(customerId: filteredList[index]['pickupCustomerId'], pickupOrderId: filteredList[index]['pickupOrderId'] ?? filteredList[index]['pickupassgn'][0]['pickuporderId'].toString() , pickupAssignId: filteredList[index]['pickupassgnId'], notes: filteredList[index]['notes'] ?? '', remarks: filteredList[index]['remarks'] ?? '', status: status, statusColor: statusColor,
                                 AssignedFrom :filteredList[index]['AssignedFrom'] ?? '')));
                                 if (result == true) {
@@ -227,7 +250,7 @@ class _HistorydetailState extends State<Historydetail> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      widget.historyType == 'pickup'?filteredList[index]['pickupCustomerName']
+                                      isPickupHistory?filteredList[index]['pickupCustomerName']
                                           .toString():filteredList[index]['customerName']
                                           .toString(),
                                       style: TextStyle(
@@ -255,7 +278,7 @@ class _HistorydetailState extends State<Historydetail> {
                                           color: Colors.grey,
                                         ),
                                         Text(
-                                          widget.historyType == 'pickup'?filteredList[index]
+                                          isPickupHistory?filteredList[index]
                                               ['pickupCustomerArea']
                                               .toString():filteredList[index]['customerAddress']
                                           .toString(),
@@ -275,7 +298,7 @@ class _HistorydetailState extends State<Historydetail> {
                                           color: Colors.grey,
                                         ),
                                         Text(
-                                          widget.historyType == 'pickup'? '${formatDate(filteredList[index]['pickupDate'])} ''${filteredList[index]['pickuptime'] ?? ''}'
+                                          isPickupHistory? '${formatDate(filteredList[index]['pickupDate'])} ''${filteredList[index]['pickuptime'] ?? ''}'
                                               : formatDateTime(delivereddate)
                                           .toString(),
                                           style: TextStyle(

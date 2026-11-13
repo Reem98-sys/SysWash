@@ -202,7 +202,7 @@ class _HistorypickupdetailState extends State<Historypickupdetail> {
                                       ),
                                     ),
                                     Text(
-                                      customerDetailsModel.discount.toString(),
+                                      '${customerDetailsModel.discount}%',
                                       style: TextStyle(
                                         color: const Color(0xFF68188B),
                                         fontSize: 12.sp,

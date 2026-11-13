@@ -166,5 +166,16 @@ class ReportBloc extends Bloc<ReportEvent, ReportState> {
         emit(ReportError());
       }
     });
+
+    on<FetchAdminAccountTypeEvent>((event, emit) async {
+      emit(ReportLoading());
+      try {
+        accountType = await sysRepository.adminaccounttype(event.token, event.companyCode);
+        emit(AdminAccountTypeLoaded(accountType: accountType));
+      } catch (e) {
+        print(e);
+        emit(ReportError());
+      }
+    });
   }
 }

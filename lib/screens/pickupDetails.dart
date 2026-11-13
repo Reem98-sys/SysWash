@@ -331,8 +331,16 @@ class _PickupdetailsState extends State<Pickupdetails> {
                 }
                 if (state is PickupCustDetailsLoaded) {
                   //  Update local list when new data arrives
-                  _orderItemsList =
-                      state.pickupOrderItemsModel.clothData?.map((cloth) {
+                  final clothData = state.pickupOrderItemsModel.clothData ?? [];
+
+                  _orderItemsList = clothData
+                      .where((cloth) {
+                        return cloth.clothName != null &&
+                            cloth.clothName.toString().trim().isNotEmpty &&
+                            cloth.clothName.toString().toLowerCase() != 'null' &&
+                            cloth.priceId != null;
+                      })
+                      .map((cloth) {
                         return {
                           "arabicName": cloth.arabicName,
                           "billing": cloth.billing,
@@ -344,8 +352,8 @@ class _PickupdetailsState extends State<Pickupdetails> {
                           "service": cloth.service,
                           "unit": cloth.unit,
                         };
-                      }).toList() ??
-                      [];
+                      })
+                      .toList();
 
                   _recalculateTotals();
                 }
@@ -503,8 +511,7 @@ class _PickupdetailsState extends State<Pickupdetails> {
                                         ),
                                       ),
                                       Text(
-                                        customerDetailsModel.discount
-                                            .toString(),
+                                        '${customerDetailsModel.discount}%',
                                         style: TextStyle(
                                           color: const Color(0xFF68188B),
                                           fontSize: 12.sp,
@@ -725,288 +732,7 @@ class _PickupdetailsState extends State<Pickupdetails> {
                             ),
                           ),
                         ),
-                        // secondChild: Container(
-                        //   width: 384.w,
-                        //   decoration: ShapeDecoration(
-                        //     color: Colors.white,
-                        //     shape: RoundedRectangleBorder(
-                        //       borderRadius: BorderRadius.circular(10.r),
-                        //     ),
-                        //   ),
-                        //   child: Padding(
-                        //     padding: const EdgeInsets.all(15.0),
-                        //     child: Row(
-                        //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        //       children: [
-                        //         Column(
-                        //           crossAxisAlignment: CrossAxisAlignment.start,
-                        //           children: [
-                        //             Text(
-                        //               'Area',
-                        //               style: TextStyle(
-                        //                 color: const Color(0xFFA9A5B8),
-                        //                 fontSize: 14.sp,
-                        //                 fontFamily: 'DM Sans',
-                        //                 fontWeight: FontWeight.w500,
-                        //                 height: 1.17,
-                        //               ),
-                        //             ),
-                        //             Text(
-                        //               customerDetailsModel.area.toString(),
-                        //               style: TextStyle(
-                        //                 color: Colors.black,
-                        //                 fontSize: 12.sp,
-                        //                 fontFamily: 'DM Sans',
-                        //                 fontWeight: FontWeight.w500,
-                        //                 height: 1.17,
-                        //               ),
-                        //             ),
-                        //             SizedBox(height: 17.h),
-                        //             Text(
-                        //               'Villa No',
-                        //               style: TextStyle(
-                        //                 color: const Color(0xFFA9A5B8),
-                        //                 fontSize: 14.sp,
-                        //                 fontFamily: 'DM Sans',
-                        //                 fontWeight: FontWeight.w500,
-                        //                 height: 1.17,
-                        //               ),
-                        //             ),
-                        //             Text(
-                        //               customerDetailsModel.villaNumber.toString(),
-                        //               style: TextStyle(
-                        //                 color: Colors.black,
-                        //                 fontSize: 12.sp,
-                        //                 fontFamily: 'DM Sans',
-                        //                 fontWeight: FontWeight.w500,
-                        //                 height: 1.17,
-                        //               ),
-                        //             ),
-                        //             SizedBox(height: 17.h),
-                        //             Text(
-                        //               'Fragrance',
-                        //               style: TextStyle(
-                        //                 color: const Color(0xFFA9A5B8),
-                        //                 fontSize: 14.sp,
-                        //                 fontFamily: 'DM Sans',
-                        //                 fontWeight: FontWeight.w500,
-                        //                 height: 1.17,
-                        //               ),
-                        //             ),
-                        //             Text(
-                        //               customerDetailsModel.fragrance.toString(),
-                        //               style: TextStyle(
-                        //                 color: Colors.black,
-                        //                 fontSize: 12.sp,
-                        //                 fontFamily: 'DM Sans',
-                        //                 fontWeight: FontWeight.w500,
-                        //                 height: 1.17,
-                        //               ),
-                        //             ),
-                        //             SizedBox(height: 17.h),
-                        //             Text(
-                        //               'Remark',
-                        //               style: TextStyle(
-                        //                 color: const Color(0xFFA9A5B8),
-                        //                 fontSize: 14.sp,
-                        //                 fontFamily: 'DM Sans',
-                        //                 fontWeight: FontWeight.w500,
-                        //                 height: 1.17,
-                        //               ),
-                        //             ),
-                        //             Text(
-                        //               widget.remarks,
-                        //               style: TextStyle(
-                        //                 color: Colors.black,
-                        //                 fontSize: 12.sp,
-                        //                 fontFamily: 'DM Sans',
-                        //                 fontWeight: FontWeight.w500,
-                        //                 height: 1.17,
-                        //               ),
-                        //             ),
-                        //           ],
-                        //         ),
-                        //         Column(
-                        //           crossAxisAlignment: CrossAxisAlignment.start,
-                        //           children: [
-                        //             Text(
-                        //               'Zone',
-                        //               style: TextStyle(
-                        //                 color: const Color(0xFFA9A5B8),
-                        //                 fontSize: 14.sp,
-                        //                 fontFamily: 'DM Sans',
-                        //                 fontWeight: FontWeight.w500,
-                        //                 height: 1.17,
-                        //               ),
-                        //             ),
-                        //             Text(
-                        //               customerDetailsModel.zone.toString(),
-                        //               style: TextStyle(
-                        //                 color: Colors.black,
-                        //                 fontSize: 12.sp,
-                        //                 fontFamily: 'DM Sans',
-                        //                 fontWeight: FontWeight.w500,
-                        //                 height: 1.17,
-                        //               ),
-                        //             ),
-                        //             SizedBox(height: 17.h),
-                        //             Text(
-                        //               'Hotel',
-                        //               style: TextStyle(
-                        //                 color: const Color(0xFFA9A5B8),
-                        //                 fontSize: 14.sp,
-                        //                 fontFamily: 'DM Sans',
-                        //                 fontWeight: FontWeight.w500,
-                        //                 height: 1.17,
-                        //               ),
-                        //             ),
-                        //             Text(
-                        //               customerDetailsModel.hotel.toString(),
-                        //               style: TextStyle(
-                        //                 color: Colors.black,
-                        //                 fontSize: 12.sp,
-                        //                 fontFamily: 'DM Sans',
-                        //                 fontWeight: FontWeight.w500,
-                        //                 height: 1.17,
-                        //               ),
-                        //             ),
-                        //             SizedBox(height: 17.h),
-                        //             Text(
-                        //               'Reference No',
-                        //               style: TextStyle(
-                        //                 color: const Color(0xFFA9A5B8),
-                        //                 fontSize: 14.sp,
-                        //                 fontFamily: 'DM Sans',
-                        //                 fontWeight: FontWeight.w500,
-                        //                 height: 1.17,
-                        //               ),
-                        //             ),
-                        //             Text(
-                        //               customerDetailsModel.refNo.toString(),
-                        //               style: TextStyle(
-                        //                 color: Colors.black,
-                        //                 fontSize: 12.sp,
-                        //                 fontFamily: 'DM Sans',
-                        //                 fontWeight: FontWeight.w500,
-                        //                 height: 1.17,
-                        //               ),
-                        //             ),
-                        //             SizedBox(height: 17.h),
-                        //             Text(
-                        //               'Order No',
-                        //               style: TextStyle(
-                        //                 color: const Color(0xFFA9A5B8),
-                        //                 fontSize: 14.sp,
-                        //                 fontFamily: 'DM Sans',
-                        //                 fontWeight: FontWeight.w500,
-                        //                 height: 1.17,
-                        //               ),
-                        //             ),
-                        //             Text(
-                        //               widget.pickupOrderId != null &&
-                        //               widget.pickupOrderId != 'null' ? widget.pickupOrderId : '',
-                        //               style: TextStyle(
-                        //                 color: Colors.black,
-                        //                 fontSize: 12.sp,
-                        //                 fontFamily: 'DM Sans',
-                        //                 fontWeight: FontWeight.w500,
-                        //                 height: 1.17,
-                        //               ),
-                        //             ),
-                        //           ],
-                        //         ),
-                        //         Column(
-                        //           crossAxisAlignment: CrossAxisAlignment.start,
-                        //           children: [
-                        //             Text(
-                        //               'Street No',
-                        //               style: TextStyle(
-                        //                 color: const Color(0xFFA9A5B8),
-                        //                 fontSize: 14.sp,
-                        //                 fontFamily: 'DM Sans',
-                        //                 fontWeight: FontWeight.w500,
-                        //                 height: 1.17,
-                        //               ),
-                        //             ),
-                        //             Text(
-                        //               customerDetailsModel.streetNo.toString(),
-                        //               style: TextStyle(
-                        //                 color: Colors.black,
-                        //                 fontSize: 12.sp,
-                        //                 fontFamily: 'DM Sans',
-                        //                 fontWeight: FontWeight.w500,
-                        //                 height: 1.17,
-                        //               ),
-                        //             ),
-                        //             SizedBox(height: 17.h),
-                        //             Text(
-                        //               'Room No',
-                        //               style: TextStyle(
-                        //                 color: const Color(0xFFA9A5B8),
-                        //                 fontSize: 14.sp,
-                        //                 fontFamily: 'DM Sans',
-                        //                 fontWeight: FontWeight.w500,
-                        //                 height: 1.17,
-                        //               ),
-                        //             ),
-                        //             Text(
-                        //               customerDetailsModel.roomNo.toString(),
-                        //               style: TextStyle(
-                        //                 color: Colors.black,
-                        //                 fontSize: 12.sp,
-                        //                 fontFamily: 'DM Sans',
-                        //                 fontWeight: FontWeight.w500,
-                        //                 height: 1.17,
-                        //               ),
-                        //             ),
-                        //             SizedBox(height: 17.h),
-                        //             Text(
-                        //               'Note',
-                        //               style: TextStyle(
-                        //                 color: const Color(0xFFA9A5B8),
-                        //                 fontSize: 14.sp,
-                        //                 fontFamily: 'DM Sans',
-                        //                 fontWeight: FontWeight.w500,
-                        //                 height: 1.17,
-                        //               ),
-                        //             ),
-                        //             Text(
-                        //               widget.notes,
-                        //               style: TextStyle(
-                        //                 color: Colors.black,
-                        //                 fontSize: 12.sp,
-                        //                 fontFamily: 'DM Sans',
-                        //                 fontWeight: FontWeight.w500,
-                        //                 height: 1.17,
-                        //               ),
-                        //             ),
-                        //             SizedBox(height: 17.h),
-                        //             Text(
-                        //               'Pickup Id',
-                        //               style: TextStyle(
-                        //                 color: const Color(0xFFA9A5B8),
-                        //                 fontSize: 14.sp,
-                        //                 fontFamily: 'DM Sans',
-                        //                 fontWeight: FontWeight.w500,
-                        //                 height: 1.17,
-                        //               ),
-                        //             ),
-                        //             Text(
-                        //               widget.pickupAssignId.toString(),
-                        //               style: TextStyle(
-                        //                 color: Colors.black,
-                        //                 fontSize: 12.sp,
-                        //                 fontFamily: 'DM Sans',
-                        //                 fontWeight: FontWeight.w500,
-                        //                 height: 1.17,
-                        //               ),
-                        //             ),
-                        //           ],
-                        //         ),
-                        //       ],
-                        //     ),
-                        //   ),
-                        // ),
+                        
                         crossFadeState:
                             showDetails
                                 ? CrossFadeState.showSecond
@@ -1091,8 +817,8 @@ class _PickupdetailsState extends State<Pickupdetails> {
                                         Image.network(
                                           _orderItemsList[index]['clothImg']
                                               .toString(),
-                                          width: 46.w,
-                                          height: 44.h,
+                                          width: 56.w,
+                                          height: 54.h,
                                           fit: BoxFit.cover,
                                           loadingBuilder: (
                                             context,
@@ -1136,6 +862,17 @@ class _PickupdetailsState extends State<Pickupdetails> {
                                             ),
                                             Text(
                                               '${_orderItemsList[index]['qnty']} QTY',
+                                              style: TextStyle(
+                                                color: Colors.black,
+                                                fontSize: 14.sp,
+                                                fontFamily: 'DM Sans',
+                                                fontWeight: FontWeight.w700,
+                                              ),
+                                            ),
+                                            Text(
+                                              'Price : ${(
+                                                double.tryParse(_orderItemsList[index]['clothPrice'].toString()) ?? 0.0
+                                              ).toStringAsFixed(2)}',
                                               style: TextStyle(
                                                 color: Colors.black,
                                                 fontSize: 14.sp,

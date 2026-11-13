@@ -23,6 +23,7 @@ class _BottomnavState extends State<Bottomnav> {
   String? token;
   String? companyCode;
   String? userId;
+  bool _isNavigating = false;
 
   final List<Widget> _screens = [
     const Home(),
@@ -32,6 +33,37 @@ class _BottomnavState extends State<Bottomnav> {
     const Profile(),
   ];
 
+  void _onTabTap(int index) {
+    if (_isNavigating || _selectedScreen == index) return;
+
+    setState(() {
+      _isNavigating = true;
+      _selectedScreen = index;
+    });
+
+    if (index == 3 &&
+        token != null &&
+        companyCode != null &&
+        userId != null) {
+      context.read<HomeBloc>().add(
+        FetchHomeEvent(
+          userId: userId!,
+          companyCode: companyCode!,
+          token: token!,
+        ),
+      );
+    }
+
+    // Allow the selected page to render before removing
+    // the navigation indicator.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+
+      setState(() {
+        _isNavigating = false;
+      });
+    });
+  }
   Future<void> getUserData() async {
   const storage = FlutterSecureStorage();
 
@@ -90,21 +122,22 @@ class _BottomnavState extends State<Bottomnav> {
                 final bool isSelected = index == _selectedScreen;
         
                 return GestureDetector(
-                  onTap: () {
-                    setState(() => _selectedScreen = index);
-                    if (index == 3 && // History tab
-                        token != null &&
-                        companyCode != null &&
-                        userId != null) {
-                      context.read<HomeBloc>().add(
-                        FetchHomeEvent(
-                          userId: userId!,
-                          companyCode: companyCode!,
-                          token: token!,
-                        ),
-                      );
-                    }
-                  },
+                  // onTap: () {
+                  //   setState(() => _selectedScreen = index);
+                  //   if (index == 3 && // History tab
+                  //       token != null &&
+                  //       companyCode != null &&
+                  //       userId != null) {
+                  //     context.read<HomeBloc>().add(
+                  //       FetchHomeEvent(
+                  //         userId: userId!,
+                  //         companyCode: companyCode!,
+                  //         token: token!,
+                  //       ),
+                  //     );
+                  //   }
+                  // },
+                  onTap: () => _onTabTap(index),
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 250),
                     padding: EdgeInsets.symmetric(
@@ -119,7 +152,16 @@ class _BottomnavState extends State<Bottomnav> {
                     ),
                     child: Row(
                       children: [
-                        
+                        if (_isNavigating && isSelected)
+                          SizedBox(
+                            height: 20.h,
+                            width: 20.w,
+                            child: const CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Color(0xFF68188B),
+                            ),
+                          )
+                        else
                         SvgPicture.asset(
                           item['icon'],
                           height: 20.h,

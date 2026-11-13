@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
 import 'package:syswash/model/accounttype.dart';
 import 'package:syswash/model/adminBranch.dart';
 import 'package:syswash/model/adminProfle.dart';
@@ -8,6 +9,7 @@ import 'package:syswash/model/adminedithistory.dart';
 import 'package:syswash/model/cashLedger.dart';
 import 'package:syswash/model/closingReport.dart';
 import 'package:syswash/model/clothDetailsModel.dart';
+import 'package:syswash/model/collectionReportModel.dart';
 import 'package:syswash/model/companydetailsModel.dart';
 import 'package:syswash/model/customerDetailsModel.dart';
 import 'package:syswash/model/customerListModel.dart';
@@ -287,6 +289,51 @@ class SysRepository {
     return ClothDetailsModel.fromJson(jsonDecode(response.body));
   }
 
+  Future<List<CollectionReportModel>> collectionreportapi(
+    String userId,
+    String token,
+    String companyCode,
+    String startDate,
+    String endDate,
+  ) async {
+    String url =
+        "https://be.syswash.net/api/syswash/driverReport/$userId?startDate=$startDate&endDate=$endDate&code=$companyCode";
+
+    Response response = await apiClient.invokeAPI(
+      url,
+      "GET",
+      jsonEncode({}),
+      token: token,
+    );
+
+    if (response.statusCode == 200) {
+      final decodedData = jsonDecode(response.body);
+
+      if (decodedData is List) {
+        debugPrint('API TOTAL RECORDS: ${decodedData.length}');
+
+        final result = decodedData
+            .map((item) => CollectionReportModel.fromJson(
+                  item as Map<String, dynamic>,
+                ))
+            .toList();
+
+        debugPrint('PARSED TOTAL RECORDS: ${result.length}');
+
+        if (result.isNotEmpty) {
+          debugPrint('FIRST ORDER: ${result.first.orderId}');
+          debugPrint('LAST ORDER: ${result.last.orderId}');
+        }
+
+        return result;
+      }
+
+      throw Exception('Invalid collection report response format');
+    }
+
+    throw Exception('Failed to load collection report');
+  }
+
   Future<CustomerDetailsModel> pickupcustomerdetails(
     String customerId,
     String token,
@@ -488,6 +535,8 @@ class SysRepository {
       "pickuptime": pickuptime,
       "pickupDriverid": pickupDriverid,
       "pickupDrivername": pickupDrivername,
+      "pickupstatus": "Assigned",
+      "AssignedFrom": "mobapp",
       "remarks": remarks != '' ? remarks : null,
     };
     Response response = await apiClient.invokeAPI(
@@ -502,6 +551,49 @@ class SysRepository {
       return false;
     }
   }
+
+  Future<Map<String, dynamic>> addCustomer(
+  String token,
+  String username,
+  String companyCode,
+  Map<String, dynamic> customerData,
+) async {
+  final url = 
+    'https://be.syswash.net/api/syswash/customerdetails?code=$companyCode';
+
+  final body = {
+    ...customerData,
+    'userName': username,
+    'wallet': 0,
+    'fragrance': '',
+    'order_limit': 50,
+    'auto_generated': true,
+    'cusCode': '',
+  };
+
+  Response response = await apiClient.invokeAPI(
+      url,
+      "POST",
+      jsonEncode(body),
+      token: token,
+    );
+
+  if (response.statusCode == 200 || response.statusCode == 201) {
+    final decoded = jsonDecode(response.body);
+
+    final Map<String, dynamic> data =
+        decoded is Map && decoded['data'] is Map
+            ? Map<String, dynamic>.from(decoded['data'])
+            : Map<String, dynamic>.from(decoded);
+
+    return {
+      'success': true,
+      ...data,
+    };
+  }
+
+  throw Exception(response.body);
+}
 
   Future<ProfileModel> profileDetail(
     String userId,
